@@ -13,7 +13,7 @@
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260831 BY: Copilot (Fix: invalid $CFG-INFO variable name / function-call-before-definition order / v0.5.1)
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  0.5.1
+# VERSION:  0.5.3 - Added Show-PendingChanges helper for structured pending changes view.
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
 #               ~ FEE: $20 = for individual commercial DEV use (requires separate licensing & registration).
@@ -58,6 +58,27 @@
 #     260831 - 0.5.1 - Fixed $CFG-INFO invalid variable name (renamed to $cfgInfo) causing a
 #                script-wide ParseException, and moved the INIT log call to after the
 #                log function definition to fix call-before-definition order.
+#     260901 - 0.5.2 - Fixed three bugs:
+#                * (BUG)    $root shell-tokenizer quirk: -root='path' passes literal
+#                           '-root=C:\path' string; added sanitization + guard + user warning.
+#                * (BUG)    Get-ChildItem -Directory cascade failure was caused entirely
+#                           by the poisoned $root value above — no independent fix needed.
+#                * (DESIGN) get-repoList never checked $root itself for .git; it only
+#                           recursed into subdirs. Added self-check so -root targeting a
+#                           single leaf repo (e.g. .AI-TRAINING) works correctly.
+#     260901 - 0.5.3 - Added Show-PendingChanges helper: replaces flat one-liner
+#                      with Format-Table view. Parses XY porcelain codes into
+#                      Action/Scope/File columns. Summary count header included.
+#                      -Grouped switch available for large dirty repos.
+#     260901 - 0.5.4 - Fixed three post-table bugs surfaced by -all -dryrun run:
+#                * (BUG) Nested detection false-positive: parent dir scan re-flagged
+#                        $root as nested. Added Resolve-Path equality guard.
+#                * (BUG) Reintegration double-path: Join-Path $root $repo.Name
+#                        doubled the leaf dir name. Now uses $repo.FullName + root guard.
+#                * (UX)  Silent empty history: git log returning nothing left a blank
+#                        line. Now prints "(no commits in window)" fallback.
+#                * (PATCH)  Updated create-drBranches to guard against re-creating an existing DR branch.
+
 #--------------------------------------------------------------------------#>
 
 param(
@@ -96,24 +117,50 @@ if (!(Test-Path $cfgPath)) {
 } else {
     $cfg = Import-PowerShellDataFile $cfgPath
 }
+
 # --- Determine effective configuration values based on overrides and defaults ---
 $root =  ($root) ? $root : ((!$cfg.root) ? "." : $cfg.root) # the root-dir for repository operations, (default = "." if not specified in config or override.)
 $safedest = ($safedest) ? $safedest : (!$cfg.safedest) ? "." : $cfg.safedest  # the safe-dir for backups, (default = "." if not specified in config or override.)
 $lookback = ($lookback) ? $lookback : (!$cfg.lookback) ? "2 weeks ago" : $cfg.lookback  # the lookback period for repo-analysis, (default = "2 weeks ago" if not specified in config or override.)
 $drBranch = ($drBranch) ? $drBranch : (!$cfg.drBranch) ? "DR-YYMMDD" : $cfg.drBranch  # Determine the name of the disaster recovery branch, (default = "DR-YYMMDD" if not specified in config or override.)
+# --- PATCH v0.5.2: Sanitize $root against shell tokenizer quirk ---
+# When invoked as -root='C:\path', PS passes the literal string '-root=C:\path'
+# as the value. Strip the prefix defensively and warn the user.
+if ($root -match '^-root=(.+)$') {
+    Write-Warning @"
+`$root received a '-root=' prefix — this is a shell tokenizer bug.
+  Got   : $root
+  Fixed : $($Matches[1])
+  Hint  : Use -root 'C:\path'  (space-separated), NOT -root='C:\path' (equals-sign form).
+"@
+    $root = $Matches[1]
+}
+# Normalize: strip trailing slashes so Join-Path never gets double-backslashes
+$root = $root.TrimEnd('\').TrimEnd('/')
+
+# --- Guard: validate the resolved root before anything else runs ---
+if (-not (Test-Path $root)) {
+    Write-Error "root path does not exist: '$root' — aborting."
+    exit 1
+}
+
 # --- Generate timestamp and define paths for backup and logging ---
 $timestamp = (Get-Date).ToString("yyMMdd-HHmmss")
 $zipPath   = "$root\$timestamp-SafeCopy-backup.zip"
 $logDir    = "$root\repoMgr-logs"
 $logFile   = "$logDir\repoMgr-$timestamp.json"
+
 # --- Ensure log directory exists ---
 if (!(Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
+
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: banner - Displays a banner message ---
 #------------------------------------------------------------------------------#>
 function banner($msg) {
-    Write-Host "`n=== $msg ===" -ForegroundColor Cyan
+    write-host "`n--------------------------------------------------------------------------------------------"
+    Write-Host "  === $msg ===" -ForegroundColor Cyan
+    write-host "--------------------------------------------------------------------------------------------"
 }
 
 #------------------------------------------------------------------------------#>
@@ -142,8 +189,12 @@ function log {
 log "INIT" $root "Script started"
 
 # write current configuration to the screen & log
-$cfgInfo = " - Configuration: -- Root: $root, `n -- SafeDest: $safedest, Timestamp: $timestamp, Lookback: $lookback, DR Branch: $drBranch"
-Write-Host $cfgInfo -ForegroundColor Magenta
+$cfgInfo  = "`n--------------------------------------------------------------------------------------------"
+$cfgInfo += "`n   INVOCATION: $($MyInvocation.Line)    <-- Timestamp: $timestamp"
+$cfgInfo += "`n--------------------------------------------------------------------------------------------"
+$cfgInfo += "`n - Configuration: -- Root: $root, `n    --> SafeDest: $safedest, `n    --  Lookback: $lookback, `n    --  DR Branch: $drBranch"
+$cfgInfo += "`n--------------------------------------------------------------------------------------------"
+Write-Host $cfgInfo -ForegroundColor Darkgray
 log "CONFIG" $root $cfgInfo
 
 #------------------------------------------------------------------------------#>
@@ -206,10 +257,32 @@ function archive-safecopy {
 #------------------------------------------------------------------------------#>
 function get-repoList {
     banner "Scanning for Git repositories"
-    $repos = Get-ChildItem -Path $root -Recurse -Directory -Force |
+    $repos = [System.Collections.Generic.List[object]]::new()
+
+    # PATCH v0.5.2: Check $root itself first — handles case where -root targets
+    # a single leaf repo (e.g. .AI-TRAINING). The old recurse-only approach
+    # returned empty when the root IS the repo, not a parent of repos.
+    if (Test-Path (Join-Path $root ".git")) {
+        Write-Host "  ✓ $root  [root is a repo]" -ForegroundColor DarkGray
+        $repos.Add((Get-Item $root))
+    }
+
+    # Then recurse into children for monorepo / multi-repo layouts.
+    # Using Microsoft.PowerShell.Management\Get-ChildItem to bypass any alias
+    # that strips the -Directory switch in non-default PS environments.
+    $children = Microsoft.PowerShell.Management\Get-ChildItem `
+        -Path $root -Recurse -Directory -Force -ErrorAction SilentlyContinue |
         Where-Object { Test-Path (Join-Path $_.FullName ".git") }
+
+    foreach ($c in $children) { $repos.Add($c) }
+
+    if ($repos.Count -eq 0) {
+        Write-Warning "No Git repositories found under: $root"
+    }
+
     return $repos
 }
+
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: Get-RepoRole - Classifies repo role (Root / Agile‑Wizard / Standard) ---
@@ -273,6 +346,11 @@ function detect-nestedRepos {
     $repos = get-repoList
     $nestedRepos = @()
     foreach ($repo in $repos) {
+
+        # PATCH v0.5.4: When -root targets a leaf repo, get-repoList returns $root
+        # itself. Skip it — $root cannot be nested inside itself.
+        if ((Resolve-Path $repo.FullName).Path -eq (Resolve-Path $root).Path) { continue }
+
         $parent = Split-Path $repo.FullName -Parent
         if ($parent -ne $root -and (Test-Path "$parent\.git")) {
             Write-Host "⚠ Nested repo detected: $($repo.FullName)" -ForegroundColor Yellow
@@ -283,6 +361,7 @@ function detect-nestedRepos {
     return $nestedRepos
 }
 
+
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: get-repoHistory - Repo history ---
 #------------------------------------------------------------------------------#>
@@ -292,10 +371,102 @@ function detect-nestedRepos {
 # RETURNS: The commit history in a formatted graph via Git commands.
 #------------------------------------------------------------------------------#>
 function get-repoHistory($path) {
-    git -C $path log --graph --oneline --decorate --all --since=$lookback `
+    # PATCH v0.5.4: Check for empty window first; original silently printed nothing.
+    $count = (git -C $path log --since=$lookback --oneline 2>$null | Measure-Object -Line).Lines
+    if ($count -eq 0) {
+        Write-Host "  (no commits in window: $lookback → now)" -ForegroundColor DarkGray
+        return
+    }
+
+    git --no-pager -C $path log --graph --oneline --decorate --all --since=$lookback `
         --pretty=format:"%C(auto)%h %C(blue)%ad%C(reset) %C(yellow)%d%C(reset) %s" `
         --date=iso
 }
+
+
+#--------------------------------------------------------------------------
+# Helper: Show-PendingChanges                                  [v0.5.2]
+# Replaces the flat one-liner dump with a structured Format-Table view.
+# -Grouped switch groups output by Action — useful for large dirty repos.
+#--------------------------------------------------------------------------
+function Show-PendingChanges {
+    param(
+        [string]$RepoPath,
+        [switch]$Grouped          # Group output by Action type
+    )
+
+    $raw = & git -C $RepoPath status --porcelain 2>$null
+    if (-not $raw) {
+        Write-Host "  (clean — no pending changes)" -ForegroundColor DarkGray
+        return
+    }
+
+    # Parse each porcelain 'XY filename' line into a structured object
+    $entries = foreach ($line in $raw) {
+        if ($line.Length -lt 3) { continue }
+
+        $xy   = $line.Substring(0, 2)    # raw XY code e.g. ' M', 'D ', '??'
+        $file = $line.Substring(3)        # everything after 'XY '
+
+        $action = switch -Regex ($xy) {
+            '^\?\?'        { 'Untracked' }
+            '^!!'          { 'Ignored'   }
+            '^[UA][UA]'    { 'Conflict'  }
+            '^[Rr]'        { 'Renamed'   }
+            '^[ ][Rr]'     { 'Renamed'   }
+            '^[Cc]'        { 'Copied'    }
+            '^[Aa]'        { 'Added'     }
+            '^[Dd]'        { 'Deleted'   }
+            '^[ ][Dd]'     { 'Deleted'   }
+            '^[Mm]'        { 'Modified'  }
+            '^[ ][Mm]'     { 'Modified'  }
+            default        { $xy.Trim()  }
+        }
+
+        $scope = if ($action -eq 'Untracked') {
+            '-'
+        } elseif ($xy[0] -ne ' ') {
+            'Staged'
+        } else {
+            'Unstaged'
+        }
+
+        [PSCustomObject]@{
+            Code   = $xy
+            Action = $action
+            Scope  = $scope
+            File   = $file
+        }
+    }
+
+    # Summary counts
+    $total     = @($entries).Count
+    $modified  = @($entries | Where-Object Action -eq 'Modified').Count
+    $deleted   = @($entries | Where-Object Action -eq 'Deleted').Count
+    $untracked = @($entries | Where-Object Action -eq 'Untracked').Count
+    $other     = $total - $modified - $deleted - $untracked
+
+    Write-Host (
+        "  Pending changes: $total total  " +
+        "[M:$modified  D:$deleted  ?:$untracked" +
+        $(if ($other -gt 0) { "  Other:$other" } else { '' }) + "]"
+    ) -ForegroundColor Cyan
+
+    if ($Grouped) {
+        $entries | Sort-Object Action, File | Group-Object Action |
+        ForEach-Object {
+            Write-Host "`n  ── $($_.Name) ($($_.Count)) ──" -ForegroundColor DarkYellow
+            $_.Group | Select-Object Code, Scope, File |
+                Format-Table -AutoSize | Out-String | Write-Host
+        }
+    } else {
+        $entries | Sort-Object Action, File |
+            Select-Object Code, Action, Scope, File |
+            Format-Table -AutoSize | Out-String | Write-Host
+    }
+}
+
+
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: write-repoStats - Repo drift report ---
@@ -311,12 +482,10 @@ function write-repoStats {
     foreach ($repo in $repos) {
         $path   = $repo.FullName
         $branch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
-        $status = git -C $path status --short 2>$null
 
         banner "Repo: $path"
         Write-Host "Branch: $branch"
-        Write-Host "Pending changes:"
-        Write-Host ($status ? $status : "Clean")
+        Show-PendingChanges -RepoPath $path -Grouped
 
         Write-Host "`nHistory since $lookback :"
         get-repoHistory $path
@@ -344,10 +513,19 @@ function create-drBranches {
             continue
         }
 
+        # PATCH v0.5.4: Guard against re-creating an existing DR branch.
+        # git checkout -b hard-errors if branch already exists — makes -all non-idempotent.
+        $branchExists = git -C $path branch --list $drBranch 2>$null
+        if ($branchExists) {
+            Write-Host "  ℹ DR branch '$drBranch' already exists in $path — skipping." -ForegroundColor DarkGray
+            continue
+        }
+
         exec "git -C `"$path`" checkout -b $drBranch" $path
         exec "git -C `"$path`" push -u origin $drBranch" $path
     }
 }
+
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: reintegrate-nestedRepo - Reintegration scaffold ---
@@ -358,9 +536,17 @@ function create-drBranches {
 # RETURNS: None. DESTRUCTIVE operations may be required manually.
 #------------------------------------------------------------------------------#>
 function reintegrate-nestedRepo {
-    param([string]$nestedPath = "$root\.AI-TRAINING")
+    param([string]$nestedPath = $root)    # PATCH v0.5.2: was "$root\.AI-TRAINING" — caused double-suffix
 
     banner "Reintegration Scaffold for $nestedPath"
+
+    # PATCH v0.5.4: When -root IS the leaf repo, nestedPath equals $root.
+    # Nothing to reintegrate — bail gracefully instead of building a phantom path.
+    $resolvedNested = Resolve-Path $nestedPath -ErrorAction SilentlyContinue
+    if ($resolvedNested -and $resolvedNested.Path -eq (Resolve-Path $root).Path) {
+        Write-Host "  ℹ Skipping reintegration — target is the root repo itself." -ForegroundColor DarkGray
+        return
+    }
 
     if (!(Test-Path "$nestedPath\.git")) {
         Write-Host "No nested repo found."
