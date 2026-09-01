@@ -35,10 +35,10 @@
 
 ---
 
-## 🟡 Pending Cleanup Actions
+## 🟡 Pending Cleanup Actions (260901~>5AM)
 
-- [ ] **`.AI-TRAINING`** — Run `git status --porcelain` and capture full output for review
-- [ ] **`.AI-TRAINING`** — Audit `.gitignore` for untracked training data leakage
+- [x] **`.AI-TRAINING`** — Run ` .\repoMgr.ps1 -stats -root 'C:\PROJECTS\LogicWizards\.AI-TRAINING' -lookback '7 days ago'` </br>&nbsp; - for an enhanced - `git status --porcelain` and capture full output for review
+- [x] **`.AI-TRAINING`** — Audit `.gitignore` for untracked training data leakage
 - [ ] **`.AI-TRAINING`** — Resolve HEAD divergence: rebase or hard reset after forensic sign-off
 - [ ] **`Agile-Wizard`** — Stash or commit all pending staged/unstaged changes
 - [ ] **`Agile-Wizard`** — Reconcile sprint artifact duplication across branches
