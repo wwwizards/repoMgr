@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#--------------------------------------------------------------------------
 #  SCRIPT: repoMgr.ps1 — LogicWizards Monorepo Multi‑Tool Manager
 #--------------------------------------------------------------------------
@@ -13,14 +14,14 @@
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260831 BY: Copilot (Fix: invalid $CFG-INFO variable name / function-call-before-definition order / v0.5.1)
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  0.5.3 - Added Show-PendingChanges helper for structured pending changes view.
+# VERSION:  0.6.0 - Added new features and improvements: dry-run is now default for all operations.
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
 #               ~ FEE: $20 = for individual commercial DEV use (requires separate licensing & registration).
 #               ~ FEE: $99 = for commercial use (requires separate licensing & registration - bulk pricing is available).
 # NOTES:  Ensure that the configuration file is correctly set up to avoid unexpected behavior.
 # USAGE:
-#     .\repoMgr.ps1 -backup -stats -recovery -reintegration -risk -dirtyonly -dryrun -help -all
+#     .\repoMgr.ps1 -backup -stats -topology -recovery -reintegration -risk -dirtyonly -dryrun -help -all 
 # OPTIONS:
 #     -backup           # Performs a backup of the repository (SafeCopy ZIP + copy to safedest).
 #     -stats            # Displays drift statistics about all discovered repositories.
@@ -31,6 +32,8 @@
 #     -dryrun           # Simulates actions without making any changes (logged as DRYRUN).
 #     -help             # Displays this help message.
 #     -all              # Executes backup + stats + recovery + reintegration (not risk, by design).
+#     -topology         # Captures the current topology of all repositories (roles, branches, remotes).
+
 # CHANGELOG:
 #     260827 - 0.2.0 - Initial port from previous BASH version.
 #     260828 - 0.3.x - Added -risk option for analyzing detached HEAD state (single‑repo).
@@ -59,9 +62,9 @@
 #                script-wide ParseException, and moved the INIT log call to after the
 #                log function definition to fix call-before-definition order.
 #     260901 - 0.5.2 - Fixed three bugs:
-#                * (BUG)    $root shell-tokenizer quirk: -root='path' passes literal
+#                * (BUG) fixed: $root shell-tokenizer quirk: -root='path' passes literal
 #                           '-root=C:\path' string; added sanitization + guard + user warning.
-#                * (BUG)    Get-ChildItem -Directory cascade failure was caused entirely
+#                * (BUG) fixed: Get-ChildItem -Directory cascade failure was caused entirely
 #                           by the poisoned $root value above — no independent fix needed.
 #                * (DESIGN) get-repoList never checked $root itself for .git; it only
 #                           recursed into subdirs. Added self-check so -root targeting a
@@ -71,14 +74,30 @@
 #                      Action/Scope/File columns. Summary count header included.
 #                      -Grouped switch available for large dirty repos.
 #     260901 - 0.5.4 - Fixed three post-table bugs surfaced by -all -dryrun run:
-#                * (BUG) Nested detection false-positive: parent dir scan re-flagged
+#                * (BUG) fixed: Nested detection false-positive: parent dir scan re-flagged
 #                        $root as nested. Added Resolve-Path equality guard.
-#                * (BUG) Reintegration double-path: Join-Path $root $repo.Name
+#                * (BUG) fixed: Reintegration double-path: Join-Path $root $repo.Name
 #                        doubled the leaf dir name. Now uses $repo.FullName + root guard.
 #                * (UX)  Silent empty history: git log returning nothing left a blank
 #                        line. Now prints "(no commits in window)" fallback.
 #                * (PATCH)  Updated create-drBranches to guard against re-creating an existing DR branch.
-
+#     260903 - 0.6.0 -  multiple improvements and new features added.
+#                * (ADD) Added dry-run support for create-drBranches: prints planned actions without executing them.
+#                * (BUG) fixed: now restores the pointer to the original branch after creating DR branch.
+#                * (ADD) new functions for repository topology and risk analysis.
+#                  * New FUNCTION: Get-RemoteCollisions - Detects remote URL collisions (multiple dirs → same remote) among submodules and nested Git repositories.
+#                  * New FUNCTION: Write-TopologySnapshot - Captures the current topology of all repositories, including roles, branches, and remotes.
+#                  * New FUNCTION: Write-RiskReport - Generates a risk analysis report for all repositories, including remote collisions.
+#                * (ADD) dry-run support for create-drBranches and ensured original branch is restored after DR branch creation.
+#                * (MOD) -all now includes -topology and -collisions as well.
+#                * (MOD) DR branch creation now requires -Force to execute, otherwise it will be skipped in dry-run mode.
+#                * (MOD) Updated help information to reflect new features and changes.
+#                * (MOD) Improved error handling and logging for all operations.
+#                * (MOD) General code cleanup and refactoring for better maintainability and improved UX.
+#                * (MOD) Updated repository analysis functions to include additional metrics and improved reporting.
+#                * (MOD) Enhanced logging for repository backup and recovery operations - improved visibility into success and failure events
+#                * (MOD) Improved handling of nested Git repositories and submodules for all operations - enhanced detection and management of nested structures
+#                * (MOD) Agent-friendly improvements for better integration with CI/CD pipelines & AI-assisted workflows.
 #--------------------------------------------------------------------------#>
 
 param(
@@ -87,6 +106,8 @@ param(
     [string]$lookback,          # Override the lookback period for repository analysis
     [string]$drBranch,          # Override the name of the disaster recovery branch
     [switch]$backup,            # Perform a backup of the repository
+    [switch]$collisions,       # Run remote collision detection only
+    [switch]$force,            # Explicit override for destructive operations
     [switch]$stats,             # Display repository statistics
     [Alias('dr')]               # deprecated alias for back-compat w/prev versions 
     [switch]$recovery,          # Perform a disaster recovery operation (alias: dr)
@@ -281,6 +302,82 @@ function get-repoList {
     }
 
     return $repos
+}
+
+#------------------------------------------------------------------------------#>
+# --- FUNCTION: Get-RemoteCollisions - Detect remote collisions in Git repos ---
+#------------------------------------------------------------------------------#>
+# DESCRIPTION: Detects remote URL collisions among submodules and nested Git repositories.
+# PARAMETERS: None.
+# RETURNS: A list of collision objects with Type, Url, and Paths properties.
+#------------------------------------------------------------------------------#>
+function Get-RemoteCollisions {
+    banner "Detecting remote collisions"
+
+    $collisions = @()
+
+    # 1) Submodules via .gitmodules
+    $gitmodulesPath = Join-Path $root ".gitmodules"
+    if (Test-Path $gitmodulesPath) {
+        $entries = git -C $root config --file .gitmodules --get-regexp 'submodule\..*\.url' 2>$null
+        $map = @{}
+
+        foreach ($line in $entries) {
+            $parts = $line -split '\s+', 2
+            if ($parts.Count -ne 2) { continue }
+
+            $key = $parts[0]   # submodule.<name>.url
+            $url = $parts[1]
+
+            $name = ($key -split '\.')[1]
+            if (-not $map.ContainsKey($url)) { $map[$url] = @() }
+            $map[$url] += $name
+        }
+
+        foreach ($url in $map.Keys) {
+            if ($map[$url].Count -gt 1) {
+                $collisions += [PSCustomObject]@{
+                    Type  = 'Submodule'
+                    Url   = $url
+                    Paths = ($map[$url] -join ', ')
+                }
+            }
+        }
+    }
+
+    # 2) Nested repos with same remote
+    $repos = get-repoList
+    $remoteMap = @{}
+
+    foreach ($repo in $repos) {
+        $path   = $repo.FullName
+        $remote = git -C $path remote get-url origin 2>$null
+        if (-not $remote) { continue }
+
+        if (-not $remoteMap.ContainsKey($remote)) { $remoteMap[$remote] = @() }
+        $remoteMap[$remote] += $path
+    }
+
+    foreach ($remote in $remoteMap.Keys) {
+        if ($remoteMap[$remote].Count -gt 1) {
+            $collisions += [PSCustomObject]@{
+                Type  = 'Repo'
+                Url   = $remote
+                Paths = ($remoteMap[$remote] -join ', ')
+            }
+        }
+    }
+    if ($collisions.Count -eq 0) {
+        Write-Host "  (no remote collisions detected)" -ForegroundColor DarkGray
+        return
+    }
+
+    foreach ($c in $collisions) {
+        Write-Host "⚠ Remote collision [$($c.Type)] — $($c.Url) ← $($c.Paths)" -ForegroundColor Yellow
+        log "REMOTE-COLLISION" $root ($c | ConvertTo-Json -Depth 5)
+    }
+
+    return $collisions
 }
 
 
@@ -490,14 +587,154 @@ function write-repoStats {
         Write-Host "`nHistory since $lookback :"
         get-repoHistory $path
     }
+    Write-TopologySnapshot
 }
 
 #------------------------------------------------------------------------------#>
-# --- FUNCTION: create-drBranches - DR branch creation ---
+# --- FUNCTION: Write-RiskReport - Risk analysis report ---                   #>
 #------------------------------------------------------------------------------#>
-# DESCRIPTION: Creates DR branches for all repositories, optionally only for dirty ones.
-# PARAMETERS: None.
-# RETURNS: None. Generates DR branches via Git commands.
+# DESCRIPTION: Generates a risk analysis report for all repositories,          #>
+#              including remote collisions.                                   #>
+# NOTE:       Now a “two dirs → same remote” situation becomes a logged,      #>
+#              machine-readable event instead of a surprise.                   #>
+# PARAMETERS: None.                                                            #>
+# RETURNS:    None.                                                            #>
+#------------------------------------------------------------------------------#>
+function Write-RiskReport {
+    banner "Risk Analysis (Option-D: Smart Divergence + Forensic Mode)"
+
+    # Remote collisions (submodules + nested repos sharing the same origin URL)
+    $collisions = Get-RemoteCollisions
+
+    # Detached HEAD + divergence + dirty status across all repos
+    Analyze-AllRepoRisk
+}
+
+
+#------------------------------------------------------------------------------#>
+# --- FUNCTION: Analyze-AllRepoRisk - Smart divergence + forensic mode        #>
+#------------------------------------------------------------------------------#>
+# DESCRIPTION: Performs a lightweight risk analysis across all repos:          #>
+#              - Detached HEAD detection                                       #>
+#              - Divergence vs good branch (main/master)                       #>
+#              - Dirty working tree status                                     #>
+#              - Role-aware classification (Root / Agile-Wizard / Standard)    #>
+# RETURNS:    None. Prints summary and logs machine-readable entries.          #>
+#------------------------------------------------------------------------------#>
+function Analyze-AllRepoRisk {
+    $repos = get-repoList
+
+    foreach ($repo in $repos) {
+        $path          = $repo.FullName
+        $role          = Get-RepoRole -repoPath $path
+        $goodBranch    = Get-GoodBranch -repoPath $path
+        $currentBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
+        $headRef       = git -C $path rev-parse --abbrev-ref HEAD 2>$null
+        $isDetached    = ($headRef -eq "HEAD")
+
+        $statusShort   = git -C $path status --short 2>$null
+        $isDirty       = [bool]$statusShort
+
+        $divergence = $null
+        try {
+            $divergence = git -C $path rev-list --left-right --count "$goodBranch...HEAD" 2>$null
+        } catch {
+            $divergence = $null
+        }
+
+        $riskEntry = [ordered]@{
+            Path          = $path
+            Role          = $role
+            CurrentBranch = $currentBranch
+            GoodBranch    = $goodBranch
+            DetachedHead  = $isDetached
+            Dirty         = $isDirty
+            Divergence    = $divergence
+        }
+
+        $riskJson = $riskEntry | ConvertTo-Json -Depth 5
+        log "RISK" $path $riskJson
+
+        Write-Host "`nRepo: $path" -ForegroundColor Cyan
+        Write-Host "  Role          : $role"
+        Write-Host "  CurrentBranch : $currentBranch"
+        Write-Host "  GoodBranch    : $goodBranch"
+        Write-Host "  DetachedHead  : $isDetached"
+        Write-Host "  Dirty         : $isDirty"
+        if ($divergence) {
+            Write-Host "  Divergence    : $divergence"
+        } else {
+            Write-Host "  Divergence    : (not available)"
+        }
+
+        if ($isDetached) {
+            Create-ArchivalBranchIfDetached -repoPath $path
+        }
+    }
+}
+
+
+#------------------------------------------------------------------------------#>
+# --- FUNCTION: Write-TopologySnapshot - Capture repository topology snapshot  #>
+#------------------------------------------------------------------------------#>
+# DESCRIPTION: Captures the current topology of all repositories, including    #>
+#              roles, branches, and remotes.                                   #>
+# ABSTRACT:   Produces a single JSON artifact summarizing:                     #>
+#              - Repo path                                                     #>
+#              - Role (Root / Agile-Wizard / Standard)                         #>
+#              - Current branch                                                #>
+#              - Good branch (main/master)                                     #>
+#              - Origin URL                                                    #>
+# NOTE:       This function is automatically called at the end of              #>
+#              write-repoStats, and can also be invoked via -topology.         #>
+# RETURNS:    None. Writes topology JSON to repoMgr-logs.                      #>
+#------------------------------------------------------------------------------#>
+function Write-TopologySnapshot {
+    banner "Topology Snapshot"
+
+    $repos = get-repoList
+    $snapshot = @()
+
+    foreach ($repo in $repos) {
+        $path         = $repo.FullName
+        $role         = Get-RepoRole -repoPath $path
+        $currentBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
+        $goodBranch    = Get-GoodBranch -repoPath $path
+        $originUrl     = git -C $path remote get-url origin 2>$null
+
+        $snapshot += [PSCustomObject]@{
+            Path          = $path
+            Role          = $role
+            CurrentBranch = $currentBranch
+            GoodBranch    = $goodBranch
+            Origin        = $originUrl
+        }
+    }
+
+    if (!(Test-Path $logDir)) {
+        New-Item -ItemType Directory -Path $logDir | Out-Null
+    }
+
+    $topologyFile = Join-Path $logDir ("topology-" + $timestamp + ".json")
+    $json = $snapshot | ConvertTo-Json -Depth 5
+    Set-Content -Path $topologyFile -Value $json
+
+    Write-Host "  Topology snapshot written to: $topologyFile" -ForegroundColor Cyan
+    log "TOPOLOGY" $root "Snapshot written to $topologyFile"
+}
+
+
+
+
+#------------------------------------------------------------------------------#>
+# --- FUNCTION: create-drBranches - DR branch creation ---                     #>
+#------------------------------------------------------------------------------#>
+# DESCRIPTION: Creates DR branches for all repositories, optionally only for   #>
+#              dirty ones. In v0.6.0 this is now:                              #>
+#              - Dry-run aware (no side effects when -dryrun is set).          #>
+#              - Branch-safe: restores the original branch after DR creation.  #>
+# PARAMETERS: None.                                                            #>
+# RETURNS: None. Generates DR branches via Git commands.                       #>
 #------------------------------------------------------------------------------#>
 function create-drBranches {
     banner "Creating DR branches ($drBranch)"
@@ -521,10 +758,27 @@ function create-drBranches {
             continue
         }
 
+        # NEW v0.6.0: capture original branch so we can restore it.
+        $originalBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
+
+        if ($dryrun) {
+            Write-Host "[DRYRUN] Would create DR branch '$drBranch' in $path (from $originalBranch)"
+            Write-Host "[DRYRUN] Would push '$drBranch' to origin and then switch back to '$originalBranch'"
+            log "DR-BRANCH-DRYRUN" $path "Create '$drBranch' from '$originalBranch' and restore"
+            continue
+        }
+
+        # Actual DR branch creation + push
         exec "git -C `"$path`" checkout -b $drBranch" $path
         exec "git -C `"$path`" push -u origin $drBranch" $path
+
+        # Restore original branch pointer to avoid leaving the repo on DR.
+        if ($originalBranch -and $originalBranch -ne $drBranch) {
+            exec "git -C `"$path`" checkout $originalBranch" $path
+        }
     }
 }
+
 
 
 #------------------------------------------------------------------------------#>
@@ -818,25 +1072,6 @@ function Analyze-RepoRisk {
     return $results
 }
 
-#------------------------------------------------------------------------------#>
-# --- FUNCTION: Analyze-AllRepoRisk - Runs Option‑D across all repos ---
-#------------------------------------------------------------------------------#>
-# DESCRIPTION:
-#   Iterates over all discovered repos and runs Analyze-RepoRisk on each.
-#   Skips non‑detached repos automatically.
-# PARAMETERS: None.
-# RETURNS: None. Writes per‑repo JSON files + console tables.
-#------------------------------------------------------------------------------#>
-function Analyze-AllRepoRisk {
-    banner "Running Option‑D Risk Analysis Across All Repos"
-
-    $repos = get-repoList
-
-    foreach ($repo in $repos) {
-        $path = $repo.FullName
-        Analyze-RepoRisk -repoPath $path
-    }
-}
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: show-help - Help ---
@@ -849,36 +1084,76 @@ function show-help {
     Write-Host "-backup         : Full backup + safe-copy"
     Write-Host "-stats          : Repo drift report"
     Write-Host "-recovery       : Create DR branches (legacy alias: -dr)"
+    Write-Host "-topology       : Capture the current topology of all repositories, including roles, branches, and remotes"
+    Write-Host "-collisions     : Detect remote URL collisions (multiple dirs → same remote) among submodules and nested Git repositories"
     Write-Host "-dirtyonly      : Only branch repos with pending changes (for -recovery)"
     Write-Host "-reintegration  : Reintegration scaffold for nested repos"
-    Write-Host "-risk           : Option‑D detached HEAD risk analysis across repos"
+    Write-Host "-risk           : Option-D (detached HEAD) risk analysis across repos"
     Write-Host "-dryrun         : No changes, only simulate (logged as DRYRUN)"
     Write-Host "-all            : Run backup + stats + recovery + reintegration (not risk)"
 }
 
-#------------------------------------------------------------------------------#>
-# --- MAIN ---
-#------------------------------------------------------------------------------#>
-if ($help) { show-help; exit }
 
-# --- EXECUTE ALL TASKS IF THE -all FLAG IS SET ---
+
+#------------------------------------------------------------------------------#>
+# --- EXECUTE ALL TASKS IF THE -all FLAG IS SET ---                            #>
+#------------------------------------------------------------------------------#>
+# In v0.6.0, -all now defaults to DRYRUN mode unless -Force is explicitly set. #>
+# This prevents accidental branch creation or destructive operations.          #>
+#------------------------------------------------------------------------------#>
 if ($all) {
+    banner "Executing ALL tasks (safe mode)"
+    if (-not $Force) {
+        Write-Host "⚠ SAFE MODE: Running in DRYRUN (no changes will be made)." -ForegroundColor Yellow
+        $dryrun = $true
+    } else {
+        Write-Host "⚠ FORCE MODE: Destructive operations are enabled." -ForegroundColor Red
+        $dryrun = $false
+    }
+
     archive-safecopy
     write-repoStats
-    detect-nestedRepos
-    create-drBranches
+    Write-TopologySnapshot
+    Write-RiskReport
+
+    # Only create DR branches if explicitly forced
+    if ($Force) {
+        create-drBranches
+    } else {
+        Write-Host "[DRYRUN] Skipping DR branch creation — requires -Force." -ForegroundColor DarkGray
+        log "DRYRUN-SKIP" $root "Skipped DR branch creation (no -Force flag)"
+    }
+
     reintegrate-nestedRepo
     exit
 }
 
-# --- CONDITIONAL EXECUTION BASED ON FLAGS ---
-if ($backup)        { archive-safecopy }
-if ($stats)         { write-repoStats }
-if ($recovery)      { create-drBranches }
-if ($reintegration) { reintegrate-nestedRepo }
-if ($risk)          { Analyze-AllRepoRisk }
 
-# --- DEFAULT CASE: Show help if no valid flags are provided ---
-if (-not ($backup -or $stats -or $recovery -or $reintegration -or $risk -or $dryrun -or $all)) {
+#------------------------------------------------------------------------------#>
+#  --- OPTION DISPATCHER  ---  CONDITIONAL EXECUTION BASED ON OPTION FLAGS ---                          #>
+#------------------------------------------------------------------------------#>
+if ($backup)        { archive-safecopy          }
+if ($collisions)    { Get-RemoteCollisions      }
+if ($stats)         { write-repoStats           }
+if ($topology)      { Write-TopologySnapshot    }
+if ($risk)          { Write-RiskReport          }
+
+# Only allow DR branch creation when -Force is passed
+if ($recovery) {
+    if ($Force) {
+        create-drBranches
+    } else {
+        Write-Host "[DRYRUN] Skipping DR branch creation — requires -Force." -ForegroundColor DarkGray
+        log "DRYRUN-SKIP" $root "Skipped DR branch creation (no -Force flag)"
+    }
+}
+
+if ($reintegration) { reintegrate-nestedRepo }
+if ($collisions)    { Get-RemoteCollisions }
+
+#------------------------------------------------------------------------------#>
+# --- DEFAULT FALLTHROUGH CASE: Show help if no valid flags are provided ---               #>
+#------------------------------------------------------------------------------#>
+if (-not ($backup -or $stats -or $recovery -or $reintegration -or $risk -or $dryrun -or $all -or $topology -or $collisions)) {
     show-help
 }

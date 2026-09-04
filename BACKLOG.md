@@ -12,6 +12,42 @@
 - **DR branches first** — the priority order puts snapshot creation at the top deliberately. Don't touch either repo's working tree until those are pushed.
 - **`.AI-TRAINING` is the hotter fire** — the untracked training data files and `.gitignore` gap are the riskiest items; those need eyes before any push.
 - **Archival table is a starting list** — I used reasonable branch name patterns from the context. If you have the actual branch names from `repoMgr -stats`, swap them in and the structure stays the same.
+> ### :memo: Cross‑Repo Artifact Recovery (v0.5.4)
+> #### :exclamation:**IMPORTANT FINDING:**:exclamation:  
+> **If a DR branch contains files belonging to another repo:**
+> 1. Identify logical destination (e.g., LogicWizards/.HANDOFF).
+> 2. Extract files manually or via transplant PR.
+> 3. Do NOT merge DR branch into the wrong repo.
+> 4. Record source and destination in BACKLOG.md.
+> 5. Validate restored files against historical commit timestamps.
+> 
+>
+>#### Option A — Extract and transplant
+>
+> **1. Clone or checkout the DR branch locally:**
+> ```powershell
+> git clone -b RepoMgr-DR-260901 <repo-url> ai-labs-DR
+> Copy the .HANDOFF‑related files into the correct monorepo path:
+> ```
+> ```Code
+> C:\PROJECTS\LogicWizards\.HANDOFF\
+> ```
+> **2. Commit them in the LogicWizards root repo:**
+> 
+> ```powershell
+> git add .HANDOFF/*
+> git commit -m "Recovered missing HANDOFF files from ai-labs DR branch (Dec25–Jan26)"
+> git push origin master
+> ```
+> 
+> **3. Document the recovery in BACKLOG.md:**
+> ``` 
+> ## ai-labs DR artifact transplant
+> - Source: RepoMgr-DR-260901
+> - Target: LogicWizards/.HANDOFF
+> - Files: 41 recovered (Dec25–Jan26)
+> - Status: merged manually
+> ```
 ---
 
 ## 🔴 Broken / At-Risk Repos

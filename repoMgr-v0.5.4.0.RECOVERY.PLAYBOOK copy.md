@@ -1,4 +1,4 @@
-# **RECOVERY‑PLAYBOOK.md**  
+# **RECOVERY‑PLAYBOOK**  
 > **Generated: 2026-09-01** | **Source:** `repoMgr -stats` + `repoMgr -risk` output
 > **Repos in scope:** `.AI-TRAINING`, `Agile-Wizard`
 > ***Last updated:** 2026-09-01 by Copilot Tasks 
@@ -7,6 +7,7 @@
 *(Updated for repoMgr.ps1 v0.5.4 — including DR‑branch guards, nested‑repo fixes, tokenizer patch, Show‑PendingChanges, and root‑repo self‑check)*
 
 ---
+
 
 # 🧭 Phase 1 — Assessment (Triage)
 

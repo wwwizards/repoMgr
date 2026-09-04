@@ -1,0 +1,969 @@
+
+--------------------------------------------------------------------------------------------
+   INVOCATION: .\repoMgr.ps1 -stats -dryrun -root 'C:\PROJECTS\LogicWizards\' -lookback '120 days ago' *>&1 | tee C:\PROJECTS\repoMgr\REPORT-260901-01-stats-LogicWizards.txt    <-- Timestamp: 260901-184051
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\PROJECTS\LogicWizards, 
+    --> SafeDest: C:\Users\User\OneDrive - Logic Wizards\Backups, 
+    --  Lookback: 120 days ago, 
+    --  DR Branch: RepoMgr-DR-260901
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report ===
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Scanning for Git repositories ===
+--------------------------------------------------------------------------------------------
+  ✓ C:\PROJECTS\LogicWizards  [root is a repo]
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards ===
+--------------------------------------------------------------------------------------------
+Branch: master
+  Pending changes: 10 total  [M:3  D:0  ?:7]
+
+  ── Modified (3) ──
+
+Code Scope    File
+---- -----    ----
+ M   Unstaged .AI-TRAINING/.gitignore
+ M   Unstaged SOLUTIONS/DevOps/SIDE-PROJECTS/ai-labs
+ M   Unstaged SOLUTIONS/DevOps/SIDE-PROJECTS/vsCode/ai-labs-toolkit
+
+
+
+  ── Untracked (7) ──
+
+Code Scope File
+---- ----- ----
+??   -     .AI-TRAINING/detached-analysis.json
+??   -     .AI-TRAINING/RepoMgr-260901-00.git-status.BASELINE.txt
+??   -     260831-detached-analysis-3day-crunch.json
+??   -     260831-repoMgr-DISCOVER-hist.txt
+??   -     hooks/Normalize-TicketStructure.ps1
+??   -     repoMgr-logs/
+??   -     SOLUTIONS/DevOps/SIDE-PROJECTS/gitlogs/
+
+
+
+History since 120 days ago :
+* d4dbeee 2026-08-26 16:12:04 -0400  (HEAD -> master) v0.7.8.112 - session handoff state
+* 304ead5 2026-08-24 01:50:53 -0400  fix(fleet): prefer self-heal breadcrumbs and stale pending requests
+* 01178fb 2026-08-24 00:01:54 -0400  Intune-Deployments: handoff + watcher payload contract cleanup
+* 734c2c6 2026-08-23 22:34:23 -0400  v0.7.8.103 - Intune fleet handoff payload contract docs
+* 6121509 2026-08-22 17:39:45 -0400  fix(SaaS-Tracker): ensure Microsoft.Graph.Authentication is installed/imported before Connect-MgGraph
+* 37544fb 2026-08-22 17:18:35 -0400  chore: bump a2m8-toolkit pointer (set-watcher-debug cert-response.json fix)
+* 18403e8 2026-08-22 17:17:54 -0400  fix(SaaS-Tracker): collector self-heal fetches cert-response.json, not the never-published device-auth.json
+* d623adc 2026-08-22 14:35:49 -0400  v0.7.8.111 - SaaS-Tracker: found+fixed why cert-requests never became telemetry, WATCHER glyph UX rework
+* acf7feb 2026-08-20 13:25:18 -0400  v0.7.8.110 - digest: -LookbackDays passthrough + rolling-window fix + SaaS telemetry wired to all pilot device folders
+* 9537e9c 2026-08-20 12:43:54 -0400  v0.7.8.109 - WebWatcher v0.2.2: PAT force-write + fleet-wide rotation channel
+* d65a7a4 2026-08-20 11:15:20 -0400  chore: bump a2m8-toolkit pointer (set-gist-pat)
+* 5050fac 2026-08-20 11:06:50 -0400  chore(topology): register a2m8-toolkit as submodule (was monorepo stub)
+* 6638738 2026-08-20 09:21:17 -0400  feat(fleet): add WATCHER column + natural-sort the fleet listing (v0.5.8)
+* 4f444ee 2026-08-20 08:23:52 -0400  docs(B1T06): note update-toolkit + check-webwatcher client feedback loop
+* b317f2e 2026-08-20 07:31:08 -0400  feat(B1T06): hands-off device-auth self-heal + version-aware Intune upgrade
+* 2c4ba3e 2026-08-19 23:59:40 -0400  (origin/master, origin/HEAD) feat(B1T06): fold provisioning fixes into Grant script + UPN identity
+* 4c6987e 2026-08-19 23:32:53 -0400  tickets(B1S05): close B1T03+B1T05 (proven live on P22), add B1T06 prod-readiness
+* 8abf38b 2026-08-19 22:05:20 -0400  handoff(intune): B1S05 proven live on P22 + Grant v0.1.2 -DeviceName scoping
+* 63f321d 2026-08-19 20:03:04 -0400  fix(intune): WebWatcher detection keys on choco marker, not pre-existing collector
+* c323aed 2026-08-19 19:44:41 -0400  fix(saas-tracker): Grant-SaaSTrackerDeviceAccess v0.1.1 - correct item-grant shape + add -DeviceItemId
+* 6ed597d 2026-08-19 19:09:31 -0400  feat(intune): Publish-WebWatcherIntune.ps1 - hand-rolled Win32 LOB publisher via Graph
+* 18fc219 2026-08-19 18:30:49 -0400  B1T05 ticket (WebWatcher wrapper + choco/Intune packaging, WIP w/ AS-BUILT + Artifacts); design doc v0.2.0 (live item-level-grant finding + delivery mechanism); WebWatcher-Intune-Playbook.md (last-mile runbook)
+* b8fb4bc 2026-08-19 18:13:11 -0400  WebWatcher Intune Win32 app: install.ps1 wrapper (choco install from bundled .intunewin content dir) + .gitignore for build artifacts. .intunewin built green (18KB) for pilot-group push.
+* d3ff530 2026-08-19 17:17:50 -0400  WebWatcher: bootstrap-WebWatcher.ps1 device-side wrapper + standalone choco package (webwatcher.nuspec/chocolateyInstall/Pack-WebWatcher) bundling all device scripts as real files (fixes Intune single-file base64 hack); collector v0.2.0 adds additive per-device cert-auth branch (device-auth.json) with legacy WAM fallback
+* 61e6f44 2026-08-19 12:50:33 -0400  B1T03: DISCOVER/DIAGNOSE/DESIGN/DOCUMENT complete, DELIVER safe-parts done (3 scripts + tests, 25/25 green) -- STOPPED at live-mutation boundary pending CTO go-ahead
+* c5ba33f 2026-08-19 11:54:27 -0400  Option-1 POC: ticket-drift warn-only pre-commit check, HR blank-line-spacing fix in Check-MarkdownReflow.ps1, fix python3 App-Execution-Alias stub + exclude Agile-Wizard tickets from header-check (convention mismatch), Relations=INPUTS vs Artifacts=OUTPUTS + Expected-Artifacts DESIGN requirement in STORY B1S05
+* 62a9b83 2026-08-19 10:50:51 -0400  Fix B1T02 ticket-drift: STATUS NEW->DONE, filename renamed, cross-refs updated (matches B1T01 pattern)
+* f588092 2026-08-19 10:42:49 -0400  Add linked Artifacts table (date/file/type/action/verified) to B1T01/B1T02 AS-BUILT, establish as standing DELIVER-phase convention in STORY B1S05 Delegation Protocol
+* e7f9bda 2026-08-19 10:20:38 -0400  Reconcile diff-review orphan collision (deleted byte-identical duplicate), hoist 5D Delegation Protocol to STORY B1S05 for DRY, fix A1F05 title typo, record CTO-directed sub-experiment in MVx doc
+* 4454617 2026-08-19 02:08:06 -0400  B1T03: add 5D-phase-gated delegation protocol (DISCOVER/DIAGNOSE/DESIGN/DOCUMENT/DELIVER) + cherry-picked MVx-260816-01 aporiae table, prepping for next-session subagent delegation
+* 77cb2fb 2026-08-19 01:34:04 -0400  v0.7.8.108 - B1T02 delegated (Gist cert protocol), subagent terminal-contract aporia promoted to global gates, AutoExec.BOT tickets backfilled
+* 511e048 2026-08-18 23:53:46 -0400  v0.7.8.107 followup 2: stage B1T01 ticket acceptance-criteria checkoff (missed in prior split commit)
+* 78ca2d1 2026-08-18 23:52:44 -0400  v0.7.8.107 followup: stage remaining B1T01 files (STATE.md updates, cert script+tests, installer wiring, ai-labs pointer)
+* 1e5ccdb 2026-08-18 23:51:14 -0400  v0.7.8.107 - B1T01 on-device cert generation (TDD-first, subagent-delegated), Explore agent read-only finding recorded
+* bf77880 2026-08-18 21:59:28 -0400  v0.7.8.106 - Cert-bridge design scoped as STORY B1S05 + 4 TASKs, shared-cert risk explicitly rejected
+* 30ec4fa 2026-08-18 17:06:05 -0400  v0.7.8.105 - SaaS-Tracker auth chain: 6 real bugs found+fixed, P15 proven live, Alice flags the design itself needs to change
+* a12a76a 2026-08-18 14:20:46 -0400  v0.7.8.104 - Backtalk PAT incident fix, fleet CLI hardening (manage/sync -Reboot), SaaS-Tracker installer made self-sufficient, real terminal-profile fix
+* bde2ea0 2026-08-18 09:56:40 -0400  B1S04: Intune installer built, real PS5.1 parse bug found+fixed, domain allowlist gap closed
+* d6578b7 2026-08-17 20:14:53 -0400  Make LIGHTBULB-LOG.md hub-and-spoke read+write mandatory (root PROTOCOL.md #7, AGENTS.md, copilot-instructions.md)
+* 7a5ff71 2026-08-17 18:56:53 -0400  B1S03: live end-to-end proof with real Entra anchor + real SaaS browser telemetry
+* 09b4617 2026-08-17 17:53:07 -0400  B1S03: SaaS telemetry session ingestion (design decisions + implementation)
+* e632093 2026-08-17 12:54:56 -0400  Scope SaaS-Tracker follow-on work: B1S02 DONE, new B1S03 (session ingestion) + B1S04 (productionization rollout)
+* 584de96 2026-08-17 08:46:21 -0400  STATE.md catch-up: SaaS-Tracker MVx final proof, manager-report live-send incident, P21/P22 status, CredMagic test-prompt gap
+* af8f799 2026-08-17 01:36:12 -0400  Fix .AI-TRAINING/ vs .HANDOFF/*.json mislabeling (GAP-2 + a companion drift)
+* 8c7ea51 2026-08-16 21:09:01 -0400  Fix real root cause: @() over List[object] throws Argument types do not match
+* 5a28bb2 2026-08-16 20:33:11 -0400  Handoff: sqlite3 blocker cleared by CTO, JSON-join bug fixed, one bug open, FLEET terminal incident
+* 0512a82 2026-08-16 20:32:04 -0400  Fix sqlite3 -json multi-line output not joined before ConvertFrom-Json
+* 76685a4 2026-08-16 13:33:02 -0400  Autonomous session: real bugs found by execution, offline/heartbeat/upload proven, sqlite3 blocked on elevation
+* 22294b9 2026-08-16 13:07:01 -0400  Supervised MAI-Code delegation: wire SharePoint upload + Agile-Wizard PROTOCOL/STYLE-GUIDE docs
+* f301ef2 2026-08-16 13:02:50 -0400  Handoff: SaaS-Tracker MVx auth+storage loop proven end-to-end
+* 833242e 2026-08-16 07:58:29 -0400  Baseline: P21/P22 Win11 upgrade pilot + SaaS-Tracker MVx discovery/scoping
+* 96a0a03 2026-08-15 20:26:52 -0400  v0.7.8.103 - BigBrother third-party connector awareness + 4 real bugs found via live-data verification
+* a51c711 2026-08-14 16:52:07 -0400  v0.7.8.102 - BigBrother report fixes (tooltip portal, drift-zero, bgcolor) + terminal/test-runner protocol hardening
+* ecf2e65 2026-08-11 13:57:11 -0400  v0.7.8.101 - BigBrother session-math accuracy (Entra-anchored bridging) + report UX + overnight fleet fires
+* 81fd673 2026-08-10 05:49:24 -0400  v0.7.8.100 - BigBrother Employee Activity Report: per-session SoT, pure renderer, headless Purview CBA (delivered to Tiffany)
+* 690f4f5 2026-08-08 00:30:05 -0400  v0.7.8.99 - fleet v0.5.5 (option-B dispatch + DRY help) + fleet.README SoT reconciliation
+* 8621d70 2026-08-01 21:53:47 -0400  v0.7.8.98 - M365 activity digest and fleet onboarding
+* 9601aa9 2026-07-30 07:34:45 -0400  v0.7.8.97 - Instructions-file bloat analysis + 3-submodule wrap (pickaxe/ai-labs/ai-labs-toolkit)
+* 5d8dad7 2026-07-29 20:53:46 -0400  chore: bump pickaxe pointer to 0681e92 (LB-03 fix, v0.4.1)
+* 4c2a1e4 2026-07-29 20:34:43 -0400  chore: bump pickaxe pointer to 88b72bb (LB-03 lightbulb-log entry)
+* e005221 2026-07-29 20:21:33 -0400  v0.7.8.96 - pickaxe v0.4.0 docs sync, sandbox rollup test (LB-03), terminal-discipline fix (FAIL #43)
+* 423aece 2026-07-29 08:35:28 -0400  v0.7.8.95 - fleet v0.5.3 fleet-wide filter fix + handoff rollup spec
+* 93d5880 2026-07-29 07:31:44 -0400  v0.7.8.94 - Housekeeping: apply agent thumbprint convention
+* a784d58 2026-07-29 00:19:33 -0400  v0.7.8.93 - JIT-Grant TDD: 261-char schtasks bug fix + v0.2.0
+* 91b4715 2026-07-28 17:45:54 -0400  v0.7.8.92 - PHOENIX-05 incident tickets + fleet PUA audit policy
+* 76476a4 2026-07-28 10:09:26 -0400  v0.7.8.91 - fleet v0.5.2: help-flag guards + P18/P19 docs
+* 894afb4 2026-07-27 22:51:14 -0400  v0.7.8.90 - align named-terminal bridge governance
+* bbc1695 2026-07-27 06:44:11 -0400  v0.7.8.89 - fleet v0.5.1: repair bug fixes + lightbulb log
+* 5a4230b 2026-07-27 06:22:32 -0400  v0.7.8.88 - AI Labs Toolkit generic UX
+* 15cc2fe 2026-07-26 13:10:54 -0400  v0.7.8.87 - named terminal bridge + Node bootstrap
+* ff9a078 2026-07-26 12:38:20 -0400  v0.7.8.86 - fleet v0.5.0 + Invoke-Fleet.ps1 v0.1.0
+* c3d8111 2026-07-25 17:08:31 -0400  handoff: STATE.md 260725 - D1+D2+D5+D4 complete, D6 pending
+* d016dba 2026-07-25 17:07:24 -0400  v0.7.8.84 - Chrome version display + digest auto-claim (D1+D2+D5)
+* f743594 2026-07-25 16:29:59 -0400  fix: add ARCHITECT/TECHLEAD (JN) to 8 headers missing enforced fields
+* 5c815a9 2026-07-24 14:05:22 -0400  v0.7.8.83 - 5-star protocol compliance, header standard, handoff housekeeping
+* 87f3b68 2026-07-23 23:38:33 -0400  docs: commit post-migration uncommitted working-tree changes (memories, onboarding, Intune-Deployments README)
+* 78d1d53 2026-07-23 23:35:20 -0400  chore: remove stale PDF exports from onboarding (source .md docs exist)
+* f3582be 2026-07-23 22:24:02 -0400  Add 5-star .HANDOFF docs to Intune-Deployments + a2m8-intune
+* 1b390f2 2026-07-23 20:32:39 -0400  Park a2m8-intune as unreleased SIDE-PROJECT; preserve real manifest
+* ef8df5f 2026-07-23 19:16:05 -0400  Pull Install-ArcAgent.ps1 v0.7.8.39 into Intune-Deployments
+* f8f46a0 2026-07-23 06:18:11 -0400  v0.7.8.75 - Fleet v0.4.7, Dana onboarding, instruction reconcile
+* 09ee5fc 2026-07-21 16:12:16 -0400  v0.7.8.82 - pickaxe fix + post-commit backup wrap
+* 01adc85 2026-07-21 15:11:34 -0400  v0.7.8.81 - session wrap: STATE.md + LIGHTBULB-LOG FAIL#39
+* 87a6302 2026-07-21 11:54:53 -0400  v0.7.8.80 - multi-session sync: submodule bumps + MVx rename + .AI-TRAINING + HANDOFF
+* 1b9529c 2026-06-20 00:55:58 -0400  chore(mvx): register MVx-260619-01; extend 260614 case study with Juneteenth extension + W25 timeline
+* 8dfbdbe 2026-06-20 00:12:45 -0400  fix(headers): Python docstring rule + UPDATED field + check-headers.py pre-commit hook
+* 7d3d99a 2026-06-19 23:50:23 -0400  chore(submodule): bump ai-labs pointer (header fixes tools.yaml 0.3.1 / tools.md 0.2.2)
+* f0cf56e 2026-06-19 23:41:42 -0400  chore(submodule): bump ai-labs pointer (tools registry ΓÇö redactor v0.5.0, redact-local DELETED)
+* 6e53b04 2026-06-19 23:33:32 -0400  chore(handoff): STATE.md ΓÇö wrap session 2026-06-19 (v0.7.8.78)
+* 309dad4 2026-06-19 23:26:23 -0400  v0.7.8.78 - fsDB/fsQL rename sweep + redactor v0.5.0
+* 60411b8 2026-06-17 09:23:49 -0400  v0.7.8.77 - naming standards and terminal registry continuity
+* 234359e 2026-06-15 06:56:32 -0400  wrap(session): v0.7.8.76 ΓÇö pickaxe v0.3.4, pyst/psst relations, redactor docs, termreg bootstrap, ai-labs manifest v0.2.1, hard-gates reorg
+* 419c11f 2026-06-14 04:48:58 -0400  fix(security): redact client secrets from 251129-ROADMAP-CourseCorrections.md (41 replacements)
+* 262f19a 2026-06-14 04:19:35 -0400  docs(mvsx): add 260614-17 redactor pattern evolution story (xSupervised-ML exemplar)
+* c490b45 2026-06-13 13:13:29 -0400  chore(memory): terminal-safety ΓÇö document bash bypass + LW_AGENT_SHELL patterns
+* 5a2b01b 2026-06-13 12:39:12 -0400  chore(formatting): user tweaks ΓÇö 9 memory files, AGENTS.md, copilot-instructions + ai-labs pointer bump
+* 3847e04 2026-06-13 12:17:03 -0400  wrap(session): v0.7.8.75 handoff JSON + ai-labs STATE pointer bump
+* 2ae0309 2026-06-13 10:47:55 -0400  fixup(memory): fold user edit into 200-line-rule ΓÇö fsDB/fsQL protocol note
+* 22e4606 2026-06-13 10:45:09 -0400  feat(memory): v0.7.8.75 ΓÇö HOBOTS rename, YAML METADATA, 3D epiAGENTology
+* bd96912 2026-06-13 06:04:19 -0400  v0.7.8.74 - tools manifest v0.2.0, MQL design, vsCode tree
+* 57db12f 2026-06-12 17:27:05 -0400  v0.7.8.73 - instructions refresh + redactor/ipscan submodules
+* 56ef1f1 2026-06-09 11:42:48 -0400  v0.7.8.73 - adventure genesis + persona v0.3 + memory export
+* d8aecc2 2026-06-08 01:25:08 -0400  fix: claim PATCH API + -Force retry + write scope + device name fallback (v0.4.6)
+* db162b9 2026-06-08 00:59:52 -0400  fix: claim -Device filter + proper param binding (v0.4.5)
+* 37215a6 2026-06-05 13:28:31 -0400  v0.7.8.72 - redactor v0.4.0 sync + stdOps standard + FAIL #35
+* e786000 2026-06-04 21:34:09 -0400  housekeeping: ipscan pointer bump + handoff JSONs + ETA backlog ticket
+* 0476405 2026-06-04 20:59:21 -0400  v0.7.8.71 - redactor v0.2.0: --plain-text + --inplace + test suite
+* 876a996 2026-06-04 20:53:14 -0400  v0.7.8.70 - Catch-all rule + claim processor + fleet digest alias
+* 09a7f38 2026-06-04 10:09:24 -0400  v0.7.8.69 - ai-labs-toolkit SIDE-PROJECT scaffold + shim promotion
+* bfcc2d8 2026-06-04 01:17:16 -0400  v0.7.8.68 - Design B terminal fix + FAIL #34 + bootstrap-agent-shell
+* fad019a 2026-06-03 21:25:04 -0400  bump ipscan submodule to pyst v0.1.4
+* 015d92d 2026-06-03 19:58:01 -0400  v0.7.8.67 - agent-personas v0.2: three-layer BotSwarming architecture
+* 90b81e6 2026-06-03 16:32:42 -0400  v0.7.8.66 - Register ipscan as submodule + Py3.14/macOS fixes
+* 84756da 2026-06-02 17:12:37 -0400  v0.7.8.65 - Lori identity stack + fleet compliance/security + smoke tests
+* e144797 2026-06-01 17:45:51 -0400  v0.7.8.64 - fsQL rename tracking + ai-labs whitepaper IP edits
+* 6206c7f 2026-06-01 15:53:33 -0400  handoff: FAIL #26, submodule pointer bumps, handoff JSON (v0.7.8.63)
+* ea22cab 2026-06-01 14:59:43 -0400  fix: register psst + psstel as proper submodules in .gitmodules
+* 3f6f18c 2026-06-01 14:56:27 -0400  fix: register ai-labs as proper submodule in .gitmodules
+* b4e3449 2026-06-01 14:50:47 -0400  wrap(gpu-r&d): 2026-06-01 GPU session ΓÇö tools + docs + cherry-picks
+* b80839f 2026-05-31 08:24:39 -0400  handoff: birthday session wrap ΓÇö whitepaper v0.1 complete, pickaxe submodule, persona archaeology
+* e77ebf2 2026-05-31 03:38:40 -0400  docs(pickaxe): MVx EHR hypothesis + session artifacts (260527)
+* 367f65c 2026-05-31 01:30:50 -0400  unified BotSwarming whitepaper v0.1 + 16-source cross-reference graph
+* f649504 2026-05-30 21:04:40 -0400  v0.7.8.62 - session wrap: fleet CLI formalized, DESIGN D-11, checklist updated
+* 0cac247 2026-05-30 20:16:16 -0400  v0.7.8.61 - fleet.ps1 v0.4.0: win32 command + endpoint archaeology lessons
+* 494a1fb 2026-05-30 17:46:48 -0400  v0.7.8.60 - Chrome Win32 LOB push via a2m8-intune DRY delegation
+* 2fff9e8 2026-05-30 15:07:01 -0400  handoff: add 2-sync max fallback rule to Sol-02 marching orders
+* 9daa6c4 2026-05-30 15:03:04 -0400  v0.7.8.59 - Remove --ignore-checksums from Chrome; Sol-02 handoff
+* d9f1e72 2026-05-30 08:28:17 -0400  v0.7.8.58 alignment - rabbit-hole protocol + EPIC/FEATURE pass
+* 99ae4ea 2026-05-29 23:30:05 -0400  v0.7.8.58 - Restore --ignore-checksums for Chrome (dropped in .57 refactor)
+* d5b2fbf 2026-05-29 21:14:32 -0400  add Diagnose-ChromeInstall.ps1 v0.1.0 -- R&D feedback loop for Chrome choco failure
+* 83cc1d9 2026-05-29 21:02:48 -0400  fix Get/Watch-GistFleet: / switch collision + CredMagic Get-Command guard
+* 68a7023 2026-05-29 20:46:18 -0400  v0.7.8.58 - Get-GistFleet + Watch-GistFleet (CredMagic Gist tooling)
+* 7964a38 2026-05-29 20:30:56 -0400  v0.7.8.57 - Persistent Backtalk (LW_BACKTALK_PERSISTENT)
+* 4427c93 2026-05-29 20:00:35 -0400  v0.7.8.52b - session handoff + open-items update
+* e1cba27 2026-05-29 19:55:18 -0400  v0.7.8.52 - a2m8 .HANDOFF scaffold + choco design principles
+* 1d96408 2026-05-29 18:27:08 -0400  feat: scaffold LogicWizards.NYC web initiative (kickoff 2026-05-29)
+* 5f4bfbc 2026-05-29 16:34:30 -0400  v0.7.8.56 - Intune tooling bundle: tail tool, fleet status, P15 run state
+* 7170d8f 2026-05-29 16:21:36 -0400  v0.7.8.55 - Bootstrap Chrome --ignore-checksums tactical fix for P-15
+* 4ff853b 2026-05-29 15:48:51 -0400  v0.7.8.54 - Wrap-ChocoPackage v0.2.0 code-complete + 4 bug fixes
+* 0275339 2026-05-28 20:07:18 -0400  housekeeping: P-15/P-18 handoff, BitLocker fix script, ART repo-split story
+* cccfa02 2026-05-28 20:01:35 -0400  v0.7.8.53 - UX condensation bundle + filename clobber fix
+* cb0dd02 2026-05-27 17:19:58 -0400  chore: update ai-labs submodule pointer (audience split 0bf3ffc)
+* aa92c56 2026-05-27 17:15:45 -0400  v0.7.8.51 - pickaxe Part-2: trajectory signal + EOM ROI digest + whitepaper divergence
+* 5fd64e7 2026-05-27 15:29:33 -0400  v0.7.8.50 - Pickaxe MVx docs wrap + reboot handoff prompt
+* 6456397 2026-05-27 05:54:18 -0400  docs(pickaxe): MVx EHR hypothesis + session artifacts (260527)
+* 444500d 2026-05-27 02:02:02 -0400  docs(handoff): 260526 ecosystem-mapping session record
+* 804043f 2026-05-26 20:19:13 -0400  docs: add SIDE-PROJECTS/README.md ΓÇö ecosystem map + tool pipeline
+* 515efe8 2026-05-26 20:18:05 -0400  chore: untrack pickaxe/ ΓÇö now its own git repo (wwwizards/pickaxe)
+* 9ee068f 2026-05-26 18:54:52 -0400  pickaxe: ROADMAP checklist + .HANDOFF scaffold (260526)
+* 93f44d4 2026-05-26 17:33:56 -0400  pickaxe north star vision + repo hygiene templates + AGENTS.md prose-wrap rule
+* 2e293f7 2026-05-26 04:40:35 -0400  v0.7.8.49 - Fleet owner assignment automation + digest UX
+* 3af4871 2026-05-25 19:35:02 -0400  v0.7.8.48 - CTO digest UX polish (palette, CLAIM, MFA, logo)
+* f41d076 2026-05-25 18:19:21 -0400  docs(handoff): session housekeeping after v0.7.8.47
+* 6209c45 2026-05-25 18:15:24 -0400  v0.7.8.47 - Compliance modal + stale-folded inventory + Pester gate
+* 4a4562e 2026-05-25 15:10:52 -0400  (tag: v0.7.8.46) v0.7.8.46 - CTO digest MFA risk table + failure-archive whitepaper
+* b051ed2 2026-05-25 12:57:34 -0400  (tag: v0.7.8.45) v0.7.8.45 - Fleet WinRM posture diagnostic toolkit
+* a6f465e 2026-05-25 08:43:40 -0400  (tag: v0.7.8.44) v0.7.8.44 - WinRM harness toolkit + IME run-state visibility
+* 221876f 2026-05-25 04:51:39 -0400  (tag: v0.7.8.43) v0.7.8.43 - Fix false FAILED telemetry from schtasks /Delete
+* b9bb3e6 2026-05-25 03:24:07 -0400  (tag: v0.7.8.42) v0.7.8.42 - Onboarding automation helpers + Bootstrap v0.7.8.40 deployment
+* a43fa05 2026-05-25 02:16:55 -0400  (tag: v0.7.8.41) v0.7.8.41 - Digest duplicate device fix + data quality tests
+* b40c4d0 2026-05-24 18:26:44 -0400  Update resume doc (version header fix complete)
+* fcc939e 2026-05-24 18:25:58 -0400  Fix digest footer version strings (v0.7.8.38 ΓåÆ v0.7.8.40)
+* 7687e88 2026-05-24 18:07:37 -0400  Bump digest version to v0.7.8.40
+*   137df90 2026-05-24 16:23:21 -0400  (tag: v0.7.8.40) Merge Phoenix taxonomy + compliance (WIP extraction)
+|\  
+| * 1a69594 2026-05-24 16:23:13 -0400  v0.7.8.40 - Device taxonomy + compliance reporting (Phoenix WIP extraction)
+|/  
+* a2465b9 2026-05-24 15:13:42 -0400  Instructions: DoqDB peer review workflow for next agent
+* fa9db81 2026-05-24 15:05:44 -0400  Instructions: Phoenix WIP analysis workflow for next agent
+* 34c8c15 2026-05-24 14:52:02 -0400  Handoff: Phoenix work session + WIP branch analysis plan
+* 9cc3c12 2026-05-24 14:27:01 -0400  v0.7.8.39 - DoqDB whitepaper session + handoff backfill
+* a82cf52 2026-05-22 22:36:52 -0400  docs(handoff): STATE.md - WIP backup branches inventory + unring procedure
+| * 58d6b38 2026-05-22 22:28:22 -0400  (origin/wip/a2m8-toolkit-shared, wip/a2m8-toolkit-shared) wip: a2m8-toolkit - Test-IsAdmin shared helper
+|/  
+| * 65a0a79 2026-05-22 22:28:13 -0400  (origin/wip/a2m8-intune-tooling, wip/a2m8-intune-tooling) wip: a2m8-intune - Get-IntuneDevice extraction + tests (LW-34 regression unresolved)
+|/  
+| * e963e20 2026-05-22 22:27:47 -0400  (origin/wip/a2m8-choco-tooling, wip/a2m8-choco-tooling) wip: a2m8-choco - Build-ChocoPackage and Repair-ChocoLock (with tests)
+|/  
+| * 4e0bbd3 2026-05-22 22:27:24 -0400  (origin/wip/260522-acrobat-pro-A1B05, wip/260522-acrobat-pro-A1B05) wip: Acrobat Pro Intune push attempt - blocked at A1B05 (commitFileFailed)
+|/  
+* 8b26761 2026-05-22 22:18:02 -0400  v0.7.8.38e - gitignore: protect client PII (sign-in CSVs, fleet JSONs, .PRIVATE configs)
+* be8b5ce 2026-05-22 22:13:01 -0400  v0.7.8.38d - Session capture: Acrobat Pro Win32 push attempt + root cause
+* 5fb08fc 2026-05-22 14:44:39 -0400  v0.7.8.38c - handoff: STATE.md snapshot post-38b
+* 6eb9063 2026-05-22 12:33:55 -0400  v0.7.8.38b - Digest modal salt-obfuscation + markdown-reflow pre-commit hook
+* 8548c22 2026-05-22 12:22:39 -0400  v0.7.8.38 - Onboarding toolkit: codify silent group-membership gate
+* 66a1d26 2026-05-21 10:37:56 -0400  v0.7.8.37b - Fix Graph scope names + PUTΓåÆPOST on users/$ref
+* 929823a 2026-05-21 08:37:23 -0400  v0.7.8.37 - Auth guard for StakeholderDigest (fail-fast, no redundant prompts)
+* 0c04bd3 2026-05-21 03:25:48 -0400  v0.7.8.37 - psstel v0.2.1 space-time enrichment + instructions + onboarding fix
+* 352571c 2026-05-21 02:30:03 -0400  v0.7.8.36 - psstel v0.2.0 + Bootstrap hardening + a2m8 tools + backlog
+* 38a3405 2026-05-20 07:52:45 -0400  v0.7.8.36 - a2m8-m365 E2E sync proven on Phoenix CPAs
+* d3cabb9 2026-05-20 00:02:19 -0400  v0.7.8.36 - a2m8-m365 v0.1.0 (Phoenix CPAs GAL sync)
+* ff204bc 2026-05-19 16:04:14 -0400  v0.7.8.35 - Strip .exe binaries from history, add to .gitignore (LW-16)
+* d01f1aa 2026-05-19 15:57:42 -0400  v0.7.8.34 - Fleet primary user dry-run + digest improvements
+* 0491483 2026-05-19 13:55:07 -0400  fix(digest): header shows 'Week of May 12 - May 19' instead of 'Week ending date'
+* ae1a41f 2026-05-19 13:45:58 -0400  fix(digest): schedule Saturday 11:45pm + TO-BE data export roadmap
+* 304f647 2026-05-19 13:20:04 -0400  v0.7.8.35 - a2m8-toolkit scaffold + pickaxe scan + digest schtask
+* fb1ac6f 2026-05-19 12:46:42 -0400  Fix Grant-JitAdmin auto-revoke payload - nested quote bug
+* fe7a91c 2026-05-18 22:44:13 -0400  v0.7.8.33 - JIT grant working + canary P14/P15
+* e95b503 2026-05-18 20:03:01 -0400  v0.7.8.34 - handoff: protocol v0.3 restructure + LW-17
+* 5a58b53 2026-05-18 19:26:03 -0400  v0.7.8.34 - handoff: LW-16 binary strip tech-debt (blocks LogicWizards-NYC push)
+* b3b588d 2026-05-18 19:03:16 -0400  v0.7.8.34 - handoff: pickaxe scan findings + LW-10..15
+* 4fc7cf1 2026-05-18 18:28:23 -0400  v0.7.8.34 - 5-star handoff scaffold + session handoff JSON
+* c72da7e 2026-05-18 17:49:51 -0400  v0.7.8.34 - docs + AcrobatPro script + redact config cleanup
+* c6b0121 2026-05-18 17:36:45 -0400  v0.7.8.34 - Redact module scaffold + a2m8-intune README
+* ba52c1a 2026-05-18 17:31:56 -0400  v0.7.8.34 - Bootstrap backtalk bookend + JIT admin + digest fixes
+* b2bc7de 2026-05-14 04:40:57 -0400  v0.7.8.32 - PI Planning + Sprint Retrospective artifacts
+* 271761d 2026-05-14 03:13:49 -0400  v0.7.8.32 - Sloptimization: LW_BASE constant, __LW_BASE__ token, remove dead code, fix duplicate push-status, test coverage
+* f4ac7bf 2026-05-13 21:53:33 -0400  v0.7.8.31 - DRY bootstrap: PAT auto-written, single version source of truth
+* 13e1112 2026-05-13 20:38:24 -0400  v0.1.0 - Timezone Proactive Remediation for Phoenix Canaries
+* b71e6ea 2026-05-13 19:12:34 -0400  v0.7.8.30 - expand AllowedDevices to PHOENIX-11/12/13
+* 3c9a28b 2026-05-12 17:21:46 -0400  v0.7.8.29 - Handoff: add PHOENIX-11/12/13 to canary list
+* 5de2dd6 2026-05-12 08:00:48 -0400  v0.7.8.29 - Handoff snapshot
+* 6932a28 2026-05-12 07:59:03 -0400  v0.7.8.29 - schtasks (non-admin start-backtalk fix)
+* ee2f2c1 2026-05-12 05:50:47 -0400  v0.7.8.28 - Handoff + post-push snapshot (Intune lastModified 2026-05-12T09:49:20Z)
+* 010f658 2026-05-12 05:46:33 -0400  v0.7.8.22-28 - backtalk + check-tools + git + update-toolkit + hardening
+* f1e3bf1 2026-05-11 05:20:13 -0400  v0.7.8.20 - Add FILE breadcrumb to all v0.7.8.18+ markdown docs
+* f10bae8 2026-05-11 03:45:14 -0400  v0.7.8.19 - Phoenix CPAs playbook + a2m8-intune + onboarding scripts
+* 41f28c5 2026-05-10 14:11:27 -0400  v0.7.8.18 - a2m8-choco scaffold + Win32-App specs
+* d322606 2026-05-10 09:02:25 -0400  v0.7.8.17 handoff: WhatIf/feedback-loop session wrap
+* 53b09fb 2026-05-10 08:20:56 -0400  v0.7.8.17 - WhatIf/Strict/encoding-gate for faster feedback cycles
+* 5fc6afc 2026-05-10 07:16:55 -0400  v0.7.8.16 - Phoenix fleet provisioning: Intune delivery proven on PHOENIX-10
+* 6217a0f 2026-05-09 08:05:23 -0400  v0.7.8.13 - Device Inventory table: fix top sign-in user population
+* 4a96d26 2026-05-09 04:20:36 -0400  handoff: record commit hash 4949023, mark stream split complete, add copilot-instructions cleanup to marching orders
+* 4949023 2026-05-09 04:16:30 -0400  v0.7.8.12 - Stream split, handoff, MVx framework, digest math fixes, SwagWAF
+* b42f1df 2026-05-08 20:37:23 -0400  v0.7.8.11+ - Security cleanup + PII redactor + client reports
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\.AI-TRAINING ===
+--------------------------------------------------------------------------------------------
+Branch: RepoMgr-DR-260901
+  Pending changes: 68 total  [M:14  D:4  ?:50]
+
+  ── Deleted (4) ──
+
+Code Scope    File
+---- -----    ----
+ D   Unstaged 20251126-Handoff.json
+ D   Unstaged 251201-MVSx-Stories-Enhancement-Summary.md
+ D   Unstaged AI-GPU-Tweaks.md
+ D   Unstaged mvsx-stories/251201-ONNX-TensorFlow-TensorRT-Comparison.md
+
+
+
+  ── Modified (14) ──
+
+Code Scope    File
+---- -----    ----
+ M   Unstaged .gitignore
+ M   Unstaged 251129-ROADMAP-CourseCorrections.md
+ M   Unstaged 251201-Handoff.json
+ M   Unstaged 251204-CourseCorrections-v0.7.8.1-Dashboard-DataTier.md
+ M   Unstaged 251204-Handoff-v0.7.8.1-Dashboard-AutoExec.json
+ M   Unstaged 251219-Handoff-v0.7.8.9-Instruction-Modularization.json
+ M   Unstaged 251222-Handoff-v0.7.8.10-AVD-Incident-Dashboard-DataTier.json
+ M   Unstaged ANALYSIS-260107-Instruction-Ecosystem-Strategy.md
+ M   Unstaged COMPARISON-260107-Instructions-Sections.md
+ M   Unstaged FUTURE-LAPTOP-MIGRATION-NOTES.md
+ M   Unstaged GPU-SETUP.md
+ M   Unstaged README.md
+ M   Unstaged templates/decision-matrix.md
+ M   Unstaged WHITEPAPER-OUTLINE.md
+
+
+
+  ── Untracked (50) ──
+
+Code Scope File
+---- ----- ----
+??   -     .HOBOTS/
+??   -     20260602-1013-Handoff-v0.7.8.65-Theresa-Lori-NameChange.json
+??   -     251013-Handoff-v0.7.8.65-Theresa-Lori-NameChange.json
+??   -     251126-Handoff.json
+??   -     251201-MVx-Stories-Enhancement-Summary.md
+??   -     260509-Handoff-v0.7.8.12-StreamSplit.json
+??   -     260509-Handoff-v0.7.8.14-DeviceProvisioning.json
+??   -     260510-Handoff-v0.7.8.15-a2m8-intune-Launch.json
+??   -     260510-Handoff-v0.7.8.16-Phoenix-Fleet.json
+??   -     260510-Handoff-v0.7.8.17-WhatIf-FeedbackLoop.json
+??   -     260510-Handoff-v0.7.8.18-a2m8-choco-Scaffold.json
+??   -     260511-Handoff-v0.7.8.19-Playbook-and-a2m8-intune.json
+??   -     260511-Handoff-v0.7.8.20-GHE-Setup-Plan.json
+??   -     260511-Handoff-v0.7.8.21-PostLunch-PlaybookGapTest.json
+??   -     260512-Handoff-v0.7.8.28-Bootstrap-Hardening.json
+??   -     260512-Handoff-v0.7.8.29-schtasks-nonAdmin.json
+??   -     260514-Handoff-v0.7.8.32-Sloptimization-Tests.json
+??   -     260514-PI-Planning-ART-of-ARTs.json
+??   -     260514-SprintRetro-v0.7.8.x-TaxSeason-CapeWay.md
+??   -     260518-Handoff-v0.7.8.34-Bootstrap-BacktalkBookend.json
+??   -     260520-Handoff-v0.7.8.35-a2m8-m365-SPAuth.json
+??   -     260520-Handoff-v0.7.8.36-a2m8-m365-ListProvisioned.json
+??   -     260521-Handoff-v0.7.8.36-psstel-v0.2.0.json
+??   -     260521-Handoff-v0.7.8.37-psstel-v0.2.1-SpaceTime.json
+??   -     260527-EOM-ROI-Digest-SideProjects-vs-Client.md
+??   -     260527-Handoff-v0.7.8.38-pickaxe-v0.2.0.json
+??   -     260527-Handoff-v0.7.8.38-pickaxe-v0.3.1.json
+??   -     260603-Handoff-v0.7.8.67-PersonaRegistry-v0.2.json
+??   -     260603-Handoff-v0.7.8.68-DesignB-TerminalFix.json
+??   -     260603-Handoff-v0.7.8.68-pickaxe-v0.3.2-gitlink-fix.json
+??   -     260604-Handoff-v0.7.8.71-redactor-v0.2.0.json
+??   -     260608-Handoff-v0.7.8.73-adventure-genesis.json
+??   -     260613-b-Handoff-v0.7.8.75-3D-epiAGENTology.json
+??   -     260617-Handoff-v0.7.8.76-PICKAXE-July4-Release.json
+??   -     260722-Handoff-v0.7.8.74-P16-P17-Fleet-Provisioning.json
+??   -     260722-Handoff-v0.7.8.75-P16-P17-P18-Dana-Fleet-v0.4.7.json
+??   -     260728-Handoff-v0.7.8.92-PUA-Policy-Chrome-Cleanup-STATE-Discovery.json
+??   -     260801-Handoff-v0.7.8.98-M365-Activity-Digest-Fleet-Onboarding.json
+??   -     ANTI-PATTERN-260521-DRY-Across-Runtime-Boundaries.md
+??   -     detached-analysis.json
+??   -     DISCOVERY-260724-ai-labs-toolkit-federation-delivery.md
+??   -     DISCOVERY-260725-Workspace-Optimization.md
+??   -     GPU-SETUP-260601-Handoff-CuPy-Pascal-Blocker.md
+??   -     GPU-VsCode-TroublleShooting-101.md
+??   -     GPU-VsCode-TweakingForAI.md
+??   -     GPU-VsCode-UnderTheHood.md
+??   -     mvx-stories/
+??   -     probes.json
+??   -     RepoMgr-260901-00.git-status.BASELINE.txt
+??   -     templates/PROJECT-THUMBPRINT-TEMPLATE.json
+
+
+
+History since 120 days ago :
+* d8a108c 2026-07-21 11:44:26 -0400  (origin/main, origin/HEAD) chore(sync): multi-session sync ΓÇö protocols, federation, whitepapers, handoff, archive v0.2.2
+* bd9a7dc 2026-07-15 10:10:31 -0400  wrap(260714): session close ΓÇö symlink WHITEPAPER-OUTLINE.md, STATE.md AL-01/02/03 updates, tools.yaml version bump, session record
+* 4dd35a1 2026-07-14 15:54:53 -0400  feat(al-03): .HANDOFF/.PROTOCOL/mvx-framework.md v0.1.0-draft ΓÇö formal MVx spec, seed for RFC-001
+* 4868c43 2026-07-14 15:53:40 -0400  refactor(al-01): migrate root flat files into tree ΓÇö observations/patterns, experiments, archive, rfcs/drafts; rm dummy.txt
+* 72901a5 2026-07-14 15:36:54 -0400  docs(handoff): reinit instructions ΓÇö sync 260613-260619 learnings, close SENS-01, fix paths, HOBOTS load order
+* 7a0bf44 2026-07-14 15:31:12 -0400  fix(agents): ai-labsSOLOMON ΓåÆ SOLOMON in UPDATED field (sync from pre-filter-repo local)
+* 592ed46 2026-06-20 00:55:37 -0400  feat(mvx): MVx-260619-01 ΓÇö redactor as smart rename engine, token efficiency proof (Juneteenth)
+* 9b7dfd6 2026-06-19 23:49:38 -0400  chore(headers): bump UPDATED+VERSION in tools.yaml (0.3.1) and tools.md (0.2.2) ΓÇö 260619JN
+* 6d1f923 2026-06-19 23:41:02 -0400  chore(tools): redactor v0.4.0ΓåÆv0.5.0; redact-local DELETED (v0.7.8.78 Juneteenth)
+* 1ccecf1 2026-06-15 06:46:41 -0400  chore(manifest): tools v0.2.1 ΓÇö pickaxe v0.3.4 + pyst relations
+* fc15eac 2026-06-14 05:40:24 -0400  chore(manifest): pickaxe v0.3.2 -> v0.3.3; add shipped/designed fields, commit-trends + MQL + git-passthrough design notes, TESTING.md to keyDocuments; sync .md twin
+* e6c857f 2026-06-14 04:25:17 -0400  chore(state): close SENS-01 blocker ΓÇö redacted + filter-repo pending
+* a8c7c7d 2026-06-14 04:12:43 -0400  v0.7.8.73 - SENS-01 close: redact FUTURE-LAPTOP-MIGRATION-NOTES.md
+* ed7b9b4 2026-06-13 13:08:42 -0400  chore: remove stale COMMIT-MSG-ai-labs-tools-manifest-v0.2.0.txt
+* 6772cff 2026-06-13 12:36:42 -0400  chore(formatting): user tweaks ΓÇö STATE.md, tools.md, tools.yaml
+* d246b88 2026-06-13 12:16:57 -0400  wrap(session): 260613-b STATE.md updated ΓÇö 3D epiAGENTology session close
+* 3d4b301 2026-06-13 07:41:29 -0400  feat(manifest): v0.2.1 ΓÇö hex colors, status taxonomy, SETTINGS, git-sync THERE
+* 9f7f98b 2026-06-13 05:50:39 -0400  feat(manifest): .ai-labs.tools.yaml v0.2.0 + tools.md matrix
+* 4bba503 2026-06-12 13:00:58 -0400  wrap(federation): session close ΓÇö cross-links, STATE refresh, handoff
+* ca862dd 2026-06-12 12:41:48 -0400  state/adventure: 260610 session ΓÇö pins, STATE refresh, persona corrections
+*   fb63ebc 2026-06-12 12:39:58 -0400  merge(federation): federation genesis into main (11 remote commits + feat/federation-genesis)
+|\  
+| * c00e79c 2026-06-12 12:38:32 -0400  feat(federation): genesis planning ΓÇö F1-F6 northstars + MVx-1..6 + session record
+* | 3364bdb 2026-06-12 10:00:24 -0400  260612: adventure SESSION.md ΓåÆ README.md (GH preview convention)
+* | 4867645 2026-06-12 09:58:52 -0400  260612: SESSION.mdΓåÆREADME.md convention (GH preview); update 5-star-thumbprint + HOBOTS-0001; add hobots-rfc-and-rename session record
+* | 317fbff 2026-06-12 09:51:55 -0400  260612: AL-11 ΓÇö .HOBOTS/.PROTOCOL/cross-session-learning.md v0.1.0-draft; 8-gap G1-G8 with mitigations + XSL normed behaviors
+* | 045428c 2026-06-12 09:48:28 -0400  260612: STATE ΓÇö AL-09 HOBOTS rename complete; AL-14 closed
+* | 132db36 2026-06-12 09:47:33 -0400  260612: AL-09 ΓÇö BSHP ΓåÆ HOBOTS rename (files + content); bshp/v2 ΓåÆ hobots/v1
+* | a6782af 2026-06-12 09:38:08 -0400  260612: AL-10 ΓÇö rfcs/HOBOTS-0001 v0.1.0-draft; AL-14 closed in STATE
+* | 09989d6 2026-06-12 08:24:45 -0400  260612: .PROTOCOL/ cascade model + pickaxe workspace design
+* | 7fa4a9c 2026-06-12 07:37:56 -0400  260612: AGENTS.md v0.4.1 + HOBOTS structural hardening
+* | 48d5802 2026-06-11 09:12:36 -0400  260611 ΓÇö AGENTS.md: 5D session protocol block (DISCOVERΓåÆDIAGNOSEΓåÆDESIGNΓåÆDOCUMENTΓåÆDELIVER)
+* | 6b83137 2026-06-11 08:09:00 -0400  260611 ΓÇö autodocs MVx1 design gate + pyst roadmap + 260610/260611 SESSION observations
+* | 25dd3ea 2026-06-10 08:56:40 -0400  handoff(state): 260610 session close ΓÇö STATE.md refresh
+* | c351915 2026-06-10 08:14:38 -0400  obs(fordham): 260610 session ΓÇö gap analysis, T.O.T.O. spec, secrets RFC, BSHP positioning
+|/  
+* 9b71fce 2026-06-08 05:09:33 -0400  feat: adventure sub-project genesis + agent-personas v0.3
+* 03540b4 2026-06-04 01:15:46 -0400  docs: add Alice ROI tally (s6.5) to rabbit-hole protocol
+* f7dd533 2026-06-03 19:40:34 -0400  feat(personas): agent-personas v0.2 - three-layer BotSwarming architecture
+* 5cd5374 2026-06-01 17:41:02 -0400  docs(whitepaper): IP marking + client anonymization for public draft
+* 65ac2fd 2026-06-01 14:39:53 -0400  feat(mvsx+patterns): GPU optimization case study + subagent ROI pattern
+* 5e36903 2026-05-31 01:29:49 -0400  Add unified BotSwarming whitepaper v0.1 + See Also cross-refs to 9 source docs
+* 1d11fdc 2026-05-30 15:02:37 -0400  protocol: ┬º 6 dry-run + cost data (v0.7.8.59 session)
+* 5f489d7 2026-05-30 08:25:53 -0400  v0.1 - Rabbit-hole detection protocol + named persona registry
+* f9bbf37 2026-05-29 18:08:25 -0400  chore: organize root + add whitepaper drafts + index
+* 843d2d2 2026-05-27 17:19:12 -0400  docs: split whitepaper audience (human/academic track, diverges from .AI-TRAINING bot copy)
+* e5035b4 2026-05-27 15:24:55 -0400  docs: add 2026-05-27 repo-health evidence addendum
+* ad97110 2026-05-27 05:55:43 -0400  obs: pickaxe session logs as SDLC training data (260527)
+* 4734da2 2026-05-26 18:51:26 -0400  Add 260526 session log + hygiene drift observation + STATE update
+* 7fb9831 2026-05-26 17:32:43 -0400  Add repo hygiene baseline + reflow all hard-wrapped prose
+* 19fbf30 2026-05-26 05:07:58 -0400  Add Bootstrap self-wire MVx2 + shadow script observation (260525-26)
+* f7c3cd6 2026-05-25 15:03:06 -0400  evidence + lightbulb-log: velocity metric, open-thread onboard law, failure-archive ML/multi-org framing (260525)
+* 4a6a235 2026-05-23 07:13:15 -0400  feat: protocol v0.5 + doqDB RFC draft ΓÇö amendment process, design rationale, git-indexed-doc-store skeleton
+* 319fce3 2026-05-22 22:29:37 -0400  wip: thumbprint-triangulation edits (drive-loss backup)
+* 37ca7b1 2026-05-22 12:21:33 -0400  mvsx: thumbprint-triangulation case study + v0.7.8.x retrospective
+* fb03151 2026-05-21 02:31:38 -0400  AL-07/AL-08: taxonomy + K/I/W observation backlog items (260521)
+* 211e50d 2026-05-18 20:02:58 -0400  docs(protocol): v0.3 - STATE.md authoring rules
+* 85e68c7 2026-05-13 17:23:17 -0400  refactor(handoff): flatten .HANDOFF/, move .PROTOCOL/ inside, add session log
+* d0fbb0d 2026-05-08 12:40:47 -0400  feat(bootstrap): install 5-star anchors, ALL CAPS structural folders, MVx terminology
+* 5bff956 2026-05-08 03:18:01 -0400  Initial commit: AI research archive - BotSwarming whitepaper, MVSx protocol, handoff schemas
+* df235ba 2026-05-08 03:18:01 -0400  (HEAD -> RepoMgr-DR-260901, origin/RepoMgr-DR-260901, main) Initial commit: AI research archive - BotSwarming whitepaper, MVSx protocol, handoff schemas
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\Agile-Wizard ===
+--------------------------------------------------------------------------------------------
+Branch: master
+  Pending changes: 10 total  [M:3  D:0  ?:7]
+
+  ── Modified (3) ──
+
+Code Scope    File
+---- -----    ----
+ M   Unstaged .AI-TRAINING/.gitignore
+ M   Unstaged SOLUTIONS/DevOps/SIDE-PROJECTS/ai-labs
+ M   Unstaged SOLUTIONS/DevOps/SIDE-PROJECTS/vsCode/ai-labs-toolkit
+
+
+
+  ── Untracked (7) ──
+
+Code Scope File
+---- ----- ----
+??   -     .AI-TRAINING/detached-analysis.json
+??   -     .AI-TRAINING/RepoMgr-260901-00.git-status.BASELINE.txt
+??   -     260831-detached-analysis-3day-crunch.json
+??   -     260831-repoMgr-DISCOVER-hist.txt
+??   -     hooks/Normalize-TicketStructure.ps1
+??   -     repoMgr-logs/
+??   -     SOLUTIONS/DevOps/SIDE-PROJECTS/gitlogs/
+
+
+
+History since 120 days ago :
+* d4dbeee 2026-08-26 16:12:04 -0400  (HEAD -> master) v0.7.8.112 - session handoff state
+* 304ead5 2026-08-24 01:50:53 -0400  fix(fleet): prefer self-heal breadcrumbs and stale pending requests
+* 01178fb 2026-08-24 00:01:54 -0400  Intune-Deployments: handoff + watcher payload contract cleanup
+* 734c2c6 2026-08-23 22:34:23 -0400  v0.7.8.103 - Intune fleet handoff payload contract docs
+* 6121509 2026-08-22 17:39:45 -0400  fix(SaaS-Tracker): ensure Microsoft.Graph.Authentication is installed/imported before Connect-MgGraph
+* 37544fb 2026-08-22 17:18:35 -0400  chore: bump a2m8-toolkit pointer (set-watcher-debug cert-response.json fix)
+* 18403e8 2026-08-22 17:17:54 -0400  fix(SaaS-Tracker): collector self-heal fetches cert-response.json, not the never-published device-auth.json
+* d623adc 2026-08-22 14:35:49 -0400  v0.7.8.111 - SaaS-Tracker: found+fixed why cert-requests never became telemetry, WATCHER glyph UX rework
+* acf7feb 2026-08-20 13:25:18 -0400  v0.7.8.110 - digest: -LookbackDays passthrough + rolling-window fix + SaaS telemetry wired to all pilot device folders
+* 9537e9c 2026-08-20 12:43:54 -0400  v0.7.8.109 - WebWatcher v0.2.2: PAT force-write + fleet-wide rotation channel
+* d65a7a4 2026-08-20 11:15:20 -0400  chore: bump a2m8-toolkit pointer (set-gist-pat)
+* 5050fac 2026-08-20 11:06:50 -0400  chore(topology): register a2m8-toolkit as submodule (was monorepo stub)
+* 6638738 2026-08-20 09:21:17 -0400  feat(fleet): add WATCHER column + natural-sort the fleet listing (v0.5.8)
+* 4f444ee 2026-08-20 08:23:52 -0400  docs(B1T06): note update-toolkit + check-webwatcher client feedback loop
+* b317f2e 2026-08-20 07:31:08 -0400  feat(B1T06): hands-off device-auth self-heal + version-aware Intune upgrade
+* 2c4ba3e 2026-08-19 23:59:40 -0400  (origin/master, origin/HEAD) feat(B1T06): fold provisioning fixes into Grant script + UPN identity
+* 4c6987e 2026-08-19 23:32:53 -0400  tickets(B1S05): close B1T03+B1T05 (proven live on P22), add B1T06 prod-readiness
+* 8abf38b 2026-08-19 22:05:20 -0400  handoff(intune): B1S05 proven live on P22 + Grant v0.1.2 -DeviceName scoping
+* 63f321d 2026-08-19 20:03:04 -0400  fix(intune): WebWatcher detection keys on choco marker, not pre-existing collector
+* c323aed 2026-08-19 19:44:41 -0400  fix(saas-tracker): Grant-SaaSTrackerDeviceAccess v0.1.1 - correct item-grant shape + add -DeviceItemId
+* 6ed597d 2026-08-19 19:09:31 -0400  feat(intune): Publish-WebWatcherIntune.ps1 - hand-rolled Win32 LOB publisher via Graph
+* 18fc219 2026-08-19 18:30:49 -0400  B1T05 ticket (WebWatcher wrapper + choco/Intune packaging, WIP w/ AS-BUILT + Artifacts); design doc v0.2.0 (live item-level-grant finding + delivery mechanism); WebWatcher-Intune-Playbook.md (last-mile runbook)
+* b8fb4bc 2026-08-19 18:13:11 -0400  WebWatcher Intune Win32 app: install.ps1 wrapper (choco install from bundled .intunewin content dir) + .gitignore for build artifacts. .intunewin built green (18KB) for pilot-group push.
+* d3ff530 2026-08-19 17:17:50 -0400  WebWatcher: bootstrap-WebWatcher.ps1 device-side wrapper + standalone choco package (webwatcher.nuspec/chocolateyInstall/Pack-WebWatcher) bundling all device scripts as real files (fixes Intune single-file base64 hack); collector v0.2.0 adds additive per-device cert-auth branch (device-auth.json) with legacy WAM fallback
+* 61e6f44 2026-08-19 12:50:33 -0400  B1T03: DISCOVER/DIAGNOSE/DESIGN/DOCUMENT complete, DELIVER safe-parts done (3 scripts + tests, 25/25 green) -- STOPPED at live-mutation boundary pending CTO go-ahead
+* c5ba33f 2026-08-19 11:54:27 -0400  Option-1 POC: ticket-drift warn-only pre-commit check, HR blank-line-spacing fix in Check-MarkdownReflow.ps1, fix python3 App-Execution-Alias stub + exclude Agile-Wizard tickets from header-check (convention mismatch), Relations=INPUTS vs Artifacts=OUTPUTS + Expected-Artifacts DESIGN requirement in STORY B1S05
+* 62a9b83 2026-08-19 10:50:51 -0400  Fix B1T02 ticket-drift: STATUS NEW->DONE, filename renamed, cross-refs updated (matches B1T01 pattern)
+* f588092 2026-08-19 10:42:49 -0400  Add linked Artifacts table (date/file/type/action/verified) to B1T01/B1T02 AS-BUILT, establish as standing DELIVER-phase convention in STORY B1S05 Delegation Protocol
+* e7f9bda 2026-08-19 10:20:38 -0400  Reconcile diff-review orphan collision (deleted byte-identical duplicate), hoist 5D Delegation Protocol to STORY B1S05 for DRY, fix A1F05 title typo, record CTO-directed sub-experiment in MVx doc
+* 4454617 2026-08-19 02:08:06 -0400  B1T03: add 5D-phase-gated delegation protocol (DISCOVER/DIAGNOSE/DESIGN/DOCUMENT/DELIVER) + cherry-picked MVx-260816-01 aporiae table, prepping for next-session subagent delegation
+* 77cb2fb 2026-08-19 01:34:04 -0400  v0.7.8.108 - B1T02 delegated (Gist cert protocol), subagent terminal-contract aporia promoted to global gates, AutoExec.BOT tickets backfilled
+* 511e048 2026-08-18 23:53:46 -0400  v0.7.8.107 followup 2: stage B1T01 ticket acceptance-criteria checkoff (missed in prior split commit)
+* 78ca2d1 2026-08-18 23:52:44 -0400  v0.7.8.107 followup: stage remaining B1T01 files (STATE.md updates, cert script+tests, installer wiring, ai-labs pointer)
+* 1e5ccdb 2026-08-18 23:51:14 -0400  v0.7.8.107 - B1T01 on-device cert generation (TDD-first, subagent-delegated), Explore agent read-only finding recorded
+* bf77880 2026-08-18 21:59:28 -0400  v0.7.8.106 - Cert-bridge design scoped as STORY B1S05 + 4 TASKs, shared-cert risk explicitly rejected
+* 30ec4fa 2026-08-18 17:06:05 -0400  v0.7.8.105 - SaaS-Tracker auth chain: 6 real bugs found+fixed, P15 proven live, Alice flags the design itself needs to change
+* a12a76a 2026-08-18 14:20:46 -0400  v0.7.8.104 - Backtalk PAT incident fix, fleet CLI hardening (manage/sync -Reboot), SaaS-Tracker installer made self-sufficient, real terminal-profile fix
+* bde2ea0 2026-08-18 09:56:40 -0400  B1S04: Intune installer built, real PS5.1 parse bug found+fixed, domain allowlist gap closed
+* d6578b7 2026-08-17 20:14:53 -0400  Make LIGHTBULB-LOG.md hub-and-spoke read+write mandatory (root PROTOCOL.md #7, AGENTS.md, copilot-instructions.md)
+* 7a5ff71 2026-08-17 18:56:53 -0400  B1S03: live end-to-end proof with real Entra anchor + real SaaS browser telemetry
+* 09b4617 2026-08-17 17:53:07 -0400  B1S03: SaaS telemetry session ingestion (design decisions + implementation)
+* e632093 2026-08-17 12:54:56 -0400  Scope SaaS-Tracker follow-on work: B1S02 DONE, new B1S03 (session ingestion) + B1S04 (productionization rollout)
+* 584de96 2026-08-17 08:46:21 -0400  STATE.md catch-up: SaaS-Tracker MVx final proof, manager-report live-send incident, P21/P22 status, CredMagic test-prompt gap
+* af8f799 2026-08-17 01:36:12 -0400  Fix .AI-TRAINING/ vs .HANDOFF/*.json mislabeling (GAP-2 + a companion drift)
+* 8c7ea51 2026-08-16 21:09:01 -0400  Fix real root cause: @() over List[object] throws Argument types do not match
+* 5a28bb2 2026-08-16 20:33:11 -0400  Handoff: sqlite3 blocker cleared by CTO, JSON-join bug fixed, one bug open, FLEET terminal incident
+* 0512a82 2026-08-16 20:32:04 -0400  Fix sqlite3 -json multi-line output not joined before ConvertFrom-Json
+* 76685a4 2026-08-16 13:33:02 -0400  Autonomous session: real bugs found by execution, offline/heartbeat/upload proven, sqlite3 blocked on elevation
+* 22294b9 2026-08-16 13:07:01 -0400  Supervised MAI-Code delegation: wire SharePoint upload + Agile-Wizard PROTOCOL/STYLE-GUIDE docs
+* f301ef2 2026-08-16 13:02:50 -0400  Handoff: SaaS-Tracker MVx auth+storage loop proven end-to-end
+* 833242e 2026-08-16 07:58:29 -0400  Baseline: P21/P22 Win11 upgrade pilot + SaaS-Tracker MVx discovery/scoping
+* 96a0a03 2026-08-15 20:26:52 -0400  v0.7.8.103 - BigBrother third-party connector awareness + 4 real bugs found via live-data verification
+* a51c711 2026-08-14 16:52:07 -0400  v0.7.8.102 - BigBrother report fixes (tooltip portal, drift-zero, bgcolor) + terminal/test-runner protocol hardening
+* ecf2e65 2026-08-11 13:57:11 -0400  v0.7.8.101 - BigBrother session-math accuracy (Entra-anchored bridging) + report UX + overnight fleet fires
+* 81fd673 2026-08-10 05:49:24 -0400  v0.7.8.100 - BigBrother Employee Activity Report: per-session SoT, pure renderer, headless Purview CBA (delivered to Tiffany)
+* 690f4f5 2026-08-08 00:30:05 -0400  v0.7.8.99 - fleet v0.5.5 (option-B dispatch + DRY help) + fleet.README SoT reconciliation
+* 8621d70 2026-08-01 21:53:47 -0400  v0.7.8.98 - M365 activity digest and fleet onboarding
+* 9601aa9 2026-07-30 07:34:45 -0400  v0.7.8.97 - Instructions-file bloat analysis + 3-submodule wrap (pickaxe/ai-labs/ai-labs-toolkit)
+* 5d8dad7 2026-07-29 20:53:46 -0400  chore: bump pickaxe pointer to 0681e92 (LB-03 fix, v0.4.1)
+* 4c2a1e4 2026-07-29 20:34:43 -0400  chore: bump pickaxe pointer to 88b72bb (LB-03 lightbulb-log entry)
+* e005221 2026-07-29 20:21:33 -0400  v0.7.8.96 - pickaxe v0.4.0 docs sync, sandbox rollup test (LB-03), terminal-discipline fix (FAIL #43)
+* 423aece 2026-07-29 08:35:28 -0400  v0.7.8.95 - fleet v0.5.3 fleet-wide filter fix + handoff rollup spec
+* 93d5880 2026-07-29 07:31:44 -0400  v0.7.8.94 - Housekeeping: apply agent thumbprint convention
+* a784d58 2026-07-29 00:19:33 -0400  v0.7.8.93 - JIT-Grant TDD: 261-char schtasks bug fix + v0.2.0
+* 91b4715 2026-07-28 17:45:54 -0400  v0.7.8.92 - PHOENIX-05 incident tickets + fleet PUA audit policy
+* 76476a4 2026-07-28 10:09:26 -0400  v0.7.8.91 - fleet v0.5.2: help-flag guards + P18/P19 docs
+* 894afb4 2026-07-27 22:51:14 -0400  v0.7.8.90 - align named-terminal bridge governance
+* bbc1695 2026-07-27 06:44:11 -0400  v0.7.8.89 - fleet v0.5.1: repair bug fixes + lightbulb log
+* 5a4230b 2026-07-27 06:22:32 -0400  v0.7.8.88 - AI Labs Toolkit generic UX
+* 15cc2fe 2026-07-26 13:10:54 -0400  v0.7.8.87 - named terminal bridge + Node bootstrap
+* ff9a078 2026-07-26 12:38:20 -0400  v0.7.8.86 - fleet v0.5.0 + Invoke-Fleet.ps1 v0.1.0
+* c3d8111 2026-07-25 17:08:31 -0400  handoff: STATE.md 260725 - D1+D2+D5+D4 complete, D6 pending
+* d016dba 2026-07-25 17:07:24 -0400  v0.7.8.84 - Chrome version display + digest auto-claim (D1+D2+D5)
+* f743594 2026-07-25 16:29:59 -0400  fix: add ARCHITECT/TECHLEAD (JN) to 8 headers missing enforced fields
+* 5c815a9 2026-07-24 14:05:22 -0400  v0.7.8.83 - 5-star protocol compliance, header standard, handoff housekeeping
+* 87f3b68 2026-07-23 23:38:33 -0400  docs: commit post-migration uncommitted working-tree changes (memories, onboarding, Intune-Deployments README)
+* 78d1d53 2026-07-23 23:35:20 -0400  chore: remove stale PDF exports from onboarding (source .md docs exist)
+* f3582be 2026-07-23 22:24:02 -0400  Add 5-star .HANDOFF docs to Intune-Deployments + a2m8-intune
+* 1b390f2 2026-07-23 20:32:39 -0400  Park a2m8-intune as unreleased SIDE-PROJECT; preserve real manifest
+* ef8df5f 2026-07-23 19:16:05 -0400  Pull Install-ArcAgent.ps1 v0.7.8.39 into Intune-Deployments
+* f8f46a0 2026-07-23 06:18:11 -0400  v0.7.8.75 - Fleet v0.4.7, Dana onboarding, instruction reconcile
+* 09ee5fc 2026-07-21 16:12:16 -0400  v0.7.8.82 - pickaxe fix + post-commit backup wrap
+* 01adc85 2026-07-21 15:11:34 -0400  v0.7.8.81 - session wrap: STATE.md + LIGHTBULB-LOG FAIL#39
+* 87a6302 2026-07-21 11:54:53 -0400  v0.7.8.80 - multi-session sync: submodule bumps + MVx rename + .AI-TRAINING + HANDOFF
+* 1b9529c 2026-06-20 00:55:58 -0400  chore(mvx): register MVx-260619-01; extend 260614 case study with Juneteenth extension + W25 timeline
+* 8dfbdbe 2026-06-20 00:12:45 -0400  fix(headers): Python docstring rule + UPDATED field + check-headers.py pre-commit hook
+* 7d3d99a 2026-06-19 23:50:23 -0400  chore(submodule): bump ai-labs pointer (header fixes tools.yaml 0.3.1 / tools.md 0.2.2)
+* f0cf56e 2026-06-19 23:41:42 -0400  chore(submodule): bump ai-labs pointer (tools registry ΓÇö redactor v0.5.0, redact-local DELETED)
+* 6e53b04 2026-06-19 23:33:32 -0400  chore(handoff): STATE.md ΓÇö wrap session 2026-06-19 (v0.7.8.78)
+* 309dad4 2026-06-19 23:26:23 -0400  v0.7.8.78 - fsDB/fsQL rename sweep + redactor v0.5.0
+* 60411b8 2026-06-17 09:23:49 -0400  v0.7.8.77 - naming standards and terminal registry continuity
+* 234359e 2026-06-15 06:56:32 -0400  wrap(session): v0.7.8.76 ΓÇö pickaxe v0.3.4, pyst/psst relations, redactor docs, termreg bootstrap, ai-labs manifest v0.2.1, hard-gates reorg
+* 419c11f 2026-06-14 04:48:58 -0400  fix(security): redact client secrets from 251129-ROADMAP-CourseCorrections.md (41 replacements)
+* 262f19a 2026-06-14 04:19:35 -0400  docs(mvsx): add 260614-17 redactor pattern evolution story (xSupervised-ML exemplar)
+* c490b45 2026-06-13 13:13:29 -0400  chore(memory): terminal-safety ΓÇö document bash bypass + LW_AGENT_SHELL patterns
+* 5a2b01b 2026-06-13 12:39:12 -0400  chore(formatting): user tweaks ΓÇö 9 memory files, AGENTS.md, copilot-instructions + ai-labs pointer bump
+* 3847e04 2026-06-13 12:17:03 -0400  wrap(session): v0.7.8.75 handoff JSON + ai-labs STATE pointer bump
+* 2ae0309 2026-06-13 10:47:55 -0400  fixup(memory): fold user edit into 200-line-rule ΓÇö fsDB/fsQL protocol note
+* 22e4606 2026-06-13 10:45:09 -0400  feat(memory): v0.7.8.75 ΓÇö HOBOTS rename, YAML METADATA, 3D epiAGENTology
+* bd96912 2026-06-13 06:04:19 -0400  v0.7.8.74 - tools manifest v0.2.0, MQL design, vsCode tree
+* 57db12f 2026-06-12 17:27:05 -0400  v0.7.8.73 - instructions refresh + redactor/ipscan submodules
+* 56ef1f1 2026-06-09 11:42:48 -0400  v0.7.8.73 - adventure genesis + persona v0.3 + memory export
+* d8aecc2 2026-06-08 01:25:08 -0400  fix: claim PATCH API + -Force retry + write scope + device name fallback (v0.4.6)
+* db162b9 2026-06-08 00:59:52 -0400  fix: claim -Device filter + proper param binding (v0.4.5)
+* 37215a6 2026-06-05 13:28:31 -0400  v0.7.8.72 - redactor v0.4.0 sync + stdOps standard + FAIL #35
+* e786000 2026-06-04 21:34:09 -0400  housekeeping: ipscan pointer bump + handoff JSONs + ETA backlog ticket
+* 0476405 2026-06-04 20:59:21 -0400  v0.7.8.71 - redactor v0.2.0: --plain-text + --inplace + test suite
+* 876a996 2026-06-04 20:53:14 -0400  v0.7.8.70 - Catch-all rule + claim processor + fleet digest alias
+* 09a7f38 2026-06-04 10:09:24 -0400  v0.7.8.69 - ai-labs-toolkit SIDE-PROJECT scaffold + shim promotion
+* bfcc2d8 2026-06-04 01:17:16 -0400  v0.7.8.68 - Design B terminal fix + FAIL #34 + bootstrap-agent-shell
+* fad019a 2026-06-03 21:25:04 -0400  bump ipscan submodule to pyst v0.1.4
+* 015d92d 2026-06-03 19:58:01 -0400  v0.7.8.67 - agent-personas v0.2: three-layer BotSwarming architecture
+* 90b81e6 2026-06-03 16:32:42 -0400  v0.7.8.66 - Register ipscan as submodule + Py3.14/macOS fixes
+* 84756da 2026-06-02 17:12:37 -0400  v0.7.8.65 - Lori identity stack + fleet compliance/security + smoke tests
+* e144797 2026-06-01 17:45:51 -0400  v0.7.8.64 - fsQL rename tracking + ai-labs whitepaper IP edits
+* 6206c7f 2026-06-01 15:53:33 -0400  handoff: FAIL #26, submodule pointer bumps, handoff JSON (v0.7.8.63)
+* ea22cab 2026-06-01 14:59:43 -0400  fix: register psst + psstel as proper submodules in .gitmodules
+* 3f6f18c 2026-06-01 14:56:27 -0400  fix: register ai-labs as proper submodule in .gitmodules
+* b4e3449 2026-06-01 14:50:47 -0400  wrap(gpu-r&d): 2026-06-01 GPU session ΓÇö tools + docs + cherry-picks
+* b80839f 2026-05-31 08:24:39 -0400  handoff: birthday session wrap ΓÇö whitepaper v0.1 complete, pickaxe submodule, persona archaeology
+* e77ebf2 2026-05-31 03:38:40 -0400  docs(pickaxe): MVx EHR hypothesis + session artifacts (260527)
+* 367f65c 2026-05-31 01:30:50 -0400  unified BotSwarming whitepaper v0.1 + 16-source cross-reference graph
+* f649504 2026-05-30 21:04:40 -0400  v0.7.8.62 - session wrap: fleet CLI formalized, DESIGN D-11, checklist updated
+* 0cac247 2026-05-30 20:16:16 -0400  v0.7.8.61 - fleet.ps1 v0.4.0: win32 command + endpoint archaeology lessons
+* 494a1fb 2026-05-30 17:46:48 -0400  v0.7.8.60 - Chrome Win32 LOB push via a2m8-intune DRY delegation
+* 2fff9e8 2026-05-30 15:07:01 -0400  handoff: add 2-sync max fallback rule to Sol-02 marching orders
+* 9daa6c4 2026-05-30 15:03:04 -0400  v0.7.8.59 - Remove --ignore-checksums from Chrome; Sol-02 handoff
+* d9f1e72 2026-05-30 08:28:17 -0400  v0.7.8.58 alignment - rabbit-hole protocol + EPIC/FEATURE pass
+* 99ae4ea 2026-05-29 23:30:05 -0400  v0.7.8.58 - Restore --ignore-checksums for Chrome (dropped in .57 refactor)
+* d5b2fbf 2026-05-29 21:14:32 -0400  add Diagnose-ChromeInstall.ps1 v0.1.0 -- R&D feedback loop for Chrome choco failure
+* 83cc1d9 2026-05-29 21:02:48 -0400  fix Get/Watch-GistFleet: / switch collision + CredMagic Get-Command guard
+* 68a7023 2026-05-29 20:46:18 -0400  v0.7.8.58 - Get-GistFleet + Watch-GistFleet (CredMagic Gist tooling)
+* 7964a38 2026-05-29 20:30:56 -0400  v0.7.8.57 - Persistent Backtalk (LW_BACKTALK_PERSISTENT)
+* 4427c93 2026-05-29 20:00:35 -0400  v0.7.8.52b - session handoff + open-items update
+* e1cba27 2026-05-29 19:55:18 -0400  v0.7.8.52 - a2m8 .HANDOFF scaffold + choco design principles
+* 1d96408 2026-05-29 18:27:08 -0400  feat: scaffold LogicWizards.NYC web initiative (kickoff 2026-05-29)
+* 5f4bfbc 2026-05-29 16:34:30 -0400  v0.7.8.56 - Intune tooling bundle: tail tool, fleet status, P15 run state
+* 7170d8f 2026-05-29 16:21:36 -0400  v0.7.8.55 - Bootstrap Chrome --ignore-checksums tactical fix for P-15
+* 4ff853b 2026-05-29 15:48:51 -0400  v0.7.8.54 - Wrap-ChocoPackage v0.2.0 code-complete + 4 bug fixes
+* 0275339 2026-05-28 20:07:18 -0400  housekeeping: P-15/P-18 handoff, BitLocker fix script, ART repo-split story
+* cccfa02 2026-05-28 20:01:35 -0400  v0.7.8.53 - UX condensation bundle + filename clobber fix
+* cb0dd02 2026-05-27 17:19:58 -0400  chore: update ai-labs submodule pointer (audience split 0bf3ffc)
+* aa92c56 2026-05-27 17:15:45 -0400  v0.7.8.51 - pickaxe Part-2: trajectory signal + EOM ROI digest + whitepaper divergence
+* 5fd64e7 2026-05-27 15:29:33 -0400  v0.7.8.50 - Pickaxe MVx docs wrap + reboot handoff prompt
+* 6456397 2026-05-27 05:54:18 -0400  docs(pickaxe): MVx EHR hypothesis + session artifacts (260527)
+* 444500d 2026-05-27 02:02:02 -0400  docs(handoff): 260526 ecosystem-mapping session record
+* 804043f 2026-05-26 20:19:13 -0400  docs: add SIDE-PROJECTS/README.md ΓÇö ecosystem map + tool pipeline
+* 515efe8 2026-05-26 20:18:05 -0400  chore: untrack pickaxe/ ΓÇö now its own git repo (wwwizards/pickaxe)
+* 9ee068f 2026-05-26 18:54:52 -0400  pickaxe: ROADMAP checklist + .HANDOFF scaffold (260526)
+* 93f44d4 2026-05-26 17:33:56 -0400  pickaxe north star vision + repo hygiene templates + AGENTS.md prose-wrap rule
+* 2e293f7 2026-05-26 04:40:35 -0400  v0.7.8.49 - Fleet owner assignment automation + digest UX
+* 3af4871 2026-05-25 19:35:02 -0400  v0.7.8.48 - CTO digest UX polish (palette, CLAIM, MFA, logo)
+* f41d076 2026-05-25 18:19:21 -0400  docs(handoff): session housekeeping after v0.7.8.47
+* 6209c45 2026-05-25 18:15:24 -0400  v0.7.8.47 - Compliance modal + stale-folded inventory + Pester gate
+* 4a4562e 2026-05-25 15:10:52 -0400  (tag: v0.7.8.46) v0.7.8.46 - CTO digest MFA risk table + failure-archive whitepaper
+* b051ed2 2026-05-25 12:57:34 -0400  (tag: v0.7.8.45) v0.7.8.45 - Fleet WinRM posture diagnostic toolkit
+* a6f465e 2026-05-25 08:43:40 -0400  (tag: v0.7.8.44) v0.7.8.44 - WinRM harness toolkit + IME run-state visibility
+* 221876f 2026-05-25 04:51:39 -0400  (tag: v0.7.8.43) v0.7.8.43 - Fix false FAILED telemetry from schtasks /Delete
+* b9bb3e6 2026-05-25 03:24:07 -0400  (tag: v0.7.8.42) v0.7.8.42 - Onboarding automation helpers + Bootstrap v0.7.8.40 deployment
+* a43fa05 2026-05-25 02:16:55 -0400  (tag: v0.7.8.41) v0.7.8.41 - Digest duplicate device fix + data quality tests
+* b40c4d0 2026-05-24 18:26:44 -0400  Update resume doc (version header fix complete)
+* fcc939e 2026-05-24 18:25:58 -0400  Fix digest footer version strings (v0.7.8.38 ΓåÆ v0.7.8.40)
+* 7687e88 2026-05-24 18:07:37 -0400  Bump digest version to v0.7.8.40
+*   137df90 2026-05-24 16:23:21 -0400  (tag: v0.7.8.40) Merge Phoenix taxonomy + compliance (WIP extraction)
+|\  
+| * 1a69594 2026-05-24 16:23:13 -0400  v0.7.8.40 - Device taxonomy + compliance reporting (Phoenix WIP extraction)
+|/  
+* a2465b9 2026-05-24 15:13:42 -0400  Instructions: DoqDB peer review workflow for next agent
+* fa9db81 2026-05-24 15:05:44 -0400  Instructions: Phoenix WIP analysis workflow for next agent
+* 34c8c15 2026-05-24 14:52:02 -0400  Handoff: Phoenix work session + WIP branch analysis plan
+* 9cc3c12 2026-05-24 14:27:01 -0400  v0.7.8.39 - DoqDB whitepaper session + handoff backfill
+* a82cf52 2026-05-22 22:36:52 -0400  docs(handoff): STATE.md - WIP backup branches inventory + unring procedure
+| * 58d6b38 2026-05-22 22:28:22 -0400  (origin/wip/a2m8-toolkit-shared, wip/a2m8-toolkit-shared) wip: a2m8-toolkit - Test-IsAdmin shared helper
+|/  
+| * 65a0a79 2026-05-22 22:28:13 -0400  (origin/wip/a2m8-intune-tooling, wip/a2m8-intune-tooling) wip: a2m8-intune - Get-IntuneDevice extraction + tests (LW-34 regression unresolved)
+|/  
+| * e963e20 2026-05-22 22:27:47 -0400  (origin/wip/a2m8-choco-tooling, wip/a2m8-choco-tooling) wip: a2m8-choco - Build-ChocoPackage and Repair-ChocoLock (with tests)
+|/  
+| * 4e0bbd3 2026-05-22 22:27:24 -0400  (origin/wip/260522-acrobat-pro-A1B05, wip/260522-acrobat-pro-A1B05) wip: Acrobat Pro Intune push attempt - blocked at A1B05 (commitFileFailed)
+|/  
+* 8b26761 2026-05-22 22:18:02 -0400  v0.7.8.38e - gitignore: protect client PII (sign-in CSVs, fleet JSONs, .PRIVATE configs)
+* be8b5ce 2026-05-22 22:13:01 -0400  v0.7.8.38d - Session capture: Acrobat Pro Win32 push attempt + root cause
+* 5fb08fc 2026-05-22 14:44:39 -0400  v0.7.8.38c - handoff: STATE.md snapshot post-38b
+* 6eb9063 2026-05-22 12:33:55 -0400  v0.7.8.38b - Digest modal salt-obfuscation + markdown-reflow pre-commit hook
+* 8548c22 2026-05-22 12:22:39 -0400  v0.7.8.38 - Onboarding toolkit: codify silent group-membership gate
+* 66a1d26 2026-05-21 10:37:56 -0400  v0.7.8.37b - Fix Graph scope names + PUTΓåÆPOST on users/$ref
+* 929823a 2026-05-21 08:37:23 -0400  v0.7.8.37 - Auth guard for StakeholderDigest (fail-fast, no redundant prompts)
+* 0c04bd3 2026-05-21 03:25:48 -0400  v0.7.8.37 - psstel v0.2.1 space-time enrichment + instructions + onboarding fix
+* 352571c 2026-05-21 02:30:03 -0400  v0.7.8.36 - psstel v0.2.0 + Bootstrap hardening + a2m8 tools + backlog
+* 38a3405 2026-05-20 07:52:45 -0400  v0.7.8.36 - a2m8-m365 E2E sync proven on Phoenix CPAs
+* d3cabb9 2026-05-20 00:02:19 -0400  v0.7.8.36 - a2m8-m365 v0.1.0 (Phoenix CPAs GAL sync)
+* ff204bc 2026-05-19 16:04:14 -0400  v0.7.8.35 - Strip .exe binaries from history, add to .gitignore (LW-16)
+* d01f1aa 2026-05-19 15:57:42 -0400  v0.7.8.34 - Fleet primary user dry-run + digest improvements
+* 0491483 2026-05-19 13:55:07 -0400  fix(digest): header shows 'Week of May 12 - May 19' instead of 'Week ending date'
+* ae1a41f 2026-05-19 13:45:58 -0400  fix(digest): schedule Saturday 11:45pm + TO-BE data export roadmap
+* 304f647 2026-05-19 13:20:04 -0400  v0.7.8.35 - a2m8-toolkit scaffold + pickaxe scan + digest schtask
+* fb1ac6f 2026-05-19 12:46:42 -0400  Fix Grant-JitAdmin auto-revoke payload - nested quote bug
+* fe7a91c 2026-05-18 22:44:13 -0400  v0.7.8.33 - JIT grant working + canary P14/P15
+* e95b503 2026-05-18 20:03:01 -0400  v0.7.8.34 - handoff: protocol v0.3 restructure + LW-17
+* 5a58b53 2026-05-18 19:26:03 -0400  v0.7.8.34 - handoff: LW-16 binary strip tech-debt (blocks LogicWizards-NYC push)
+* b3b588d 2026-05-18 19:03:16 -0400  v0.7.8.34 - handoff: pickaxe scan findings + LW-10..15
+* 4fc7cf1 2026-05-18 18:28:23 -0400  v0.7.8.34 - 5-star handoff scaffold + session handoff JSON
+* c72da7e 2026-05-18 17:49:51 -0400  v0.7.8.34 - docs + AcrobatPro script + redact config cleanup
+* c6b0121 2026-05-18 17:36:45 -0400  v0.7.8.34 - Redact module scaffold + a2m8-intune README
+* ba52c1a 2026-05-18 17:31:56 -0400  v0.7.8.34 - Bootstrap backtalk bookend + JIT admin + digest fixes
+* b2bc7de 2026-05-14 04:40:57 -0400  v0.7.8.32 - PI Planning + Sprint Retrospective artifacts
+* 271761d 2026-05-14 03:13:49 -0400  v0.7.8.32 - Sloptimization: LW_BASE constant, __LW_BASE__ token, remove dead code, fix duplicate push-status, test coverage
+* f4ac7bf 2026-05-13 21:53:33 -0400  v0.7.8.31 - DRY bootstrap: PAT auto-written, single version source of truth
+* 13e1112 2026-05-13 20:38:24 -0400  v0.1.0 - Timezone Proactive Remediation for Phoenix Canaries
+* b71e6ea 2026-05-13 19:12:34 -0400  v0.7.8.30 - expand AllowedDevices to PHOENIX-11/12/13
+* 3c9a28b 2026-05-12 17:21:46 -0400  v0.7.8.29 - Handoff: add PHOENIX-11/12/13 to canary list
+* 5de2dd6 2026-05-12 08:00:48 -0400  v0.7.8.29 - Handoff snapshot
+* 6932a28 2026-05-12 07:59:03 -0400  v0.7.8.29 - schtasks (non-admin start-backtalk fix)
+* ee2f2c1 2026-05-12 05:50:47 -0400  v0.7.8.28 - Handoff + post-push snapshot (Intune lastModified 2026-05-12T09:49:20Z)
+* 010f658 2026-05-12 05:46:33 -0400  v0.7.8.22-28 - backtalk + check-tools + git + update-toolkit + hardening
+* f1e3bf1 2026-05-11 05:20:13 -0400  v0.7.8.20 - Add FILE breadcrumb to all v0.7.8.18+ markdown docs
+* f10bae8 2026-05-11 03:45:14 -0400  v0.7.8.19 - Phoenix CPAs playbook + a2m8-intune + onboarding scripts
+* 41f28c5 2026-05-10 14:11:27 -0400  v0.7.8.18 - a2m8-choco scaffold + Win32-App specs
+* d322606 2026-05-10 09:02:25 -0400  v0.7.8.17 handoff: WhatIf/feedback-loop session wrap
+* 53b09fb 2026-05-10 08:20:56 -0400  v0.7.8.17 - WhatIf/Strict/encoding-gate for faster feedback cycles
+* 5fc6afc 2026-05-10 07:16:55 -0400  v0.7.8.16 - Phoenix fleet provisioning: Intune delivery proven on PHOENIX-10
+* 6217a0f 2026-05-09 08:05:23 -0400  v0.7.8.13 - Device Inventory table: fix top sign-in user population
+* 4a96d26 2026-05-09 04:20:36 -0400  handoff: record commit hash 4949023, mark stream split complete, add copilot-instructions cleanup to marching orders
+* 4949023 2026-05-09 04:16:30 -0400  v0.7.8.12 - Stream split, handoff, MVx framework, digest math fixes, SwagWAF
+* b42f1df 2026-05-08 20:37:23 -0400  v0.7.8.11+ - Security cleanup + PII redactor + client reports
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\ai-labs ===
+--------------------------------------------------------------------------------------------
+Branch: HEAD
+  Pending changes: 4 total  [M:0  D:0  ?:4]
+
+  ── Untracked (4) ──
+
+Code Scope File
+---- ----- ----
+??   -     detached-analysis.json
+??   -     MVx-Tracking/MVx-260824-004-interlock-register-JOURNAL.md
+??   -     MVx-Tracking/MVx-260826-006-interlock-register-REMEDIATION.md
+??   -     MVx-Tracking/MVx-260826-01-AutoExec.BOT-Initialize-viaToolkit.md
+
+
+
+History since 120 days ago :
+* eda9d17 2026-08-26 15:17:25 -0400  (main) v0.7.8.112 - continuity handoff and repo hygiene
+* 8c48686 2026-08-26 15:10:17 -0400  v0.7.8.112 - continuity handoff and repo hygiene
+* 84a3849 2026-08-26 01:46:22 -0400  v0.2.4 - interlock drift remediation checkpoint
+* 411692c 2026-08-19 10:41:32 -0400  (HEAD, recovered-411692c) MVx doc: formatting/wording polish pass (CTO manual edits)
+* 9cfbccc 2026-08-19 09:56:03 -0400  MVx-260816-01: record diff-review Keep-on-renamed-file orphan sub-experiment (CTO-directed)
+* ee0e05d 2026-08-19 01:31:25 -0400  MVx-260816-01: Delegation 6 re-test (compliance is prompt-sensitive, not guaranteed) + CTO cost data point
+* fc52e04 2026-08-18 23:50:33 -0400  MVx-260816-01: record Delegation 4 - runSubagent agentName Explore is read-only by design
+* f9d3c74 2026-08-18 10:23:33 -0400  (origin/main, origin/HEAD) 260818JN - itterim commit dirty files to avoid debate with agent - after hardwrap cleanup
+* 0be5040 2026-08-18 10:20:41 -0400  260818JN - itterim commit dirty files to avoid debate with agent
+* 0ff0e17 2026-08-17 12:53:33 -0400  Update case study: B1S02 DONE, pointers to new B1S03/B1S04 stories, cost data point
+* 332f9b9 2026-08-17 01:33:49 -0400  Log session: 5-star protocol drift reconciliation (partial)
+* 7253fbc 2026-08-16 21:24:08 -0400  Record first real-world validation of the rabbit-hole Alice/Matthew protocol
+* ff3673a 2026-08-16 21:08:22 -0400  Log Delegation 3: Opus 4.8 debugging escalation found+fixed the real root cause
+* 4ec85e9 2026-08-16 13:03:37 -0400  Add MVx-260816-01: BotSwarming case study for BigBrother SaaS-Tracker MVx
+* ce153d8 2026-07-30 03:17:40 -0400  v0.2.4 - PowerShell header validation + FD-18 federation decision + governance flag
+* 6a62a31 2026-07-27 22:20:24 -0400  docs(federation): correct ownership and context boundaries
+* 1e03600 2026-07-25 17:48:24 -0400  docs(federation): correct ownership and context boundaries
+* d8a108c 2026-07-21 11:44:26 -0400  chore(sync): multi-session sync ΓÇö protocols, federation, whitepapers, handoff, archive v0.2.2
+* bd9a7dc 2026-07-15 10:10:31 -0400  wrap(260714): session close ΓÇö symlink WHITEPAPER-OUTLINE.md, STATE.md AL-01/02/03 updates, tools.yaml version bump, session record
+* 4dd35a1 2026-07-14 15:54:53 -0400  feat(al-03): .HANDOFF/.PROTOCOL/mvx-framework.md v0.1.0-draft ΓÇö formal MVx spec, seed for RFC-001
+* 4868c43 2026-07-14 15:53:40 -0400  refactor(al-01): migrate root flat files into tree ΓÇö observations/patterns, experiments, archive, rfcs/drafts; rm dummy.txt
+* 72901a5 2026-07-14 15:36:54 -0400  docs(handoff): reinit instructions ΓÇö sync 260613-260619 learnings, close SENS-01, fix paths, HOBOTS load order
+* 7a0bf44 2026-07-14 15:31:12 -0400  fix(agents): ai-labsSOLOMON ΓåÆ SOLOMON in UPDATED field (sync from pre-filter-repo local)
+| * f5b732b 2026-07-21 10:59:37 -0400  (refs/stash) WIP on main: 592ed46 feat(mvx): MVx-260619-01 ΓÇö redactor as smart rename engine, token efficiency proof (Juneteenth)
+|/| 
+| * 1a03c9f 2026-07-21 10:59:37 -0400  index on main: 592ed46 feat(mvx): MVx-260619-01 ΓÇö redactor as smart rename engine, token efficiency proof (Juneteenth)
+|/  
+* 592ed46 2026-06-20 00:55:37 -0400  feat(mvx): MVx-260619-01 ΓÇö redactor as smart rename engine, token efficiency proof (Juneteenth)
+* 9b7dfd6 2026-06-19 23:49:38 -0400  chore(headers): bump UPDATED+VERSION in tools.yaml (0.3.1) and tools.md (0.2.2) ΓÇö 260619JN
+* 6d1f923 2026-06-19 23:41:02 -0400  chore(tools): redactor v0.4.0ΓåÆv0.5.0; redact-local DELETED (v0.7.8.78 Juneteenth)
+* 1ccecf1 2026-06-15 06:46:41 -0400  chore(manifest): tools v0.2.1 ΓÇö pickaxe v0.3.4 + pyst relations
+* fc15eac 2026-06-14 05:40:24 -0400  chore(manifest): pickaxe v0.3.2 -> v0.3.3; add shipped/designed fields, commit-trends + MQL + git-passthrough design notes, TESTING.md to keyDocuments; sync .md twin
+* e6c857f 2026-06-14 04:25:17 -0400  chore(state): close SENS-01 blocker ΓÇö redacted + filter-repo pending
+* a8c7c7d 2026-06-14 04:12:43 -0400  v0.7.8.73 - SENS-01 close: redact FUTURE-LAPTOP-MIGRATION-NOTES.md
+* ed7b9b4 2026-06-13 13:08:42 -0400  chore: remove stale COMMIT-MSG-ai-labs-tools-manifest-v0.2.0.txt
+* 6772cff 2026-06-13 12:36:42 -0400  chore(formatting): user tweaks ΓÇö STATE.md, tools.md, tools.yaml
+* d246b88 2026-06-13 12:16:57 -0400  wrap(session): 260613-b STATE.md updated ΓÇö 3D epiAGENTology session close
+* 3d4b301 2026-06-13 07:41:29 -0400  feat(manifest): v0.2.1 ΓÇö hex colors, status taxonomy, SETTINGS, git-sync THERE
+* 9f7f98b 2026-06-13 05:50:39 -0400  feat(manifest): .ai-labs.tools.yaml v0.2.0 + tools.md matrix
+* 4bba503 2026-06-12 13:00:58 -0400  wrap(federation): session close ΓÇö cross-links, STATE refresh, handoff
+* ca862dd 2026-06-12 12:41:48 -0400  state/adventure: 260610 session ΓÇö pins, STATE refresh, persona corrections
+*   fb63ebc 2026-06-12 12:39:58 -0400  merge(federation): federation genesis into main (11 remote commits + feat/federation-genesis)
+|\  
+| * c00e79c 2026-06-12 12:38:32 -0400  feat(federation): genesis planning ΓÇö F1-F6 northstars + MVx-1..6 + session record
+* | 3364bdb 2026-06-12 10:00:24 -0400  260612: adventure SESSION.md ΓåÆ README.md (GH preview convention)
+* | 4867645 2026-06-12 09:58:52 -0400  260612: SESSION.mdΓåÆREADME.md convention (GH preview); update 5-star-thumbprint + HOBOTS-0001; add hobots-rfc-and-rename session record
+* | 317fbff 2026-06-12 09:51:55 -0400  260612: AL-11 ΓÇö .HOBOTS/.PROTOCOL/cross-session-learning.md v0.1.0-draft; 8-gap G1-G8 with mitigations + XSL normed behaviors
+* | 045428c 2026-06-12 09:48:28 -0400  260612: STATE ΓÇö AL-09 HOBOTS rename complete; AL-14 closed
+* | 132db36 2026-06-12 09:47:33 -0400  260612: AL-09 ΓÇö BSHP ΓåÆ HOBOTS rename (files + content); bshp/v2 ΓåÆ hobots/v1
+* | a6782af 2026-06-12 09:38:08 -0400  260612: AL-10 ΓÇö rfcs/HOBOTS-0001 v0.1.0-draft; AL-14 closed in STATE
+* | 09989d6 2026-06-12 08:24:45 -0400  260612: .PROTOCOL/ cascade model + pickaxe workspace design
+* | 7fa4a9c 2026-06-12 07:37:56 -0400  260612: AGENTS.md v0.4.1 + HOBOTS structural hardening
+* | 48d5802 2026-06-11 09:12:36 -0400  260611 ΓÇö AGENTS.md: 5D session protocol block (DISCOVERΓåÆDIAGNOSEΓåÆDESIGNΓåÆDOCUMENTΓåÆDELIVER)
+* | 6b83137 2026-06-11 08:09:00 -0400  260611 ΓÇö autodocs MVx1 design gate + pyst roadmap + 260610/260611 SESSION observations
+* | 25dd3ea 2026-06-10 08:56:40 -0400  handoff(state): 260610 session close ΓÇö STATE.md refresh
+* | c351915 2026-06-10 08:14:38 -0400  obs(fordham): 260610 session ΓÇö gap analysis, T.O.T.O. spec, secrets RFC, BSHP positioning
+|/  
+* 9b71fce 2026-06-08 05:09:33 -0400  feat: adventure sub-project genesis + agent-personas v0.3
+* 03540b4 2026-06-04 01:15:46 -0400  docs: add Alice ROI tally (s6.5) to rabbit-hole protocol
+* f7dd533 2026-06-03 19:40:34 -0400  feat(personas): agent-personas v0.2 - three-layer BotSwarming architecture
+* 5cd5374 2026-06-01 17:41:02 -0400  docs(whitepaper): IP marking + client anonymization for public draft
+* 65ac2fd 2026-06-01 14:39:53 -0400  feat(mvsx+patterns): GPU optimization case study + subagent ROI pattern
+* 5e36903 2026-05-31 01:29:49 -0400  Add unified BotSwarming whitepaper v0.1 + See Also cross-refs to 9 source docs
+* 1d11fdc 2026-05-30 15:02:37 -0400  protocol: ┬º 6 dry-run + cost data (v0.7.8.59 session)
+* 5f489d7 2026-05-30 08:25:53 -0400  v0.1 - Rabbit-hole detection protocol + named persona registry
+* f9bbf37 2026-05-29 18:08:25 -0400  chore: organize root + add whitepaper drafts + index
+* 843d2d2 2026-05-27 17:19:12 -0400  docs: split whitepaper audience (human/academic track, diverges from .AI-TRAINING bot copy)
+* e5035b4 2026-05-27 15:24:55 -0400  docs: add 2026-05-27 repo-health evidence addendum
+* ad97110 2026-05-27 05:55:43 -0400  obs: pickaxe session logs as SDLC training data (260527)
+* 4734da2 2026-05-26 18:51:26 -0400  Add 260526 session log + hygiene drift observation + STATE update
+* 7fb9831 2026-05-26 17:32:43 -0400  Add repo hygiene baseline + reflow all hard-wrapped prose
+* 19fbf30 2026-05-26 05:07:58 -0400  Add Bootstrap self-wire MVx2 + shadow script observation (260525-26)
+* f7c3cd6 2026-05-25 15:03:06 -0400  evidence + lightbulb-log: velocity metric, open-thread onboard law, failure-archive ML/multi-org framing (260525)
+* 4a6a235 2026-05-23 07:13:15 -0400  feat: protocol v0.5 + doqDB RFC draft ΓÇö amendment process, design rationale, git-indexed-doc-store skeleton
+* 319fce3 2026-05-22 22:29:37 -0400  wip: thumbprint-triangulation edits (drive-loss backup)
+* 37ca7b1 2026-05-22 12:21:33 -0400  mvsx: thumbprint-triangulation case study + v0.7.8.x retrospective
+* fb03151 2026-05-21 02:31:38 -0400  AL-07/AL-08: taxonomy + K/I/W observation backlog items (260521)
+* 211e50d 2026-05-18 20:02:58 -0400  docs(protocol): v0.3 - STATE.md authoring rules
+* 85e68c7 2026-05-13 17:23:17 -0400  refactor(handoff): flatten .HANDOFF/, move .PROTOCOL/ inside, add session log
+* d0fbb0d 2026-05-08 12:40:47 -0400  feat(bootstrap): install 5-star anchors, ALL CAPS structural folders, MVx terminology
+* 5bff956 2026-05-08 03:18:01 -0400  Initial commit: AI research archive - BotSwarming whitepaper, MVSx protocol, handoff schemas
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\gitlogs ===
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 120 days ago :
+* 539c2b9 2026-08-26 14:53:34 -0400  (HEAD -> main) v0.7.8.112 - continuity handoff and repo hygiene
+* 7b52857 2026-05-20 04:37:58 -0400  (origin/main, origin/HEAD) Add sample output for hours summary reports
+* 63abd9d 2026-05-06 04:06:55 -0400  docs(roadmap): mark Pester done; add invoice module plan (QB/FreshBooks/Wave/IIF)
+* 5f0a73e 2026-05-06 03:41:33 -0400  docs: README + REFERENCE; test: Pester suite; chore: scrub sample-output
+* b16ac93 2026-05-05 06:58:16 -0400  chore: add MIT license (c) 2015-2026 wwwizards
+* 9688585 2026-05-05 06:34:35 -0400  feat(legacy): add git-timeline.sh (bash, ~2015 RTX/mbdt era)
+* 5fcf6e2 2026-05-05 06:34:06 -0400  init: gitlogs miner
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\ipscan ===
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 120 days ago :
+* 186beb9 2026-08-14 16:46:56 -0400  (HEAD -> main, origin/main, origin/HEAD) Add mandatory pyst usage policy + ART-pattern evolution roadmap note (2026-08-14)
+* a92a950 2026-06-13 05:54:27 -0400  chore: add pyst v0.1.0..v0.1.3 commit-msg artifacts from prior sessions
+* e4a0b4b 2026-06-04 00:25:10 -0400  updated testing details from field
+* baa2725 2026-06-03 23:57:14 -0400  Update Documentation
+* 5bcdb3f 2026-06-03 21:55:05 -0400  docs: add pyst pre-release section to README
+* 09113ed 2026-06-03 20:17:33 -0400  pyst v0.1.4 ΓÇö fix spinner interleave on stdout
+* 5e59835 2026-06-03 19:24:11 -0400  pyst v0.1.3: buffered spinner ΓÇö works for pytest AND unittest
+* 85b009c 2026-06-03 18:59:56 -0400  pyst v0.1.2: per-test spinner + autodoc-friendly module headers
+* f025e8b 2026-06-03 18:36:15 -0400  pyst v0.1.1: -a shortcut + psst-style banner & summary
+* f6818b6 2026-06-03 18:00:54 -0400  test infra: pyst v0.1.0 beta + tiered test split
+* 54812e4 2026-06-03 16:08:22 -0400  (tag: v0.9.1) v0.9.1 - Py3.14 + cross-platform ping fixes
+* b04aa16 2026-05-06 09:26:46 -0400  docs: READMEs; chore: polish headers + AUTODOC footer; fix: email ΓåÆ github.com/wwwizards
+* 4c6976b 2026-05-06 05:00:08 -0400  init: ipscan ΓÇö liberated from wwwizards mono-repo
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\pickaxe ===
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 120 days ago :
+* 9367e5f 2026-08-19 11:32:46 -0400  (HEAD -> main) Track B: record temporary-workaround decision (root repo Check-TicketDrift.ps1 POC) pending real diagnose ticket-drift build
+* ab0729a 2026-08-18 10:15:17 -0400  (origin/main, origin/HEAD) 260818JN: +    MVx (2026-07-30): compact grep-able provenance line, substituted for a +    full fenced NOTES header block on rollup-generated files only. Sits +    after the YAML frontmatter's closing '---' (not before it) because +    frontmatter parsers require '---' to be the file's literal first line. +    Not yet a repo-wide header-convention change ΓÇö experimental, scoped to +    deliver instruction-rollup output pending further validation.
+* ca5fc5d 2026-08-14 16:47:47 -0400  Flag pyst as a Track A cluster-extraction candidate (2026-08-14, no code change)
+* 8cbfdc9 2026-08-09 08:04:00 -0400  roadmap: add diagnose tasks-bloat host-specific-adapter idea (TO-BE)
+* 34d497c 2026-07-30 03:15:15 -0400  v0.4.2 - LB-04 dest-routing fix + root-repo dogfood validation
+* 0681e92 2026-07-29 20:53:00 -0400  fix: LB-03 - instruction-rollup data loss on overlapping findings (v0.4.1)
+* 88b72bb 2026-07-29 20:34:25 -0400  docs: log LB-03 (instruction-rollup data-loss bug found via sandbox test)
+* 5ffb579 2026-07-29 20:19:06 -0400  docs: note v0.4.0/v0.3.7 theme-slot versioning collision (fix-forward, not renamed)
+* a69ab71 2026-07-29 19:24:05 -0400  docs: sync README/TESTING/STATE for v0.4.0 + session archive
+* d9b3aa2 2026-07-29 17:02:28 -0400  feat: v0.4.0 - diagnose instruction-bloat + first-ever deliver verb (A1-A4)
+* e365a9f 2026-07-29 15:51:17 -0400  docs(handoff): align all doc VERSION headers to CLI (0.3.6)
+* e421d8a 2026-07-29 15:41:25 -0400  docs(handoff): reconcile docs, split features-map/features-listing
+* 7fbf9db 2026-07-26 13:09:56 -0400  docs(state): remove redundant body version metadata
+* d7d7061 2026-07-25 23:36:50 -0400  docs: add dependency-tree exclusion diagnosis roadmap
+* ee238f5 2026-07-25 17:48:42 -0400  docs(context): define nearest-owner AI training contract
+* b8c65bc 2026-07-21 15:55:05 -0400  fix(backup): warn-and-continue on locked/long-path files in _copy_working_tree
+* fa5ed56 2026-07-21 10:56:04 -0400  feat(backup+drift): v0.3.5 backup/restore + v0.3.6 discover drift ΓÇö 98 tests
+* 1ae71a0 2026-07-14 16:58:56 -0400  docs(roadmap): Track E ΓÇö discover tools (YAMLΓåöMD), pickaxe sync (.AI-TRAINING/ fork + delta); v0.9 milestone
+* 2bfecc7 2026-06-15 03:02:29 -0400  feat(scan+discover): already_extracted annotation (PX-B3) + --submodules-only (PX-B1) v0.3.4
+* 3c0c19a 2026-06-14 17:20:47 -0400  chore(sessions): rename SESSION.md -> README.md in HANDOFF/SESSIONS dirs
+* 8785fc4 2026-06-14 05:29:35 -0400  feat(discover): commit-trends subcommand v0.3.3
+* 83be0c1 2026-06-13 05:53:05 -0400  feat(roadmap): Track D Collaborate + MQL persona delegation
+*   d196db3 2026-06-12 21:01:22 -0400  merge: v0.3.2 gitlink fix + sys-tools + etl-tools + D-08..D-12 design notes
+|\  
+| * 79f1f04 2026-06-12 18:29:14 -0400  (feat/our-v0.3.2-gitlink) chore: stash v0.3.2 gitlink work + uncommitted session residue onto feature branch
+| * 5cee3c2 2026-06-01 15:10:56 -0400  feat(git-health): add v0.5.0 spec to sys-tools ROADMAP (born from FAIL #26)
+| * 01b4460 2026-06-01 14:38:37 -0400  feat(sys-tools): probes-chart.py v0.1.0 + README updates
+* | dde83b2 2026-06-12 08:39:18 -0400  260612: .HANDOFF/ bootstrap + v0.4 workspace-init design
+|/  
+* 89a35c6 2026-05-30 21:33:40 -0400  feat(scan): promote scan to first-class subcommand + JSON output + --save
+* b97286f 2026-05-27 13:30:32 -0400  feat(etl-tools): v0.4.0 ΓÇö stdin, --columns, list-cell flattening
+* 5057bee 2026-05-27 12:57:11 -0400  feat(etl-tools): add converters subpackage (from_json v0.3.1)
+* 7df484b 2026-05-27 07:55:36 -0400  chore: add .gitignore (ignore .pickaxe/ session data + pycache)
+* 9f2bd9c 2026-05-27 07:51:36 -0400  feat(v0.3.0): --save flag writes 5D session events to .pickaxe/SESSIONS/
+* 12e8eab 2026-05-27 02:01:43 -0400  v0.2.0 - diagnose + discover commands, 5D surface, 30 tests green
+* 351017d 2026-05-26 20:06:03 -0400  Rehydrate: ROADMAP checklist tracks + .HANDOFF scaffold + intune-scan doc (260526)
+* a0e22b6 2026-05-19 09:44:15 -0400  feat: --dry-run pipeline output v0.1.1 ΓÇö full extraction script per candidate
+* 8318f86 2026-05-18 07:21:33 -0400  docs: .pickaxe/ schema, AI context detection, --install-deps; chore: README prereqs v0.1/v0.2 split
+* 711dae5 2026-05-06 09:26:48 -0400  docs: READMEs; chore: polish headers + AUTODOC footer; fix: email ΓåÆ github.com/wwwizards
+* a6149f3 2026-05-06 05:00:08 -0400  init: pickaxe ΓÇö liberated from wwwizards mono-repo
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\redactor ===
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 120 days ago :
+* f283d8c 2026-07-27 22:19:34 -0400  (HEAD -> main, origin/main, origin/HEAD) v0.5.0 - isolate deterministic rule packs
+* 66d4273 2026-07-21 10:51:38 -0400  docs: compound double-redaction pattern + pipe mode examples v0.4.1
+* b66bcab 2026-06-20 00:12:44 -0400  fix(headers): move header into docstring; add UPDATED field (compliance)
+* a9c8e68 2026-06-15 06:37:22 -0400  docs: compound double-redaction pattern + pipe mode examples v0.4.1
+* 0cf4f8d 2026-06-05 13:36:00 -0400  style: standardized comment-block headers (all source + rules files)
+* 19b4a12 2026-06-05 11:24:31 -0400  v0.4.0 - layered YAML/JSON config with last-definition-wins merge
+* 8aa2ef5 2026-06-05 07:46:28 -0400  docs: add .instructions.md -- dual-git-context warning + canonical remote SoT
+* 8a1bdc3 2026-06-05 07:38:17 -0400  v0.2.0 - plain-text + inplace + backreference patterns + test suite
+* 2fb5b1d 2026-05-13 18:15:40 -0400  Initial commit - config-driven PII redactor v0.1.0
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\a2m8-toolkit ===
+--------------------------------------------------------------------------------------------
+Branch: master
+  (clean — no pending changes)
+
+History since 120 days ago :
+* a5618cb 2026-08-22 17:16:35 -0400  (HEAD -> master, origin/master, origin/HEAD) fix(set-watcher-debug): fetch cert-response.json, not the never-published device-auth.json
+* f0d26a3 2026-08-20 11:39:49 -0400  feat: fix-watcher-task (RunLevel Highest so scheduled cert-auth uploads work)
+* e1e035c 2026-08-20 11:15:01 -0400  feat: set-gist-pat alias (operator supplies PAT; never stored in repo)
+* 3f7a291 2026-08-20 11:06:38 -0400  feat: set-watcher-debug all-in-one remote kick+diagnostics; restore ROADMAP
+* f553572 2026-08-20 08:37:58 -0400  feat: add bounce-ime alias (restart IME + MDM sync to speed Intune delivery)
+* 7f47e95 2026-08-20 08:19:48 -0400  fix: global-scope check-webwatcher so it survives update-toolkit dot-source
+* 1800600 2026-08-20 08:05:17 -0400  feat: add aliases.ps1 with check-webwatcher (update-toolkit delivery; alias-extraction start)
+* 14a7e09 2026-05-25 20:15:11 -0400  Initial: README + Fix-BitLockerDrift.ps1 (v0.1.0)
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\clipd ===
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 120 days ago :
+* 09973b0 2026-07-21 10:53:20 -0400  (HEAD -> main, origin/main, origin/HEAD) docs: 260605 new feature notes
+* 0048ec9 2026-05-08 03:16:08 -0400  Initial release: clipd v0.1.0 - Clipboard directory listing utility
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\psst ===
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 120 days ago :
+* ecb837f 2026-08-14 16:46:25 -0400  (HEAD -> main, origin/main, origin/HEAD) Add mandatory psst usage policy + pyst-parity/coverage-gap roadmap notes (2026-08-14)
+* e88a0cf 2026-05-08 03:15:05 -0400  Initial release: psst v0.5.0 - PowerShell smart test runner
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\psstel ===
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 120 days ago :
+* b99f9e5 2026-07-21 10:52:38 -0400  (HEAD -> main, origin/main, origin/HEAD) chore(instructions): update psstel.instructions.md
+* 3533f97 2026-05-30 21:20:36 -0400  v0.2.1 - Gist bridge (Send/Import), space-time enrichment, tests 19/22 green
+* 5d10da6 2026-05-30 08:25:42 -0400  v0.2.2 roadmap: per-package choco list-local capture (FAIL #20 boat-and-net)
+* 946706c 2026-05-08 03:15:35 -0400  Initial release: psstel v0.1.0 - PowerShell telemetry module
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\vsCode\ai-labs-toolkit ===
+--------------------------------------------------------------------------------------------
+Branch: HEAD
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     detached-analysis.json
+
+
+
+History since 120 days ago :
+* ba49663 2026-08-26 01:46:34 -0400  (main) v0.4.3 - exact-name bridge checkpoint
+* 978ca37 2026-08-18 10:09:54 -0400  260818JN: interrim commmit for files touched after vscode upgrade + cleanup of sessions data
+* 71a00fe 2026-08-09 08:03:23 -0400  docs: execution-transport protocol + right-tool-for-the-job rule
+* a769974 2026-08-08 23:50:11 -0400  v0.4.4 - chat-referenceability fix (canBeReferencedInPrompt)
+* 13562a0 2026-07-30 07:29:28 -0400  (HEAD, origin/main, origin/HEAD, recovered-detached-HEAD, recovered-13562a0) v0.4.3 - Bounded execution settlement + profile-scoped install fixes
+* 61055c8 2026-07-27 22:21:22 -0400  (recovered-61055c8) v0.4.2 - live-verify generic named-terminal bridge
+* 58f2062 2026-07-27 06:20:05 -0400  (recovered-58f2062) v0.4.1 - generic package and lazy UX
+* 1e7bbf4 2026-07-26 13:10:18 -0400  (recovered-1e7bbf4) v0.4.0 - named terminal bridge private pilot
+* 77f196a 2026-07-25 23:36:14 -0400  v0.3.2 - Add shared bare agent launchpad
+* a9a7992 2026-07-25 17:48:44 -0400  feat(termreg): terminal registry v0.3.0 ΓÇö JSONL spawn/cleanup
+* 26195b1 2026-07-24 17:10:28 -0400  docs(roadmap): federation North Star + E1-E6 backlog; add header + preserve LICENSE
+* 1f7787e 2026-06-17 09:22:07 -0400  termreg: add filemeta fingerprint and story-file continuity
+* 0802dd0 2026-06-15 06:43:52 -0400  feat(termreg): terminal registry v0.3.0 ΓÇö JSONL spawn/cleanup
+* e9aaf9f 2026-06-04 08:58:59 -0400  init: ai-labs-toolkit v0.2.0 ΓÇö Design B agent shell scaffold
