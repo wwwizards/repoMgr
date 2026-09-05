@@ -286,6 +286,54 @@ function get-repoList {
 }
 
 #------------------------------------------------------------------------------#>
+# --- FUNCTION: Normalize-RemoteUrl - Normalize Git remote URLs (NEW: v0.6.2) ---
+#------------------------------------------------------------------------------#>
+# FLAW: URLs like git:User/Repo and git:User/Repo.git are logically the same, 
+#       but the detector treated them as different, even though Git does NOT.
+# DESCRIPTION: Normalizes Git remote URLs by stripping trailing .git and
+#              converting host and path to lowercase.
+# PARAMETERS: 
+#   - Url: The Git remote URL to normalize.
+# RETURNS: The normalized Git remote URL.
+#------------------------------------------------------------------------------#>
+function Normalize-RemoteUrl {
+    param(
+        [string]$Url
+    )
+
+    if (-not $Url) { return $null }
+
+    $normalized = $Url.Trim()
+
+    # strip trailing .git
+    if ($normalized.EndsWith('.git')) {
+        $normalized = $normalized.Substring(0, $normalized.Length - 4)
+    }
+
+    # normalization candidates for host+path variants
+    try {
+        # URI-style: http(s)://<host>/<path>
+        $uri = [Uri]$normalized
+        $host = $uri.Host.ToLowerInvariant()
+        $path = $uri.AbsolutePath.TrimEnd('/').ToLowerInvariant()
+        return "$($uri.Scheme)://$host$path"
+    } catch {
+        # SSH-style: git@github.com:User/Repo
+        if ($normalized -match 'ssh://git@([^/]+)/(.+)' -or $normalized -match 'git@([^:]+):(.+)') {
+            $host = $matches[1].ToLowerInvariant()
+            $path = '/' + $matches[2].TrimEnd('/').ToLowerInvariant()
+            return "ssh://$host$path"
+        }
+
+
+        # fallback: lowercase everything
+        return $normalized.ToLowerInvariant()
+    }
+
+}
+
+
+#------------------------------------------------------------------------------#>
 # --- FUNCTION: Get-RemoteCollisions - Detect remote collisions in Git repos ---
 #------------------------------------------------------------------------------#>
 # DESCRIPTION: Detects remote URL collisions among submodules and nested Git repositories.
@@ -308,8 +356,8 @@ function Get-RemoteCollisions {
             if ($parts.Count -ne 2) { continue }
 
             $key = $parts[0]   # submodule.<name>.url
-            $url = $parts[1]
-
+            $url = Normalize-RemoteUrl $parts[1] # normalized via v0.6.2 patch
+ 
             $name = ($key -split '\.')[1]
             if (-not $map.ContainsKey($url)) { $map[$url] = @() }
             $map[$url] += $name
@@ -332,11 +380,15 @@ function Get-RemoteCollisions {
 
     foreach ($repo in $repos) {
         $path   = $repo.FullName
-        $remote = git -C $path remote get-url origin 2>$null
+        #$remote = git -C $path remote get-url origin 2>$null
+        # QUICK-PATCH v0.6.2 # still uses $remote as our collision-key but run it through Normalize-RemoteUrl
+        $rawRemote = git -C $path remote get-url origin 2>$null
+        if (-not $rawRemote) { continue }
+        $remote = Normalize-RemoteUrl $rawRemote 
         if (-not $remote) { continue }
-
         if (-not $remoteMap.ContainsKey($remote)) { $remoteMap[$remote] = @() }
         $remoteMap[$remote] += $path
+        # PATCH-END
     }
 
     foreach ($remote in $remoteMap.Keys) {
@@ -578,13 +630,16 @@ function write-repoStats {
 #------------------------------------------------------------------------------#>
 function Write-RiskReport {
     banner "Risk Analysis (Option-D: Smart Divergence + Forensic Mode)"
+    if (-not $Force) {
+        Write-Host "  (DRYRUN: no mutations will occur)" -ForegroundColor DarkGray
+    }
 
     # Check for remote collisions (submodules + nested repos sharing the same origin URL)
     $repos      = get-repoList
     $collisions = Get-RemoteCollisions
 
     # Detached HEAD + divergence + dirty status across all repos
-    Analyze-AllRepoRisk
+    Analyze-AllRepoRisk -collisions $collisions
 }
 
 #------------------------------------------------------------------------------#>
@@ -598,10 +653,12 @@ function Write-RiskReport {
 # RETURNS:    None. Prints summary and logs machine-readable entries.          #>
 #------------------------------------------------------------------------------#>
 function Analyze-AllRepoRisk {
+    param($collisions)
     $repos = get-repoList
 
     foreach ($repo in $repos) {
         $path          = $repo.FullName
+        $remote        = Normalize-RemoteUrl (git -C $path remote get-url origin 2>$null)
         $role          = Get-RepoRole -repoPath $path
         $goodBranch    = Get-GoodBranch -repoPath $path
         $currentBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
@@ -613,13 +670,23 @@ function Analyze-AllRepoRisk {
 
         $divergence = $null
         try {
-            $divergence = git -C $path rev-list --left-right --count "$goodBranch...HEAD" 2>$null
+            # $divergence = git -C $path rev-list --left-right --count "$goodBranch...HEAD" 2>$null # it always bugs me when "$Good...HEAD" <-- just kinda sucks ;-}
+            $compareRef = if ($isDetached) { "HEAD" } else { $currentBranch } ## FIX via v0.6.2 patch - when your HEAD is somewhere it shouldn't be
+            $divergence = git -C $path rev-list --left-right --count "$goodBranch...$compareRef" 2>$null ## END-PATCH
         } catch {
             $divergence = $null
         }
 
         $riskEntry = [ordered]@{
             Path          = $path
+            Remote        = $remote
+            Collision = (
+                if ($collisions) {
+                    $collisions | Where-Object { $_.Paths -match $path }
+                } else {
+                    $null
+                }
+            )
             Role          = $role
             CurrentBranch = $currentBranch
             GoodBranch    = $goodBranch
@@ -642,8 +709,12 @@ function Analyze-AllRepoRisk {
         } else {
             Write-Host "  Divergence    : (not available)"
         }
+        if ($riskEntry.Collision) {
+            Write-Host "  Collision     : $($riskEntry.Collision.Url)" -ForegroundColor Yellow
+        }
 
         if ($isDetached) {
+            if (-not $Force) { return }
             Create-ArchivalBranchIfDetached -repoPath $path
         }
     }
@@ -804,6 +875,16 @@ function Create-ArchivalBranchIfDetached {
     if ($branch -eq "HEAD") {
         $hash     = git -C $repoPath rev-parse HEAD
         $archival = "recovered-$($hash.Substring(0,7))"
+
+        if ($dryrun) {
+            Write-Host "DRYRUN: would create archival branch for detached HEAD"
+            $exists = git -C $repoPath rev-parse --verify "refs/heads/$archival" 2>$null
+            if ($exists) {
+                Write-Host "  Archival branch already exists: $archival" -ForegroundColor DarkGray
+                return
+            }
+            return
+        }
 
         Write-Host "Detached HEAD detected — creating archival branch: $archival"
         git -C $repoPath branch $archival $hash

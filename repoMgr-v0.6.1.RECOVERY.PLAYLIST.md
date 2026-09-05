@@ -284,3 +284,18 @@ When you’re ready for a v0.6.2:
 That would close the last “submodule‑specific” gap without changing your current recovery playlist at all.
 
 For now: your plan is coherent, risk‑aware, and doesn’t need more knobs before you run it.
+
+### COMMITS
+`git log -n 10  --pretty=format:"%C(#FFA500)%h%Creset %C(blue)%ad%Creset %<(110,trunc)%s" --date=iso`                                                                                                                
+
+| hash        | timestamp                 | memo                                                                                                           |
+|-------------|---------------------------|----------------------------------------------------------------------------------------------------------------|
+| **e8ddf4a** | 2026-09-05 12:47:00 -0400 | 260905JN: final remediation-plan appendix (OCD+PTSD Gap-Aanalysis) after v0.6.1 MODs - but still pre-kickoff   |
+| **801c56d** | 2026-09-05 11:41:37 -0400 | 260905JN: another commmit for config file & remediation-plan alignment after v0.6.1 MODs but still pre-kickoff |
+| **86af712** | 2026-09-05 11:39:23 -0400 | 260905JN: interrim commmit for config file & remediation-plan alignment after v0.6.1 MODs but still pre-kick.. |
+| **0fb3a65** | 2026-09-05 10:39:46 -0400 | final commit repoMgr-v0.6.1 </br>- after 13d unscrabmling of a bad-bot's omelette that was our monorepo - ho.. |
+| **f3367ea** | 2026-09-05 05:15:40 -0400 | 260905JN: interrim commmit for tweaks after v0.6.0 MODs                                                        |
+| **e52d2e4** | 2026-09-03 20:17:23 -0400 | repoMgr-v0.6.0 - after 10d of analysis on corrupted monorepo - ready to run                                    |
+| **97b9a3b** | 2026-09-01 10:47:04 -0400 | 260901JN: interrim commmit for files touched after v0.5.4 MODs                                                 |
+| **f6191fa** | 2026-09-01 10:27:42 -0400 | repoMgr-v0.5.4 - ready to reintegrate .AI-TRAINING... #     260901 - 0.5.2 - Fixed three bugs: #            .. |
+| **8ac287f** | 2026-09-01 00:33:48 -0400 | initial commit repoMgr-v0.5.1 - after 7d of analysis on corrupted monorepo - ready to run                      |
