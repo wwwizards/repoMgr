@@ -15,6 +15,7 @@
 # UPDATED:  260831 BY: Copilot (Fix: invalid $CFG-INFO variable name / function-call-before-definition order / v0.5.1)
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
 # VERSION:  0.6.x - Added new features and improvements: dry-run is now default for all operations.
+#           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
 #               ~ FEE: $20 = for individual commercial DEV use (requires separate licensing & registration).
@@ -33,73 +34,6 @@
 #     -help             # Displays this help message.
 #     -all              # Executes backup + stats + recovery + reintegration (not risk, by design).
 #     -topology         # Captures the current topology of all repositories (roles, branches, remotes).
-
-# CHANGELOG:
-#     260827 - 0.2.0 - Initial port from previous BASH version.
-#     260828 - 0.3.x - Added -risk option for analyzing detached HEAD state (single‑repo).
-#     260830 - 0.3.2 - Updated version and ensured -risk option is documented.
-#     260830 - 0.4.0 - Added:
-#                * bounded traversal via config $lookback (with override)
-#                * automatic JSON output to repoMgr‑logs
-#                * archival‑branch detection for detached HEAD
-#                * DR‑branch creation (existing, now risk‑aware)
-#                * divergence checks vs primary branch (main/master)
-#                * stale‑commit detection
-#                * destructive‑commit classification
-#                * risk scoring with severity buckets
-#                * root + Agile‑Wizard repo role awareness
-#     260830 - 0.5.0 - refactored from v0.4 for speed & efficiency on deep & wide repo-traversals:
-#                  * Smart Divergence (merge‑base bounded traversal)
-#                  * Forensic Mode (metadata‑only, JSON output)
-#                  * Archival branch detection for detached HEAD
-#                  * DR branch creation retained
-#                  * Divergence checks vs primary branch (main/master)
-#                  * Stale‑commit detection
-#                  * Destructive‑commit classification (crude but useful)
-#                  * Risk scoring with role‑sensitive thresholds (Root vs Agile‑Wizard vs Standard)
-#                  * Root + Agile‑Wizard sensitivity hooks for future tuning
-#     260831 - 0.5.1 - Fixed $CFG-INFO invalid variable name (renamed to $cfgInfo) causing a
-#                script-wide ParseException, and moved the INIT log call to after the
-#                log function definition to fix call-before-definition order.
-#     260901 - 0.5.2 - Fixed three bugs:
-#                * (BUG) fixed: $root shell-tokenizer quirk: -root='path' passes literal
-#                           '-root=C:\path' string; added sanitization + guard + user warning.
-#                * (BUG) fixed: Get-ChildItem -Directory cascade failure was caused entirely
-#                           by the poisoned $root value above — no independent fix needed.
-#                * (DESIGN) get-repoList never checked $root itself for .git; it only
-#                           recursed into subdirs. Added self-check so -root targeting a
-#                           single leaf repo (e.g. .AI-TRAINING) works correctly.
-#     260901 - 0.5.3 - Added Show-PendingChanges helper: replaces flat one-liner
-#                      with Format-Table view. Parses XY porcelain codes into
-#                      Action/Scope/File columns. Summary count header included.
-#                      -Grouped switch available for large dirty repos.
-#     260901 - 0.5.4 - Fixed three post-table bugs surfaced by -all -dryrun run:
-#                * (BUG) fixed: Nested detection false-positive: parent dir scan re-flagged
-#                        $root as nested. Added Resolve-Path equality guard.
-#                * (BUG) fixed: Reintegration double-path: Join-Path $root $repo.Name
-#                        doubled the leaf dir name. Now uses $repo.FullName + root guard.
-#                * (UX)  Silent empty history: git log returning nothing left a blank
-#                        line. Now prints "(no commits in window)" fallback.
-#                * (PATCH)  Updated create-drBranches to guard against re-creating an existing DR branch.
-#     260903 - 0.6.0 -  multiple improvements and new features added.
-#                * (ADD) Added dry-run support for create-drBranches: prints planned actions without executing them.
-#                * (BUG) fixed: now restores the pointer to the original branch after creating DR branch.
-#                * (ADD) new functions for repository topology and risk analysis.
-#                     * (NEW) FUNCTION: Get-RemoteCollisions - Detects remote URL collisions (multiple dirs → same remote) among submodules and nested Git repositories.
-#                     * (NEW) FUNCTION: Write-TopologySnapshot - Captures the current topology of all repositories, including roles, branches, and remotes.
-#                     * (NEW) FUNCTION: Write-RiskReport - Generates a risk analysis report for all repositories, including remote collisions.
-#                     * (NEW) MVx-FUNCTION: analyze-fileOverlap - Detects overlapping file changes between two branches by comparing the last modification dates of each file.
-#                * (ADD) dry-run support for create-drBranches and ensured original branch is restored after DR branch creation.
-#                * (MOD) -all now includes -topology and -collisions as well.
-#                * (MOD) DR branch creation now requires -Force to execute, otherwise it will be skipped in dry-run mode.
-#                * (MOD) Updated help information to reflect new features and changes.
-#                * (MOD) Improved error handling and logging for all operations.
-#                * (MOD) General code cleanup and refactoring for better maintainability and improved UX.
-#                * (MOD) Updated repository analysis functions to include additional metrics and improved reporting.
-#                * (MOD) Enhanced logging for repository backup and recovery operations - improved visibility into success and failure events
-#                * (MOD) Improved handling of nested Git repositories and submodules for all operations - enhanced detection and management of nested structures
-#                * (MOD) Agent-friendly improvements for better integration with CI/CD pipelines & AI-assisted workflows.
-#     260904 - 0.6.1 -  minor UX improvements and tweaks.
 #--------------------------------------------------------------------------#>
 
 param(
@@ -110,9 +44,8 @@ param(
     [switch]$backup,            # Perform a backup of the repository
     [switch]$topology,          # Capture the current topology of all repositories
     [switch]$collisions,        # Run remote collision detection only
-    [switch]$force,             # Explicit override for destructive operations
+    [switch]$Force,             # Explicit override for destructive operations
     [switch]$stats,             # Display repository statistics
-    [Alias('dr')]               # deprecated alias for back-compat w/prev versions 
     [switch]$recovery,          # Perform a disaster recovery operation (alias: dr)
     [switch]$dirtyonly,         # Operate only on dirty repositories
     [switch]$reintegration,     # Perform reintegration of changes
@@ -178,9 +111,10 @@ $logFile   = "$logDir\repoMgr-$timestamp.json"
 if (!(Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
 
 # --- Default: Use DRYRUN mode unless FORCE is explicitly specified ---
-if (-not $PSBoundParameters.ToUpper().ContainsKey('FORCE')) {
+if (-not $PSBoundParameters.ContainsKey('force')) {
     $dryrun = $true
 }
+
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: banner - Displays a banner message ---
@@ -286,7 +220,6 @@ function archive-safecopy {
     log "BACKUP" $root "Backup created at $zipPath and copied to $safedest (filtered venv)"
 }
 
-
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: analyze-fileOverlap - Detect overlapping file changes between branches ---
 #------------------------------------------------------------------------------#>
@@ -301,19 +234,21 @@ function archive-safecopy {
 #   combined with something like `git log -n 5 --follow <filename>`
 #------------------------------------------------------------------------------#>
 function analyze-fileOverlap {
-    param([string]$branchA, [string]$branchB), 
-    param ([Int16]$numCommits = 5)
-    $files = git diff $branchA..$branchB --name-only
+    param(
+        [string]$branchA,
+        [string]$branchB,
+        [int]$numCommits = 5
+    )
+    $files = git diff "$branchA..$branchB" --name-only
     foreach ($f in $files) { 
         banner "Showing last $numCommits commits for $f"
-        $logC = git log -n $numCommits --follow $f
+        $logC = git log -n $numCommits --follow "$f"
         banner "Analyzing file overlap for $f between branches"
         $logA = git log -n 1 --pretty=format:"%ad" --date=iso $branchA -- $f
         $logB = git log -n 1 --pretty=format:"%ad" --date=iso $branchB -- $f
         [PSCustomObject]@{File=$f; Commits=$logC; BranchA_Date=$logA; BranchB_Date=$logB}
     }
 }
-
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: get-repoList - Repo discovery ---
@@ -426,7 +361,6 @@ function Get-RemoteCollisions {
     return $collisions
 }
 
-
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: Get-RepoRole - Classifies repo role (Root / Agile‑Wizard / Standard) ---
 #------------------------------------------------------------------------------#>
@@ -504,7 +438,6 @@ function detect-nestedRepos {
     return $nestedRepos
 }
 
-
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: get-repoHistory - Repo history ---
 #------------------------------------------------------------------------------#>
@@ -525,7 +458,6 @@ function get-repoHistory($path) {
         --pretty=format:"%C(auto)%h %C(blue)%ad%C(reset) %C(yellow)%d%C(reset) %s" `
         --date=iso
 }
-
 
 #--------------------------------------------------------------------------
 # Helper: Show-PendingChanges                                  [v0.5.2]
@@ -609,8 +541,6 @@ function Show-PendingChanges {
     }
 }
 
-
-
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: write-repoStats - Repo drift report ---
 #------------------------------------------------------------------------------#>
@@ -656,7 +586,6 @@ function Write-RiskReport {
     # Detached HEAD + divergence + dirty status across all repos
     Analyze-AllRepoRisk
 }
-
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: Analyze-AllRepoRisk - Smart divergence + forensic mode        #>
@@ -720,7 +649,6 @@ function Analyze-AllRepoRisk {
     }
 }
 
-
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: Write-TopologySnapshot - Capture repository topology snapshot  #>
 #------------------------------------------------------------------------------#>
@@ -766,7 +694,6 @@ function Write-TopologySnapshot {
     Write-Host "Topology snapshot written to $topologyFile" -ForegroundColor Cyan
     log "TOPOLOGY" $root $topologyFile
 }
-
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: create-drBranches - DR branch creation ---                     #>
@@ -825,8 +752,6 @@ function create-drBranches {
         }
     }
 }
-
-
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: reintegrate-nestedRepo - Reintegration scaffold ---
@@ -1119,7 +1044,6 @@ function Analyze-RepoRisk {
     return $results
 }
 
-
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: show-help - Help ---
 #------------------------------------------------------------------------------#>
@@ -1140,11 +1064,9 @@ function show-help {
     Write-Host "-all            : Run backup + stats + recovery + reintegration (not risk)"
 }
 
-
 #------------------------------------------------------------------------------#>
 #  --- DISCOVERY DISPATCHER  - CONDITIONAL EXECUTION BASED ON OPTION FLAGS --- #>
 #------------------------------------------------------------------------------#>
-
 # Prevent redundant execution when the -all flag is set
 if (-NOT $all) {
     if ($backup)        { archive-safecopy          } # (full backup + safe-copy) trigger 
@@ -1156,7 +1078,6 @@ if (-NOT $all) {
 #------------------------------------------------------------------------------#>
 # ORTHOGONAL KNOBS - Variates which can be treated as statistically independent
 #------------------------------------------------------------------------------#>
-
 if (-NOT $risk -or -NOT $all) {
     if ($collisions)    { Get-RemoteCollisions      } # independent trigger 
 } elseif ($risk)        { Write-RiskReport          } # never included in -ALL
@@ -1175,7 +1096,6 @@ if ($recovery) {
 }
 
 if ($reintegration) { reintegrate-nestedRepo    }
-
 
 #------------------------------------------------------------------------------#>
 # --- EXECUTE ALL TASKS IF THE -all FLAG IS SET ---                            #>
@@ -1208,7 +1128,6 @@ if ($all) {
     reintegrate-nestedRepo
     exit
 }
-
 
 #------------------------------------------------------------------------------#>
 # --- DEFAULT FALLTHROUGH CASE: Show help if no valid flags are provided ---               #>
