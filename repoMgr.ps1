@@ -14,7 +14,7 @@
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260831 BY: Copilot (Fix: invalid $CFG-INFO variable name / function-call-before-definition order / v0.5.1)
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  0.6.0 - Added new features and improvements: dry-run is now default for all operations.
+# VERSION:  0.6.x - Added new features and improvements: dry-run is now default for all operations.
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
 #               ~ FEE: $20 = for individual commercial DEV use (requires separate licensing & registration).
@@ -85,9 +85,10 @@
 #                * (ADD) Added dry-run support for create-drBranches: prints planned actions without executing them.
 #                * (BUG) fixed: now restores the pointer to the original branch after creating DR branch.
 #                * (ADD) new functions for repository topology and risk analysis.
-#                  * New FUNCTION: Get-RemoteCollisions - Detects remote URL collisions (multiple dirs → same remote) among submodules and nested Git repositories.
-#                  * New FUNCTION: Write-TopologySnapshot - Captures the current topology of all repositories, including roles, branches, and remotes.
-#                  * New FUNCTION: Write-RiskReport - Generates a risk analysis report for all repositories, including remote collisions.
+#                     * (NEW) FUNCTION: Get-RemoteCollisions - Detects remote URL collisions (multiple dirs → same remote) among submodules and nested Git repositories.
+#                     * (NEW) FUNCTION: Write-TopologySnapshot - Captures the current topology of all repositories, including roles, branches, and remotes.
+#                     * (NEW) FUNCTION: Write-RiskReport - Generates a risk analysis report for all repositories, including remote collisions.
+#                     * (NEW) MVx-FUNCTION: analyze-fileOverlap - Detects overlapping file changes between two branches by comparing the last modification dates of each file.
 #                * (ADD) dry-run support for create-drBranches and ensured original branch is restored after DR branch creation.
 #                * (MOD) -all now includes -topology and -collisions as well.
 #                * (MOD) DR branch creation now requires -Force to execute, otherwise it will be skipped in dry-run mode.
@@ -98,6 +99,7 @@
 #                * (MOD) Enhanced logging for repository backup and recovery operations - improved visibility into success and failure events
 #                * (MOD) Improved handling of nested Git repositories and submodules for all operations - enhanced detection and management of nested structures
 #                * (MOD) Agent-friendly improvements for better integration with CI/CD pipelines & AI-assisted workflows.
+#     260904 - 0.6.1 -  minor UX improvements and tweaks.
 #--------------------------------------------------------------------------#>
 
 param(
@@ -106,8 +108,9 @@ param(
     [string]$lookback,          # Override the lookback period for repository analysis
     [string]$drBranch,          # Override the name of the disaster recovery branch
     [switch]$backup,            # Perform a backup of the repository
-    [switch]$collisions,       # Run remote collision detection only
-    [switch]$force,            # Explicit override for destructive operations
+    [switch]$topology,          # Capture the current topology of all repositories
+    [switch]$collisions,        # Run remote collision detection only
+    [switch]$force,             # Explicit override for destructive operations
     [switch]$stats,             # Display repository statistics
     [Alias('dr')]               # deprecated alias for back-compat w/prev versions 
     [switch]$recovery,          # Perform a disaster recovery operation (alias: dr)
@@ -174,6 +177,10 @@ $logFile   = "$logDir\repoMgr-$timestamp.json"
 # --- Ensure log directory exists ---
 if (!(Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
 
+# --- Default: Use DRYRUN mode unless FORCE is explicitly specified ---
+if (-not $PSBoundParameters.ToUpper().ContainsKey('FORCE')) {
+    $dryrun = $true
+}
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: banner - Displays a banner message ---
@@ -247,27 +254,66 @@ function exec {
 #------------------------------------------------------------------------------#>
 # DESCRIPTION: Creates a full backup of the root directory and copies it to a safe destination.
 # PARAMETERS: None.
-# RETURNS: None.
+# RETURNS:  None.
+# NOTE: v0.6.x - Now excludes the `.venv` directory from the backup.
 #------------------------------------------------------------------------------#>
 function archive-safecopy {
     banner "Creating full backup"
+
+    # Always include hidden files/dirs; optionally exclude venv
+    $source = Resolve-Path $root
+
+    # Explicit venv exclusion without touching .git or submodules.
+    # Recurse + Force = hidden files & directories included.
+    $items = Get-ChildItem -Path $source -Recurse -Force |
+             Where-Object { $_.FullName -notmatch '\\\.venv($|\\)' }
+
     if ($dryrun) {
-        Write-Host "[DRYRUN] Would zip $root to $zipPath"
+        Write-Host "[DRYRUN] Would archive $($items.Count) items from $source to $zipPath"
         Write-Host "[DRYRUN] Would copy to $safedest"
-        log "BACKUP-DRYRUN" $root "SafeCopy simulated"
+        log "BACKUP-DRYRUN" $root "SafeCopy simulated (filtered venv)"
         return
     }
 
-    # Ensure the safe destination directory exists
     if (-not (Test-Path $safedest)) {
         New-Item -ItemType Directory -Path $safedest -Force | Out-Null
     }
 
-    # Create the backup archive and copy it to the safe destination.
-    Compress-Archive -Path $root -DestinationPath $zipPath -Force
+    # point‑in‑time (insurance) artifacts that can be restored and inspected like tar -cvz.
+    Compress-Archive -Path $items.FullName -DestinationPath $zipPath -Force
     Copy-Item $zipPath $safedest -Force
-    log "BACKUP" $root "Backup created at $zipPath and copied to $safedest"
+
+    log "BACKUP" $root "Backup created at $zipPath and copied to $safedest (filtered venv)"
 }
+
+
+#------------------------------------------------------------------------------#>
+# --- FUNCTION: analyze-fileOverlap - Detect overlapping file changes between branches ---
+#------------------------------------------------------------------------------#>
+# DESCRIPTION: Detects overlapping file changes between two branches by comparing the last modification dates of each file.
+# PARAMETERS:
+#     [string]$branchA - The first branch to compare.
+#     [string]$branchB - The second branch to compare.
+# RETURNS: A collection of PSCustomObjects containing the file name and the last 
+#   modification dates in both branches. It produces a JSON report showing which 
+#   files differ and which branch has the newer commit timestamp — perfect for 
+#   additional triage before merging - but not a substitute for careful review.
+#   combined with something like `git log -n 5 --follow <filename>`
+#------------------------------------------------------------------------------#>
+function analyze-fileOverlap {
+    param([string]$branchA, [string]$branchB), 
+    param ([Int16]$numCommits = 5)
+    $files = git diff $branchA..$branchB --name-only
+    foreach ($f in $files) { 
+        banner "Showing last $numCommits commits for $f"
+        $logC = git log -n $numCommits --follow $f
+        banner "Analyzing file overlap for $f between branches"
+        $logA = git log -n 1 --pretty=format:"%ad" --date=iso $branchA -- $f
+        $logB = git log -n 1 --pretty=format:"%ad" --date=iso $branchB -- $f
+        [PSCustomObject]@{File=$f; Commits=$logC; BranchA_Date=$logA; BranchB_Date=$logB}
+    }
+}
+
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: get-repoList - Repo discovery ---
@@ -603,7 +649,8 @@ function write-repoStats {
 function Write-RiskReport {
     banner "Risk Analysis (Option-D: Smart Divergence + Forensic Mode)"
 
-    # Remote collisions (submodules + nested repos sharing the same origin URL)
+    # Check for remote collisions (submodules + nested repos sharing the same origin URL)
+    $repos      = get-repoList
     $collisions = Get-RemoteCollisions
 
     # Detached HEAD + divergence + dirty status across all repos
@@ -696,34 +743,29 @@ function Write-TopologySnapshot {
     $snapshot = @()
 
     foreach ($repo in $repos) {
-        $path         = $repo.FullName
-        $role         = Get-RepoRole -repoPath $path
-        $currentBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
-        $goodBranch    = Get-GoodBranch -repoPath $path
-        $originUrl     = git -C $path remote get-url origin 2>$null
+        $path   = $repo.FullName
+        $role   = Get-RepoRole -repoPath $path
+        $branch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
+        $good   = Get-GoodBranch -repoPath $path
+        $origin = git -C $path remote get-url origin 2>$null
 
         $snapshot += [PSCustomObject]@{
-            Path          = $path
-            Role          = $role
-            CurrentBranch = $currentBranch
-            GoodBranch    = $goodBranch
-            Origin        = $originUrl
+            Path        = $path
+            Role        = $role
+            Branch      = $branch
+            GoodBranch  = $good
+            OriginUrl   = $origin
         }
     }
 
-    if (!(Test-Path $logDir)) {
-        New-Item -ItemType Directory -Path $logDir | Out-Null
-    }
-
-    $topologyFile = Join-Path $logDir ("topology-" + $timestamp + ".json")
+    # create artifact for an AI-Agent to perform the “unscramble the omelette” work.
     $json = $snapshot | ConvertTo-Json -Depth 5
+    $topologyFile = Join-Path $logDir "topology-$timestamp.json"
+
     Set-Content -Path $topologyFile -Value $json
-
-    Write-Host "  Topology snapshot written to: $topologyFile" -ForegroundColor Cyan
-    log "TOPOLOGY" $root "Snapshot written to $topologyFile"
+    Write-Host "Topology snapshot written to $topologyFile" -ForegroundColor Cyan
+    log "TOPOLOGY" $root $topologyFile
 }
-
-
 
 
 #------------------------------------------------------------------------------#>
@@ -738,6 +780,11 @@ function Write-TopologySnapshot {
 #------------------------------------------------------------------------------#>
 function create-drBranches {
     banner "Creating DR branches ($drBranch)"
+
+    if (-not $Force) {
+        Write-Host "⚠ DR branch creation requires -Force; running in DRYRUN-only mode." -ForegroundColor Yellow
+        $dryrun = $true
+    }
 
     $repos = get-repoList
 
@@ -1088,11 +1135,46 @@ function show-help {
     Write-Host "-collisions     : Detect remote URL collisions (multiple dirs → same remote) among submodules and nested Git repositories"
     Write-Host "-dirtyonly      : Only branch repos with pending changes (for -recovery)"
     Write-Host "-reintegration  : Reintegration scaffold for nested repos"
-    Write-Host "-risk           : Option-D (detached HEAD) risk analysis across repos"
+    Write-Host "-risk           : Option-D (detached HEAD) risk analysis reporting across repos + smart divergence + forensic mode"
     Write-Host "-dryrun         : No changes, only simulate (logged as DRYRUN)"
     Write-Host "-all            : Run backup + stats + recovery + reintegration (not risk)"
 }
 
+
+#------------------------------------------------------------------------------#>
+#  --- DISCOVERY DISPATCHER  - CONDITIONAL EXECUTION BASED ON OPTION FLAGS --- #>
+#------------------------------------------------------------------------------#>
+
+# Prevent redundant execution when the -all flag is set
+if (-NOT $all) {
+    if ($backup)        { archive-safecopy          } # (full backup + safe-copy) trigger 
+    if ($stats)         { write-repoStats           } # drift detectionn trigger
+    if ($topology)      { Write-TopologySnapshot    } # capture topology of all repos & submodules
+    if ($risk)          { Write-RiskReport          } # Get-RemoteCollisions + Analyze-AllRepoRisk
+}
+
+#------------------------------------------------------------------------------#>
+# ORTHOGONAL KNOBS - Variates which can be treated as statistically independent
+#------------------------------------------------------------------------------#>
+
+if (-NOT $risk -or -NOT $all) {
+    if ($collisions)    { Get-RemoteCollisions      } # independent trigger 
+} elseif ($risk)        { Write-RiskReport          } # never included in -ALL
+
+
+#------------------------------------------------------------------------------#>
+# RECOVER MODE: Only allow DR branch creation when -Force is passed
+#------------------------------------------------------------------------------#>
+if ($recovery) {
+    if ($Force) {
+        create-drBranches   # as of v0.5.x - includes DirtyRepo branching logic 
+    } else {
+        Write-Host "[DRYRUN] Skipping DR branch creation — requires -Force." -ForegroundColor DarkGray
+        log "DRYRUN-SKIP" $root "Skipped DR branch creation (no -Force flag)"
+    }
+}
+
+if ($reintegration) { reintegrate-nestedRepo    }
 
 
 #------------------------------------------------------------------------------#>
@@ -1102,54 +1184,31 @@ function show-help {
 # This prevents accidental branch creation or destructive operations.          #>
 #------------------------------------------------------------------------------#>
 if ($all) {
-    banner "Executing ALL tasks (safe mode)"
+    banner "Executing ALL Tasks  "
+
+    # DEFAULT to DRYRUN unless -Force is explicitly set
     if (-not $Force) {
         Write-Host "⚠ SAFE MODE: Running in DRYRUN (no changes will be made)." -ForegroundColor Yellow
         $dryrun = $true
-    } else {
+    } else { 
         Write-Host "⚠ FORCE MODE: Destructive operations are enabled." -ForegroundColor Red
         $dryrun = $false
     }
 
+    # CREATE RECOVERY POINT
     archive-safecopy
+
+    # DISCOVER/DIAGNOSE TASKS
     write-repoStats
     Write-TopologySnapshot
-    Write-RiskReport
+    Get-RemoteCollisions
 
-    # Only create DR branches if explicitly forced
-    if ($Force) {
-        create-drBranches
-    } else {
-        Write-Host "[DRYRUN] Skipping DR branch creation — requires -Force." -ForegroundColor DarkGray
-        log "DRYRUN-SKIP" $root "Skipped DR branch creation (no -Force flag)"
-    }
-
+    # DELIVER TASKS
+    create-drBranches
     reintegrate-nestedRepo
     exit
 }
 
-
-#------------------------------------------------------------------------------#>
-#  --- OPTION DISPATCHER  ---  CONDITIONAL EXECUTION BASED ON OPTION FLAGS ---                          #>
-#------------------------------------------------------------------------------#>
-if ($backup)        { archive-safecopy          }
-if ($collisions)    { Get-RemoteCollisions      }
-if ($stats)         { write-repoStats           }
-if ($topology)      { Write-TopologySnapshot    }
-if ($risk)          { Write-RiskReport          }
-
-# Only allow DR branch creation when -Force is passed
-if ($recovery) {
-    if ($Force) {
-        create-drBranches
-    } else {
-        Write-Host "[DRYRUN] Skipping DR branch creation — requires -Force." -ForegroundColor DarkGray
-        log "DRYRUN-SKIP" $root "Skipped DR branch creation (no -Force flag)"
-    }
-}
-
-if ($reintegration) { reintegrate-nestedRepo }
-if ($collisions)    { Get-RemoteCollisions }
 
 #------------------------------------------------------------------------------#>
 # --- DEFAULT FALLTHROUGH CASE: Show help if no valid flags are provided ---               #>

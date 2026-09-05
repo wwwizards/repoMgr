@@ -13,7 +13,7 @@
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260830 BY: Copilot (Refactor:Option‑D / Forensic Mode / v0.5.0)
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  0.5.0
+# VERSION:  0.5.0 - Updated for safe mode and force flag handling
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
 #               ~ FEE: $20 = for individual commercial DEV use (requires separate licensing & registration).
@@ -142,6 +142,7 @@ function log {
     $json = ($entry | ConvertTo-Json -Depth 5)
     Add-Content -Path $logFile -Value $json
 }
+
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: exec - DRYRUN wrapper ---
