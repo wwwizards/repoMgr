@@ -14,7 +14,7 @@
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260831 BY: Copilot (Fix: invalid $CFG-INFO variable name / function-call-before-definition order / v0.5.1)
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  0.6.x - Added new features and improvements: dry-run is now default for all operations.
+# VERSION:  0.6.3 - streamlined the dispatcher for improved UX
 #           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
@@ -1138,86 +1138,52 @@ function Analyze-RepoRisk {
 #------------------------------------------------------------------------------#>
 function show-help {
     banner "repoMgr.ps1 — Flags"
-    Write-Host "-backup         : Full backup + safe-copy"
-    Write-Host "-stats          : Repo drift report"
-    Write-Host "-recovery       : Create DR branches (legacy alias: -dr)"
-    Write-Host "-topology       : Capture the current topology of all repositories, including roles, branches, and remotes"
+    Write-Host "-all            : Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode"
+    Write-Host "-backup         : Full backup + safe-copy according to Config-File settings"
+    Write-Host "-backupdest     : Override config-file's backup destination (used with -backup)"
     Write-Host "-collisions     : Detect remote URL collisions (multiple dirs → same remote) among submodules and nested Git repositories"
     Write-Host "-dirtyonly      : Only branch repos with pending changes (for -recovery)"
-    Write-Host "-reintegration  : Reintegration scaffold for nested repos"
-    Write-Host "-risk           : Option-D (detached HEAD) risk analysis reporting across repos + smart divergence + forensic mode"
-    Write-Host "-dryrun         : No changes, only simulate (logged as DRYRUN)"
-    Write-Host "-all            : Run backup + stats + recovery + reintegration (not risk)"
+    Write-Host "-drBranch       : Override config-file's DR branch-prefix (used with -recovery)"
+    Write-Host "-dryrun         : (DEFAULT) No changes, only simulate (logged as DRYRUN)"
+    Write-Host "-force          : Enable destructive operations (overrides -dryrun)"
+    Write-Host "-lookback       : Override config-file's lookback period for analysis (e.g., 7d, 1m)"
+    Write-Host "-recovery       : Create DR branches (legacy alias: -dr)"
+    Write-Host "-reintegration  : Provides a scaffold for reintegrating a nested repository into your monorepo"
+    Write-Host "-risk           : (DEFAULT) Option-D (detached HEAD) risk analysis reporting across repos + smart divergence + forensic mode"
+    Write-Host "-stats          : (DEFAULT) Repo drift report"
+    Write-Host "-topology       : (DEFAULT) Capture the current topology of all repositories, including roles, branches, and remotes"
 }
 
-#------------------------------------------------------------------------------#>
-#  --- DISCOVERY DISPATCHER  - CONDITIONAL EXECUTION BASED ON OPTION FLAGS --- #>
-#------------------------------------------------------------------------------#>
-# Prevent redundant execution when the -all flag is set
-if (-NOT $all) {
-    if ($backup)        { archive-safecopy          } # (full backup + safe-copy) trigger 
-    if ($stats)         { write-repoStats           } # drift detectionn trigger
-    if ($topology)      { Write-TopologySnapshot    } # capture topology of all repos & submodules
-    if ($risk)          { Write-RiskReport          } # Get-RemoteCollisions + Analyze-AllRepoRisk
-}
 
 #------------------------------------------------------------------------------#>
-# ORTHOGONAL KNOBS - Variates which can be treated as statistically independent
+#  --- DISCOVERY DISPATCHER  -  ALWAYS EXECUTED REGARDLESS OF OPTION FLAGS --- #>
 #------------------------------------------------------------------------------#>
-if (-NOT $risk -or -NOT $all) {
-    if ($collisions)    { Get-RemoteCollisions      } # independent trigger 
-} elseif ($risk)        { Write-RiskReport          } # never included in -ALL
-
-
+if ($help) { show-help; exit }
+banner "Executing BASE REPORTING Tasks  "
 #------------------------------------------------------------------------------#>
-# RECOVER MODE: Only allow DR branch creation when -Force is passed
-#------------------------------------------------------------------------------#>
-if ($recovery) {
-    if ($Force) {
-        create-drBranches   # as of v0.5.x - includes DirtyRepo branching logic 
-    } else {
-        Write-Host "[DRYRUN] Skipping DR branch creation — requires -Force." -ForegroundColor DarkGray
-        log "DRYRUN-SKIP" $root "Skipped DR branch creation (no -Force flag)"
-    }
-}
-
-if ($reintegration) { reintegrate-nestedRepo    }
-
-#------------------------------------------------------------------------------#>
-# --- EXECUTE ALL TASKS IF THE -all FLAG IS SET ---                            #>
-#------------------------------------------------------------------------------#>
-# In v0.6.0, -all now defaults to DRYRUN mode unless -Force is explicitly set. #>
+# In v0.6+ EVERYTHING defaults to DRYRUN mode unless -Force is explicitly set. #>
 # This prevents accidental branch creation or destructive operations.          #>
 #------------------------------------------------------------------------------#>
-if ($all) {
-    banner "Executing ALL Tasks  "
-
-    # DEFAULT to DRYRUN unless -Force is explicitly set
-    if (-not $Force) {
-        Write-Host "⚠ SAFE MODE: Running in DRYRUN (no changes will be made)." -ForegroundColor Yellow
-        $dryrun = $true
-    } else { 
-        Write-Host "⚠ FORCE MODE: Destructive operations are enabled." -ForegroundColor Red
-        $dryrun = $false
-    }
-
-    # CREATE RECOVERY POINT
-    archive-safecopy
-
-    # DISCOVER/DIAGNOSE TASKS
-    write-repoStats
-    Write-TopologySnapshot
-    Get-RemoteCollisions
-
-    # DELIVER TASKS
-    create-drBranches
-    reintegrate-nestedRepo
-    exit
+if (-not $Force) {
+    Write-Host "⚠ SAFE MODE: Running in DRYRUN (no changes will be made)." -ForegroundColor Yellow
+    $dryrun = $true
+} else { 
+    Write-Host "⚠ FORCE MODE: Destructive operations are enabled." -ForegroundColor Red
+    $dryrun = $false
 }
 
-#------------------------------------------------------------------------------#>
-# --- DEFAULT FALLTHROUGH CASE: Show help if no valid flags are provided ---               #>
-#------------------------------------------------------------------------------#>
-if (-not ($backup -or $stats -or $recovery -or $reintegration -or $risk -or $dryrun -or $all -or $topology -or $collisions)) {
-    show-help
-}
+# DISCOVER/DIAGNOSE TASKS 
+write-repoStats         # Drift Detection
+Write-TopologySnapshot  # Capture topology of all repos & submodules for handoff to AI-Agents 
+Write-RiskReport        # Analyze risk across all repositories (>6.2+ NOW includes collision detection)
+
+# ORTHOGONAL KNOBS - Variates which can be treated as statistically independent
+if (($backup -or $backupdest) -and -not $all)    { archive-safecopy    } # (full backup + safe-copy) trigger 
+if ($all)               { Analyze-ALLRepoRisk       }   # Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode
+# REPAIR MODE: Default = DRYRUN unless -Force is passed (USE CAUTION: WHEN RISK IS HIGH OR COLLISIONS ARE POSSIBLE)
+if ($recovery)          { create-drBranches         }   # as of v0.5.x - includes DirtyRepo branching logic 
+if ($reintegration )    { reintegrate-nestedRepo    }   # Provides a scaffold for reintegrating a nested repository into the monorepo.
+
+#-----------------------------------------------------------------------------------#>
+# (CopyLeft:AGPL-3) 2015-2026 LogicWizards <LogicWizards.NYC> - ALL Rights Reserved.
+#-----------------------------------------------------------------------------------#>

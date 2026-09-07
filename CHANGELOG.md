@@ -1,7 +1,7 @@
 
 # CHANGELOG:
 
-
+![alt text](BACKLOG-v0.6.3.md-RepoMgr-OnePage.png)
 ---
 ##     **260827 - 0.2.0** - Initial port from previous BASH version.
 

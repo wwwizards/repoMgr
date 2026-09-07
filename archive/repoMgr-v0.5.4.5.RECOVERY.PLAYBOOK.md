@@ -8,7 +8,7 @@
 This version assumes our current `repoMgr.ps1` (0.5.4) with `Show‑PendingChanges`, DR branch idempotence, nested‑repo guards, and empty‑history fallback. It also bakes in the “collision” insight (two subdirs pointing at the same remote) and the PR path from `RepoMgr-DR-260901` → LogicWizards core.
 
 > #### APORIAE
->    - **APORIA-1.1:** your (response) Option-A shows a clear (script-able) remediation plan that would be even simpler if we could just clone the branch as shown in https://github.com/wwwizards/ai-labs/tree/RepoMgr-DR-260901 but it says "This branch is 1 commit ahead of and 77 commits behind main."  within that branch there are some things that actually belong in the AI-LABS repo while the majority does not.  image - GH://wwwizards/ai-labs recovery branches evidence![alt text](image-1.png)
+>    - **APORIA-1.1:** your (response) Option-A shows a clear (script-able) remediation plan that would be even simpler if we could just clone the branch as shown in https://github.com/wwwizards/ai-labs/tree/RepoMgr-DR-260901 but it says "This branch is 1 commit ahead of and 77 commits behind main."  within that branch there are some things that actually belong in the AI-LABS repo while the majority does not.  image - GH://wwwizards/ai-labs recovery branches evidence![alt text](repoMgr-v0.5.4.5.RECOVERY.PLAYBOOK.md-image-1.png)
 > 
 >    - **APORIA-1.2 (SEE) the code-listing for that branch (below)** where I highlighted: green = things that should be there; red, should NOT; yellow is just one example of something that should be there but might be in the wrong dir... that partially shown README.md looks like it belongs in our .AI-TRAINING dir that is currently (and wrongly) pointing to ai-labs as the remote URL - which may identify another issue that was not clear from any repoMgr report that we have two completely different subdirs pointing to the same remote URL 
 > 
@@ -16,7 +16,7 @@ This version assumes our current `repoMgr.ps1` (0.5.4) with `Show‑PendingChang
 > - **APORIA-2: I think i noticed another bug when using both dryrun & all flags at the same time**
 >     - i am fairly certain that this condition may have created the additional recovery branches that I am seeing -- and on top of all that:  the script never switches back to the branch it was using before creating the new one - which can cause all kinds of other issues if the user is overworked and under-caffeinated...
 >
-> (image - GH://wwwizards/ai-labs recovery branch evidence drill-down)![alt text](image.png)
+> (image - GH://wwwizards/ai-labs recovery branch evidence drill-down)![alt text](repoMgr-v0.5.4.5.RECOVERY.PLAYBOOK.md-image.png)
 > TODO: rename images as per standards
 
 
