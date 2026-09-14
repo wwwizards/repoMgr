@@ -22,6 +22,13 @@
 
 ![alt text](BACKLOG-v0.6.3.md-RepoMgr-OnePage.png)
 ---
+##     **260914 - 0.6.4.x** - Mission alignment + live baseline evidence: validation-first refactor prep while preserving live discovery, recovery, and triage work.
+* **(DOC)** Reframed the repo roadmap and README around the current mission: stabilize repoMgr without rerailing the active recovery/discovery effort.
+* **(DOC)** Clarified that the refactor must preserve topology, remote-collision detection, DR safety, and dry-run-first reporting while the broader triage workflow continues.
+* **(DOC)** Added the confirmed 260914 live baseline facts: DRYRUN execution, root repo on `DEV`, `.AI-TRAINING` on `RepoMgr-DR-260901`, and active `repoMgr-logs` / `topology-*.json` artifact generation.
+* **(TEST)** Refreshed the validation suite wording to match the current recovery/discovery mission and the safer reporting baseline.
+
+---
 ##     **260910 - 0.6.3** - Documentation refresh: README and changelog synced to the current repoMgr.ps1 behavior, dispatcher flow, and safe dry-run defaults.
 * **(DOC)** Updated usage guidance to reflect `-stats`, `-topology`, `-risk`, `-collisions`, and `-Force` behavior.
 * **(DOC)** Added related-docs table linking to the changelog, backlog, and advanced Git recovery commands.

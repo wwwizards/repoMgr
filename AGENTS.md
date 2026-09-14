@@ -63,24 +63,21 @@ If you have any issues WITH ANY OF THE ABOVE, STOP.
 
 
 ## Current mission
-the  current mission is to resolve the repo validation path and produce verifiable proof from the required TOOLS terminal, without violating the repo instructions in AGENTS.md.
+The current initiative is validation-first refactoring for [repoMgr.ps1](repoMgr.ps1): establish a clean baseline, refresh the `psst` coverage to match current behavior, and only then proceed with the prioritized architecture cleanup tracked in [ROADMAP-v0.7.x.md](ROADMAP-v0.7.x.md).
 
 - In plain terms:
 - use the exact named terminal: TOOLS
-- run the repo harness through that path
-- capture output into TESTING.md
-- read the file back as the proof
-- only then assess repo status or continue with fixes
+- refresh the repo harness and validation baseline before any refactor work
+- capture proof in [TESTING.md](TESTING.md)
+- read the file back as the verification evidence
+- only then assess repo status or continue with prioritized changes
 
 ## Current repo state
-From the visible evidence I do have:
+The repo is currently in a pre-refactor validation gate:
 
-- The active implementation remains repoMgr-v0.5.0.ps1
-- repoMgr.ps1 IS A COPY which was corrected for the active syntax issues that were blocking the script
-- The test suite in:
-    - repoMgr.sanity.Tests.ps1
-    - repoMgr.smoke.Tests.ps1
-    - repoMgr.unit.Tests.ps1 
-    still needs to be aligned to the actual v0.5.0 behavior
-- any changes (if needed) will be made to repoMgr.ps1 and labeled as v0.5.1 in the meta header
-- all files should have a similar metaheader withtheir versions aligned
+- The active implementation is [repoMgr.ps1](repoMgr.ps1) and it is the operational baseline for the current script behavior.
+- The release history and current notes are tracked in [CHANGELOG.md](CHANGELOG.md) and the active backlog is in [BACKLOG-v0.6.3.md](BACKLOG-v0.6.3.md).
+- The primary refactor plan is documented in [ROADMAP-v0.7.x.md](ROADMAP-v0.7.x.md), with supporting recovery/reference material in [advanced-git-recovery-commands.md](advanced-git-recovery-commands.md).
+- The current validation files are [repoMgr.sanity.Tests.ps1](repoMgr.sanity.Tests.ps1), [repoMgr.smoke.Tests.ps1](repoMgr.smoke.Tests.ps1), and [repoMgr.unit.Tests.ps1](repoMgr.unit.Tests.ps1); they need to be refreshed to reflect the current repoMgr functionality before architecture work begins.
+- Any refactor effort will remain validation-first and should preserve the current dry-run-safe reporting model while cleaning the script architecture.
+- All files that participate in the validation/refactor workflow should keep consistent metadata/versioning and remain aligned with the current repo state.

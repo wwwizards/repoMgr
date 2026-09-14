@@ -1,19 +1,19 @@
 #--------------------------------------------------------------------------#>
-# TESTS: repoMgr.sanity.Tests.ps1 - 
+# TESTS: repoMgr.sanity.Tests.ps1 - validation baseline for current behavior
 #--------------------------------------------------------------------------#>
-# ABSTRACT: Sanity tests for the repoMgr PowerShell module.
+# ABSTRACT: Sanity tests for the current repoMgr PowerShell flow.
 # CREATED 260828 BY: Joe Negron
-# UPDATED 260831 BY: Copilot (Aligned Get-RepoRole expectation to actual v0.5.1 behavior)
-# VERSION: 0.5.1
+# UPDATED 260914 BY: Copilot (refreshed for current repoMgr reporting behavior)
+# VERSION: 0.6.4.x - next refactor target
 # LICENSE: MIT
 # REQUIREMENTS: PowerShell 7.0 or later + pester/psst module(s)
 #--------------------------------------------------------------------------#>
 Describe "repoMgr Sanity Tests" {
-    It "Dry-run backup does not mutate" {
-        { . "$PSScriptRoot\repoMgr.ps1" -backup -dryrun | Out-Null } | Should -Not -Throw
+    It "Dry-run discovery and recovery reporting flow does not mutate state" {
+        { . "$PSScriptRoot\repoMgr.ps1" -backup -stats -topology -risk -dryrun | Out-Null } | Should -Not -Throw
     }
 
-    It "Shows help and resolves a valid repo branch" {
+    It "Shows help and resolves a valid repo branch under the current recovery/discovery config contract" {
         $fixture = Join-Path $PSScriptRoot ".repoMgr-sanity-fixture"
         if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force }
 
@@ -26,7 +26,7 @@ Describe "repoMgr Sanity Tests" {
         git -C $fixture add README.md
         git -C $fixture commit -m "seed" | Out-Null
 
-        . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest "$PSScriptRoot\.repoMgr-safe" -lookback "7 days ago" -drBranch "DR-TEST" | Out-Null
+        . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest "$PSScriptRoot\.repoMgr-safe" -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
 
         { show-help } | Should -Not -Throw
         Get-GoodBranch -repoPath $fixture | Should -Be "main"

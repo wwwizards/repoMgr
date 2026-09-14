@@ -57,8 +57,23 @@
 ## Overview
 repoMgr is a PowerShell-based monorepo workflow manager for Git repositories. It discovers nested repos, records topology, detects remote collisions, analyzes drift and detached HEAD risk, creates DR branches, and produces JSON logs for downstream AI-assisted workflows and handoff documentation.
 
+## Mission context
+This project is not just a general monorepo utility - although it will likely become one. It was born out of necessity, and, as of this writing, is operating in a live recovery/discovery and triage context for a corrupted repo environment, where `repoMgr.ps1` is serving as a forensic tool and a DR-support workflow while the broader remediation effort is still in progress.
+
+The current live baseline is proven by the 260914 run in REPORT-260914-all-backup-recovery.txt: the script was executed in dry-run mode with `-all -backup -recovery`, the root repo was active on `DEV` with 79 pending changes, and the `.AI-TRAINING` repo was already on a DR branch (`RepoMgr-DR-260901`) with 68 pending changes. The repeated `repoMgr-logs` and `topology-*.json` artifacts are part of the operational workflow, not incidental output.
+
+The refactor roadmap must therefore preserve the current recovery/discovery behaviors that are already serving the active incident:
+- topology capture for repo correlation and collision analysis
+- remote-collision detection for bad-bot fallout and repo drift
+- detached-HEAD and divergence risk reporting
+- DR branch creation as a safe snapshot/rollback path
+- dry-run-first reporting so the tooling can be used without rerailing recovery work
+- structured JSON artifacts that support downstream triage, handoff analysis, and ETL-style recovery planning
+
+The architecture cleanup is intended to improve maintainability without disrupting the operational triage flow or the larger recovery effort. In practical terms, every refactor remains dry-run-safe and must not rerail the active forensic workflow.
+
 ## Version
-0.6.3
+0.6.4.x (next refactor target; current operational baseline remains 0.6.3.x while the roadmap is iterated)
 
 ## Features
 - Full backup + safe-copy archive to the configured destination
@@ -71,6 +86,7 @@ repoMgr is a PowerShell-based monorepo workflow manager for Git repositories. It
 - Reintegration scaffold for nested repositories
 - JSON logging under the repo root log folder
 - Safe default mode: dry-run unless -Force is explicitly specified
+- Mission-aware validation coverage for recovery/discovery and triage support
 - Pester-compatible validation suite
 
 ## Configuration

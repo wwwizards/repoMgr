@@ -1,23 +1,23 @@
 #--------------------------------------------------------------------------#>
-# TESTS: repoMgr.unit.Tests.ps1 - 
+# TESTS: repoMgr.unit.Tests.ps1 - baseline unit coverage for current repoMgr behavior
 #--------------------------------------------------------------------------#>
-# ABSTRACT: Unit tests for the repoMgr PowerShell module.
+# ABSTRACT: Unit tests for the current repoMgr PowerShell flow.
 # CREATED 260828 BY: Joe Negron
-# UPDATED 260831 BY: Copilot (Added nested-repo fixture so get-repoList detects it; aligned to v0.5.1)
-# VERSION: 0.5.1
+# UPDATED 260914 BY: Copilot (refreshed for current repo discovery and dry-run semantics)
+# VERSION: 0.6.4.x - next refactor target
 # LICENSE: MIT
 # REQUIREMENTS: PowerShell 7.0 or later + pester/psst module(s)
 #--------------------------------------------------------------------------#>
 Describe "repoMgr Unit Tests" {
-    It "Logs entries" {
-        . "$PSScriptRoot\repoMgr.ps1" -stats -dryrun | Out-Null
+    It "Creates the expected repo log directory during the recovery/discovery reporting flow" {
+        . "$PSScriptRoot\repoMgr.ps1" -all -backup -recovery | Out-Null
 
         $cfg = Import-PowerShellDataFile "$PSScriptRoot\repoMgr.config.psd1"
         $logDir = Join-Path $cfg.root "repoMgr-logs"
         Test-Path $logDir | Should -BeTrue
     }
 
-    It "Creates a DR branch only when dirty repositories are selected" {
+    It "Detects nested repos and respects dry-run-only repo operations used by triage work" {
         $fixture = Join-Path $PSScriptRoot ".repoMgr-dirty-fixture"
         if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force }
 
