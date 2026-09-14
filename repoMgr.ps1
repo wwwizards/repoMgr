@@ -14,7 +14,7 @@
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260831 BY: Copilot (Fix: invalid $CFG-INFO variable name / function-call-before-definition order / v0.5.1)
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  0.6.3 - streamlined the dispatcher for improved UX
+# VERSION:  0.6.3.2 - improved UX
 #           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
@@ -117,12 +117,45 @@ if (-not $PSBoundParameters.ContainsKey('force')) {
 
 
 #------------------------------------------------------------------------------#>
-# --- FUNCTION: banner - Displays a banner message ---
+# --- FUNCTION: Write-Banner - Displays a banner message ---
 #------------------------------------------------------------------------------#>
-function banner($msg) {
+function Write-Banner($msg) {
     write-host "`n--------------------------------------------------------------------------------------------"
-    Write-Host "  === $msg ===" -ForegroundColor Cyan
+    Write-Host "  === $msg  ===" -ForegroundColor Cyan
+    Write-Host "      Caller: [$(Get-Caller)]" -ForegroundColor DarkGray
     write-host "--------------------------------------------------------------------------------------------"
+}
+
+#------------------------------------------------------------------------------#>
+# --- FUNCTION: Show-Spinner - Display animation while a script block runs ---
+#------------------------------------------------------------------------------#>
+function Show-Spinner($scriptBlock) {
+    $cursorTop = [Console]::CursorTop
+    
+    try {
+        [Console]::CursorVisible = $false
+        
+        $counter = 0
+        $frames = '|', '/', '-', '\' 
+        $jobName = Start-Job -ScriptBlock $scriptBlock
+    
+        while($jobName.JobStateInfo.State -eq "Running") {
+            $frame = $frames[$counter % $frames.Length]
+            
+            Write-Host "$frame" -NoNewLine
+            [Console]::SetCursorPosition(0, $cursorTop)
+            
+            $counter += 1
+            Start-Sleep -Milliseconds 125
+        }
+        
+        # Only needed if you use a multiline frames
+        Write-Host ($frames[0] -replace '[^\s+]', ' ')
+    }
+    finally {
+        [Console]::SetCursorPosition(0, $cursorTop)
+        [Console]::CursorVisible = $true
+    }
 }
 
 #------------------------------------------------------------------------------#>
@@ -192,7 +225,7 @@ function exec {
 # NOTE: v0.6.x - Now excludes the `.venv` directory from the backup.
 #------------------------------------------------------------------------------#>
 function archive-safecopy {
-    banner "Creating full backup"
+    Write-Banner "Creating full backup"
 
     # Always include hidden files/dirs; optionally exclude venv
     $source = Resolve-Path $root
@@ -241,12 +274,36 @@ function analyze-fileOverlap {
     )
     $files = git diff "$branchA..$branchB" --name-only
     foreach ($f in $files) { 
-        banner "Showing last $numCommits commits for $f"
+        Write-Banner "Showing last $numCommits commits for $f"
         $logC = git log -n $numCommits --follow "$f"
-        banner "Analyzing file overlap for $f between branches"
+        Write-Banner "Analyzing file overlap for $f between branches"
         $logA = git log -n 1 --pretty=format:"%ad" --date=iso $branchA -- $f
         $logB = git log -n 1 --pretty=format:"%ad" --date=iso $branchB -- $f
         [PSCustomObject]@{File=$f; Commits=$logC; BranchA_Date=$logA; BranchB_Date=$logB}
+    }
+}
+
+#------------------------------------------------------------------------------#>
+# --- FUNCTION: Get-Caller - Retrieve the calling function from the call stack ---
+#------------------------------------------------------------------------------#>
+# DESCRIPTION: Retrieves the name of the function that called the current function.
+# RETURNS: "<No caller - invoked directly>" if called from the top level.
+#------------------------------------------------------------------------------#>
+function Get-Caller {
+    try {
+        # Get the call stack
+        $stack = Get-PSCallStack
+
+        # If there is more than one frame, index 1 is the caller
+        if ($stack.Count -gt 2) {
+            return $stack[2].Command
+        }
+        else {
+            return $stack[1].Command
+        }
+    }
+    catch {
+        Write-Error "Failed to get caller: $_"
     }
 }
 
@@ -258,14 +315,19 @@ function analyze-fileOverlap {
 # RETURNS: A list of directories containing Git repositories.
 #------------------------------------------------------------------------------#>
 function get-repoList {
-    banner "Scanning for Git repositories"
+    $verbose=$false
+    if ($VerbosePreference -eq 'Continue') {
+        $verbose=$true
+        Write-Banner "Scanning for Git repositories "
+    }
+    
     $repos = [System.Collections.Generic.List[object]]::new()
 
     # PATCH v0.5.2: Check $root itself first — handles case where -root targets
     # a single leaf repo (e.g. .AI-TRAINING). The old recurse-only approach
     # returned empty when the root IS the repo, not a parent of repos.
     if (Test-Path (Join-Path $root ".git")) {
-        Write-Host "  ✓ $root  [root is a repo]" -ForegroundColor DarkGray
+        if ($verbose) { Write-Host "  ✓ $root  [root is a repo]" -ForegroundColor DarkGray }
         $repos.Add((Get-Item $root))
     }
 
@@ -314,15 +376,15 @@ function Normalize-RemoteUrl {
     try {
         # URI-style: http(s)://<host>/<path>
         $uri = [Uri]$normalized
-        $host = $uri.Host.ToLowerInvariant()
+        $remotehost = $uri.Host.ToLowerInvariant()
         $path = $uri.AbsolutePath.TrimEnd('/').ToLowerInvariant()
-        return "$($uri.Scheme)://$host$path"
+        return "$($uri.Scheme)://$remotehost$path"
     } catch {
         # SSH-style: git@github.com:User/Repo
         if ($normalized -match 'ssh://git@([^/]+)/(.+)' -or $normalized -match 'git@([^:]+):(.+)') {
-            $host = $matches[1].ToLowerInvariant()
+            $remotehost = $matches[1].ToLowerInvariant()
             $path = '/' + $matches[2].TrimEnd('/').ToLowerInvariant()
-            return "ssh://$host$path"
+            return "ssh://$remotehost$path"
         }
 
 
@@ -341,72 +403,79 @@ function Normalize-RemoteUrl {
 # RETURNS: A list of collision objects with Type, Url, and Paths properties.
 #------------------------------------------------------------------------------#>
 function Get-RemoteCollisions {
-    banner "Detecting remote collisions"
+    Write-Banner "Detecting Remote Collisions"
 
     $collisions = @()
+#    Invoke-Spinner {
+        # 1) Submodules via .gitmodules
+        $gitmodulesPath = Join-Path $root ".gitmodules"
+        if (Test-Path $gitmodulesPath) {
+            $entries = git -C $root config --file .gitmodules --get-regexp 'submodule\..*\.url' 2>$null
+            $map = @{}
 
-    # 1) Submodules via .gitmodules
-    $gitmodulesPath = Join-Path $root ".gitmodules"
-    if (Test-Path $gitmodulesPath) {
-        $entries = git -C $root config --file .gitmodules --get-regexp 'submodule\..*\.url' 2>$null
-        $map = @{}
+            foreach ($line in $entries) {
+                $parts = $line -split '\s+', 2
+                if ($parts.Count -ne 2) { continue }
 
-        foreach ($line in $entries) {
-            $parts = $line -split '\s+', 2
-            if ($parts.Count -ne 2) { continue }
+                $key = $parts[0]   # submodule.<name>.url
+                $url = Normalize-RemoteUrl $parts[1] # normalized via v0.6.2 patch
+    
+                $name = ($key -split '\.')[1]
+                if (-not $map.ContainsKey($url)) { $map[$url] = @() }
+                $map[$url] += $name
+            }
 
-            $key = $parts[0]   # submodule.<name>.url
-            $url = Normalize-RemoteUrl $parts[1] # normalized via v0.6.2 patch
- 
-            $name = ($key -split '\.')[1]
-            if (-not $map.ContainsKey($url)) { $map[$url] = @() }
-            $map[$url] += $name
-        }
-
-        foreach ($url in $map.Keys) {
-            if ($map[$url].Count -gt 1) {
-                $collisions += [PSCustomObject]@{
-                    Type  = 'Submodule'
-                    Url   = $url
-                    Paths = ($map[$url] -join ', ')
+            foreach ($url in $map.Keys) {
+                if ($map[$url].Count -gt 1) {
+                    $collisions += [PSCustomObject]@{
+                        Type  = 'Submodule'
+                        Url   = $url
+                        Paths = ($map[$url] -join ', ')
+                    }
                 }
             }
         }
-    }
 
-    # 2) Nested repos with same remote
-    $repos = get-repoList
-    $remoteMap = @{}
+        # 2) Nested repos with same remote
+        $repos = get-repoList
+        $remoteMap = @{}
 
-    foreach ($repo in $repos) {
-        $path   = $repo.FullName
-        #$remote = git -C $path remote get-url origin 2>$null
-        # QUICK-PATCH v0.6.2 # still uses $remote as our collision-key but run it through Normalize-RemoteUrl
-        $rawRemote = git -C $path remote get-url origin 2>$null
-        if (-not $rawRemote) { continue }
-        $remote = Normalize-RemoteUrl $rawRemote 
-        if (-not $remote) { continue }
-        if (-not $remoteMap.ContainsKey($remote)) { $remoteMap[$remote] = @() }
-        $remoteMap[$remote] += $path
-        # PATCH-END
-    }
+        foreach ($repo in $repos) {
+            $path   = $repo.FullName
+            #$remote = git -C $path remote get-url origin 2>$null
+            # QUICK-PATCH v0.6.2 # still uses $remote as our collision-key but run it through Normalize-RemoteUrl
+            $rawRemote = git -C $path remote get-url origin 2>$null
+            if (-not $rawRemote) { continue }
+            $remote = Normalize-RemoteUrl $rawRemote 
+            if (-not $remote) { continue }
+            if (-not $remoteMap.ContainsKey($remote)) { $remoteMap[$remote] = @() }
+            $remoteMap[$remote] += $path
+            # PATCH-END
+        }
+#    }
 
-    foreach ($remote in $remoteMap.Keys) {
-        if ($remoteMap[$remote].Count -gt 1) {
-            $collisions += [PSCustomObject]@{
-                Type  = 'Repo'
-                Url   = $remote
-                Paths = ($remoteMap[$remote] -join ', ')
+        foreach ($remote in $remoteMap.Keys) {
+            if ($remoteMap[$remote].Count -gt 1) {
+                $collisions += [PSCustomObject]@{
+                    Type  = 'Repo'
+                    Url   = $remote
+                    Paths = ($remoteMap[$remote] -join ', ')
+                }
             }
         }
-    }
+
+
     if ($collisions.Count -eq 0) {
         Write-Host "  (no remote collisions detected)" -ForegroundColor DarkGray
         return
     }
 
     foreach ($c in $collisions) {
-        Write-Host "⚠ Remote collision [$($c.Type)] — $($c.Url) ← $($c.Paths)" -ForegroundColor Yellow
+        Write-Host -NoNewline " ⚠ Remote Collision ⚠ " -ForegroundColor DarkRed -backgroundColor Yellow
+        Write-Host -NoNewline " [$($c.Type)]" -ForegroundColor yellow 
+        Write-host -NoNewline " — $($c.Url) " -ForegroundColor Blue
+        Write-host -NoNewline " ← $($c.Paths)" -ForegroundColor Yellow
+        Write-Host ""
         log "REMOTE-COLLISION" $root ($c | ConvertTo-Json -Depth 5)
     }
 
@@ -471,7 +540,7 @@ function Get-GoodBranch {
 # RETURNS: A list of nested Git repositories within the root directory.
 #------------------------------------------------------------------------------#>
 function detect-nestedRepos {
-    banner "Detecting nested repos"
+    Write-Banner "Detecting Nested Repos"
     $repos = get-repoList
     $nestedRepos = @()
     foreach ($repo in $repos) {
@@ -601,14 +670,14 @@ function Show-PendingChanges {
 # RETURNS: None.
 #------------------------------------------------------------------------------#>
 function write-repoStats {
-    banner "Repo Drift Report"
+    Write-Banner "Repo Drift Report"
     $repos = get-repoList
 
     foreach ($repo in $repos) {
         $path   = $repo.FullName
         $branch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
 
-        banner "Repo: $path"
+        Write-Banner "Repo: $path"
         Write-Host "Branch: $branch"
         Show-PendingChanges -RepoPath $path -Grouped
 
@@ -629,9 +698,9 @@ function write-repoStats {
 # RETURNS:    None.                                                            #>
 #------------------------------------------------------------------------------#>
 function Write-RiskReport {
-    banner "Risk Analysis (Option-D: Smart Divergence + Forensic Mode)"
+    Write-Banner "Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)"
     if (-not $Force) {
-        Write-Host "  (DRYRUN: no mutations will occur)" -ForegroundColor DarkGray
+        Write-Host "  (DRYRUN: No Mutations Will Occur)" -ForegroundColor DarkGray
     }
 
     # Check for remote collisions (submodules + nested repos sharing the same origin URL)
@@ -668,7 +737,11 @@ function Analyze-AllRepoRisk {
         $statusShort   = git -C $path status --short 2>$null
         $isDirty       = [bool]$statusShort
         
-        # compute divergence entry safely before building the PSCustomObject
+        # now we need to compute the divergence entry safely before building the PSCustomObject
+        # AND safely compute the divergence before building the risk entry
+        # - divergence calculation = (how far the current branch is from the good branch)
+        # - if the HEAD is detached, compare against HEAD directly
+        # - otherwise, compare the current branch against the last-known "good" branch   
         $divergence = $null
         try {
             # $divergence = git -C $path rev-list --left-right --count "$goodBranch...HEAD" 2>$null # it always bugs me when "$Good...HEAD" <-- just kinda sucks ;-}
@@ -703,19 +776,26 @@ function Analyze-AllRepoRisk {
         $riskJson = $riskEntry | ConvertTo-Json -Depth 5
         log "RISK" $path $riskJson
 
-        Write-Host "`nRepo: $path" -ForegroundColor Cyan
-        Write-Host "  Role          : $role"
-        Write-Host "  CurrentBranch : $currentBranch"
-        Write-Host "  GoodBranch    : $goodBranch"
-        Write-Host "  DetachedHead  : $isDetached"
-        Write-Host "  Dirty         : $isDirty"
-        if ($divergence) {
-            Write-Host "  Divergence    : $divergence"
+        Write-Host "`n $($PSStyle.bold)-- Repo: $path $($PSStyle.BoldOff)" -ForegroundColor DarkBlue -BackgroundColor White -NoNewline; Write-Host ""
+        Write-Host "    Role          : $role"
+        Write-Host "    CurrentBranch : " -NoNewline 
+        if ($currentBranch.ToLower() -eq "main") {
+            Write-Host $currentBranch -ForegroundColor DarkGreen 
         } else {
-            Write-Host "  Divergence    : (not available)"
+            Write-Host $currentBranch -ForegroundColor DarkYellow
         }
+        Write-Host "    GoodBranch    : $goodBranch"
+        Write-Host "    DetachedHead  : " -NoNewline 
+          if ($isDetached) { Write-Host "Yes" -ForegroundColor Red } 
+            else { Write-Host "No" -ForegroundColor DarkGreen }
+        Write-Host "    Dirty         : " -NoNewline
+          if ($isDirty) { Write-Host "Yes" -ForegroundColor Red } 
+            else { Write-Host "No" -ForegroundColor DarkGreen }
+
+        if ($divergence) { Write-Host "    Divergence    : $divergence"} 
+            else { Write-Host "    Divergence    : (not available)" }
         if ($riskEntry.Collision) {
-            Write-Host "  Collision     : $($riskEntry.Collision.Url)" -ForegroundColor Yellow
+            Write-Host "    Collision     : $($riskEntry.Collision.Url)" -ForegroundColor Red
         }
 
         if ($isDetached) {
@@ -741,7 +821,7 @@ function Analyze-AllRepoRisk {
 # RETURNS:    None. Writes topology JSON to repoMgr-logs.                      #>
 #------------------------------------------------------------------------------#>
 function Write-TopologySnapshot {
-    banner "Topology Snapshot"
+    Write-Banner "Topology Snapshot"
 
     $repos = get-repoList
     $snapshot = @()
@@ -782,7 +862,7 @@ function Write-TopologySnapshot {
 # RETURNS: None. Generates DR branches via Git commands.                       #>
 #------------------------------------------------------------------------------#>
 function create-drBranches {
-    banner "Creating DR branches ($drBranch)"
+    Write-Banner "Creating DR branches ($drBranch)"
 
     if (-not $Force) {
         Write-Host "⚠ DR branch creation requires -Force; running in DRYRUN-only mode." -ForegroundColor Yellow
@@ -840,7 +920,7 @@ function create-drBranches {
 function reintegrate-nestedRepo {
     param([string]$nestedPath = $root)    # PATCH v0.5.2: was "$root\.AI-TRAINING" — caused double-suffix
 
-    banner "Reintegration Scaffold for $nestedPath"
+    Write-Banner "Reintegration Scaffold for $nestedPath"
 
     # PATCH v0.5.4: When -root IS the leaf repo, nestedPath equals $root.
     # Nothing to reintegrate — bail gracefully instead of building a phantom path.
@@ -991,7 +1071,7 @@ function Analyze-DetachedHeadCommits {
 function Analyze-RepoRisk {
     param([string]$repoPath)
 
-    banner "Risk Analysis for $repoPath"
+    Write-Banner "Risk Analysis for $repoPath"
 
     $branch = git -C $repoPath rev-parse --abbrev-ref HEAD 2>$null
 
@@ -1035,42 +1115,43 @@ function Analyze-RepoRisk {
         # Divergence: files that differ between goodBranch and this commit
         $files = git -C $repoPath diff --name-only $goodBranch $commit
         if (!$files) { continue }
+        Invoke-Spinner -Message "Working..." -ScriptBlock { 
+            foreach ($file in $files) {
+                # Timestamps (for stale detection)
+                $goodDate = git -C $repoPath log -1 --pretty=format:"%ad" --date=iso $goodBranch -- $file
+                $badDate  = git -C $repoPath log -1 --pretty=format:"%ad" --date=iso $commit -- $file
 
-        foreach ($file in $files) {
-            # Timestamps (for stale detection)
-            $goodDate = git -C $repoPath log -1 --pretty=format:"%ad" --date=iso $goodBranch -- $file
-            $badDate  = git -C $repoPath log -1 --pretty=format:"%ad" --date=iso $commit -- $file
+                # Simple diff stat (for destructive classification)
+                $diffStat = git -C $repoPath diff --stat $goodBranch $commit -- $file
 
-            # Simple diff stat (for destructive classification)
-            $diffStat = git -C $repoPath diff --stat $goodBranch $commit -- $file
+                # Stale detection: detached commit older than good branch version
+                $isStale =
+                    if ($goodDate -and $badDate) {
+                        ([DateTime]$badDate) -lt ([DateTime]$goodDate)
+                    }
+                    else {
+                        $false
+                    }
 
-            # Stale detection: detached commit older than good branch version
-            $isStale =
-                if ($goodDate -and $badDate) {
-                    ([DateTime]$badDate) -lt ([DateTime]$goodDate)
+                # Destructive classification: presence of "deletions" in diffStat
+                $isDestructive = $diffStat -match "deletions"
+
+                # Divergence classification (simple: any difference = divergent)
+                $isDivergent = $true
+
+                $results += [PSCustomObject]@{
+                    RepoPath          = $repoPath
+                    Role              = $role
+                    Commit            = $commit
+                    File              = $file
+                    GoodBranch        = $goodBranch
+                    GoodTimestamp     = $goodDate
+                    DetachedTimestamp = $badDate
+                    DiffStat          = $diffStat
+                    IsStale           = [bool]$isStale
+                    IsDestructive     = [bool]$isDestructive
+                    IsDivergent       = [bool]$isDivergent
                 }
-                else {
-                    $false
-                }
-
-            # Destructive classification: presence of "deletions" in diffStat
-            $isDestructive = $diffStat -match "deletions"
-
-            # Divergence classification (simple: any difference = divergent)
-            $isDivergent = $true
-
-            $results += [PSCustomObject]@{
-                RepoPath          = $repoPath
-                Role              = $role
-                Commit            = $commit
-                File              = $file
-                GoodBranch        = $goodBranch
-                GoodTimestamp     = $goodDate
-                DetachedTimestamp = $badDate
-                DiffStat          = $diffStat
-                IsStale           = [bool]$isStale
-                IsDestructive     = [bool]$isDestructive
-                IsDivergent       = [bool]$isDivergent
             }
         }
     }
@@ -1094,6 +1175,10 @@ function Analyze-RepoRisk {
         }
         "Agile-Wizard" {
             # Agile‑Wizard: medium sensitivity
+            #TODO: we should dynamically determine risk based on detatched HEAD, histories & collision detection
+            # We are hard coding dirs here. WHY? This may not adapt well to changes in repository structure nor 
+            # future use-cases & expansion as a generic tool. Current thresholds are also static and may not 
+            # accurately reflect the actual risk.
             if     ($baseScore -gt 60) { $risk = "HIGH" }
             elseif ($baseScore -gt 25) { $risk = "MEDIUM" }
             elseif ($baseScore -gt  0) { $risk = "LOW" }
@@ -1137,7 +1222,7 @@ function Analyze-RepoRisk {
 # PARAMETERS: None.
 #------------------------------------------------------------------------------#>
 function show-help {
-    banner "repoMgr.ps1 — Flags"
+    Write-Banner "repoMgr.ps1 — Flags"
     Write-Host "-all            : Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode"
     Write-Host "-backup         : Full backup + safe-copy according to Config-File settings"
     Write-Host "-backupdest     : Override config-file's backup destination (used with -backup)"
@@ -1159,7 +1244,7 @@ function show-help {
 #  --- DISCOVERY DISPATCHER  -  ALWAYS EXECUTED REGARDLESS OF OPTION FLAGS --- #>
 #------------------------------------------------------------------------------#>
 if ($help) { show-help; exit }
-banner "Executing BASE REPORTING Tasks  "
+Write-Banner "Executing BASE REPORTING Tasks  "
 #------------------------------------------------------------------------------#>
 # In v0.6+ EVERYTHING defaults to DRYRUN mode unless -Force is explicitly set. #>
 # This prevents accidental branch creation or destructive operations.          #>
@@ -1185,5 +1270,5 @@ if ($recovery)          { create-drBranches         }   # as of v0.5.x - include
 if ($reintegration )    { reintegrate-nestedRepo    }   # Provides a scaffold for reintegrating a nested repository into the monorepo.
 
 #-----------------------------------------------------------------------------------#>
-# (CopyLeft:AGPL-3) 2015-2026 LogicWizards <LogicWizards.NYC> - ALL Rights Reserved.
+# (CopyLeft:AGPL-v3) 2015-2026 LogicWizards <LogicWizards.NYC> - ALL Rights Reserved.
 #-----------------------------------------------------------------------------------#>
