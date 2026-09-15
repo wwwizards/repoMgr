@@ -1,8 +1,8 @@
 # repoMgr Roadmap v0.7.x
 > **Generated: 260915** | **Source:** repoMgr reporting + architecture review
-> **Target script version:** v0.6.4.0
+> **Target script version:** v0.6.4.1
 > **Targeted Repos For Cleanup:** LogicWizards-core: as identified by `REPORT-260914-all-backup-recovery.txt`
-> ***Last updated:** 260914 BY: MAI-Code-1.1-Flash
+> ***Last updated:** 260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
 > — See [README.md](README.md), [CHANGELOG.md](CHANGELOG.md), [repoMgr.ps1](repoMgr.ps1), [repoMgr.sanity.Tests.ps1](repoMgr.sanity.Tests.ps1), [repoMgr.smoke.Tests.ps1](repoMgr.smoke.Tests.ps1), and [repoMgr.unit.Tests.ps1](repoMgr.unit.Tests.ps1) for current context.
 
 ---
@@ -61,7 +61,7 @@ The most recent baseline run confirms the operational reality:
 
 This plan assumes the current script remains the baseline while we refactor for safety, maintainability, and validation clarity.
 
-### [ ] Priority 1 — Fix the script’s architecture boundary
+### [x] Priority 1 — Fix the script’s architecture boundary
 This is the biggest improvement by far.
 
 #### Problem

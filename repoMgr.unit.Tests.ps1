@@ -4,7 +4,7 @@
 # ABSTRACT: Unit tests for the current repoMgr PowerShell flow.
 # CREATED 260828 BY: Joe Negron
 # UPDATED 260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
-# VERSION: v0.6.4.0
+# VERSION: v0.6.4.1
 # LICENSE: MIT
 # REQUIREMENTS: PowerShell 7.0 or later + pester/psst module(s)
 #--------------------------------------------------------------------------#>
@@ -149,6 +149,43 @@ Describe "repoMgr Unit Tests" {
         finally {
             if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }
             if (Test-Path $safeDir) { Remove-Item $safeDir -Recurse -Force -ErrorAction SilentlyContinue }
+        }
+    }
+
+    It "Builds a single config object before repo discovery and recovery actions run" {
+        $config = Get-RepoManagerConfig -Root "C:\temp\repo\" -Safedest "C:\temp\safe\" -Lookback "7 days ago" -DrBranch "DR-TEST"
+
+        $config.Root | Should -Be "C:\temp\repo"
+        $config.Safedest | Should -Be "C:\temp\safe"
+        $config.Lookback | Should -Be "7 days ago"
+        $config.DrBranch | Should -Be "DR-TEST"
+        $config.DryRun | Should -BeTrue
+    }
+
+    It "Builds a repo inventory with explicit path and branch metadata" {
+        $base = Join-Path ([System.IO.Path]::GetTempPath()) "repoMgr-tests"
+        $fixture = Join-Path $base "unit-inventory"
+
+        if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }
+
+        try {
+            New-Item -ItemType Directory -Path $fixture -Force | Out-Null
+            git -C $fixture init | Out-Null
+            git -C $fixture checkout -b main | Out-Null
+            git -C $fixture config user.name "RepoMgr Test"
+            git -C $fixture config user.email "repomgr@example.com"
+            "base" | Set-Content -Path (Join-Path $fixture "tracked.txt")
+            git -C $fixture add tracked.txt
+            git -C $fixture commit -m "base" | Out-Null
+
+            $inventory = Get-RepoInventory -Root $fixture
+            $inventory.Count | Should -BeGreaterThan 0
+            $inventory[0].Path | Should -Be $fixture
+            $inventory[0].CurrentBranch | Should -Be "main"
+            $inventory[0].Role | Should -Be "Root"
+        }
+        finally {
+            if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }
         }
     }
 }

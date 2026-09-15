@@ -14,7 +14,7 @@
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  v0.6.4.0
+# VERSION:  v0.6.4.1
 #           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
@@ -77,9 +77,6 @@ if (!(Test-Path $cfgPath)) {
 
 # --- Determine effective configuration values based on overrides and defaults ---
 
-
-
-
 #-----------------------------------------------------------------------------#>
 # FUNCTION: Get-EffectiveConfig - Determine config values for the repoMgr script
 #-----------------------------------------------------------------------------#>
@@ -128,11 +125,81 @@ function Get-EffectiveConfig {
     }
 }
 
-$config = Get-EffectiveConfig -Root $root -Safedest $safedest -Lookback $lookback -DrBranch $drBranch -Config $cfg
+#-----------------------------------------------------------------------------#>
+# FUNCTION: Get-RepoManagerConfig - build a single explicit config object
+#-----------------------------------------------------------------------------#>
+function Get-RepoManagerConfig {
+    param(
+        [string]$Root,
+        [string]$Safedest,
+        [string]$Lookback,
+        [string]$DrBranch,
+        [switch]$Force,
+        [hashtable]$Config
+    )
+
+    $effective = Get-EffectiveConfig -Root $Root -Safedest $Safedest -Lookback $Lookback -DrBranch $DrBranch -Config $Config
+    $isForced = [bool]$Force
+
+    return [pscustomobject]@{
+        Root     = $effective.Root
+        Safedest = $effective.Safedest
+        Lookback = $effective.Lookback
+        DrBranch = $effective.DrBranch
+        Force    = $isForced
+        DryRun   = (-not $isForced)
+    }
+}
+
+#-----------------------------------------------------------------------------#>
+# FUNCTION: Get-RepoInventory - build a single explicit repo inventory object
+#-----------------------------------------------------------------------------#>
+function Get-RepoInventory {
+    param(
+        [string]$Root,
+        [pscustomobject]$Config
+    )
+
+    $inventoryRoot = if ($Root) { $Root } elseif ($Config -and $Config.Root) { $Config.Root } else { $root }
+    $repos = @()
+
+    if (Test-Path (Join-Path $inventoryRoot '.git')) {
+        $repos += Get-Item $inventoryRoot
+    }
+
+    $childRepos = Microsoft.PowerShell.Management\Get-ChildItem -Path $inventoryRoot -Recurse -Directory -Force -ErrorAction SilentlyContinue |
+        Where-Object { Test-Path (Join-Path $_.FullName '.git') }
+    foreach ($repo in $childRepos) { $repos += $repo }
+
+    $inventory = foreach ($repo in @($repos | Select-Object -ExpandProperty FullName -Unique)) {
+        $path = $repo
+        $currentBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
+        $role = Get-RepoRole -repoPath $path
+        $goodBranch = Get-GoodBranch -repoPath $path
+        $remote = Normalize-RemoteUrl (git -C $path remote get-url origin 2>$null)
+
+        [pscustomobject]@{
+            Path          = $path
+            Role          = $role
+            GoodBranch    = $goodBranch
+            CurrentBranch = if ($currentBranch) { $currentBranch } else { 'HEAD' }
+            IsDetachedHead = ($currentBranch -eq 'HEAD')
+            Dirty         = [bool](git -C $path status --short 2>$null)
+            Remote        = $remote
+        }
+    }
+
+    return @($inventory)
+}
+
+$config = Get-RepoManagerConfig -Root $root -Safedest $safedest -Lookback $lookback -DrBranch $drBranch -Force:$Force -Config $cfg
 $root = $config.Root
 $safedest = $config.Safedest
 $lookback = $config.Lookback
 $drBranch = $config.DrBranch
+$Force = $config.Force
+$dryrun = $config.DryRun
+$repoInventory = Get-RepoInventory -Root $root -Config $config
 
 # --- Guard: validate the resolved root before anything else runs ---
 if (-not (Test-Path $root)) {
@@ -152,6 +219,11 @@ if (!(Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Nul
 # --- Default: Use DRYRUN mode unless FORCE is explicitly specified ---
 if (-not $PSBoundParameters.ContainsKey('force')) {
     $dryrun = $true
+}
+
+# --- Architecture boundary checkpoint: keep config + repo inventory as explicit objects.
+if ($null -eq $repoInventory) {
+    $repoInventory = Get-RepoInventory -Root $root -Config $config
 }
 
 

@@ -10,7 +10,7 @@ CHANGELOG.md
 # CREATED:  260827 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  v0.6.4.0
+# VERSION:  v0.6.4.1
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html>
 # NOTES:  Use in conjunction with README.md and the Git forensics notes.
 #--------------------------------------------------------------------------#>
@@ -25,6 +25,14 @@ CHANGELOG.md
 
 ---
 ## CHANGES (Desc)
+###     **260915 - v0.6.4.1** - Architecture boundary checkpoint: explicit config + repo inventory object pipeline.
+- validation-first refactor prep while preserving live discovery, recovery, and triage work.
+    - **(MOD)** Added `Get-RepoManagerConfig` to normalize override inputs and maintain a single explicit config boundary before repo work begins.
+    - **(MOD)** Added `Get-RepoInventory` to produce a structured repo metadata collection with path, branch, role, remote, and dirty-state data.
+    - **(TEST)** Added unit coverage to lock the config object and repo inventory behavior before further refactor work.
+    - **(DOC)** Updated version metadata and roadmap references to reflect the new v0.6.4.1 baseline.
+
+---
 ###     **260914 - v0.6.4.0** - Mission alignment + live baseline evidence:
 - validation-first refactor prep while preserving live discovery, recovery, and triage work.
     - **(DOC)** Reframed the repo roadmap and README around the current mission: stabilize repoMgr without rerailing the active recovery/discovery effort.

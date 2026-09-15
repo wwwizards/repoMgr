@@ -6,7 +6,7 @@
 # ABSTRACT: tooling preferences
 # CREATED: 260830   BY: Joe Negron
 # UPDATED: 260915   BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
-# VERSION: v0.6.4.0
+# VERSION: v0.6.4.1
 # LICENSE: MIT
 # REQUIREMENTS: vsCode + Copilot Chat
 #--------------------------------------------------------------------------#>
