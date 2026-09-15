@@ -4,10 +4,14 @@
 # ABSTRACT: Unit tests for the current repoMgr PowerShell flow.
 # CREATED 260828 BY: Joe Negron
 # UPDATED 260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
-# VERSION: v0.6.4.1
+# VERSION: v0.6.4.2
 # LICENSE: MIT
 # REQUIREMENTS: PowerShell 7.0 or later + pester/psst module(s)
 #--------------------------------------------------------------------------#>
+BeforeAll {
+    . "$PSScriptRoot\repoMgr.ps1" -NoExecute
+}
+
 Describe "repoMgr Unit Tests" {
     It "Creates the expected repo log directory during the recovery/discovery reporting flow" {
         $base = Join-Path ([System.IO.Path]::GetTempPath()) "repoMgr-tests"
@@ -160,6 +164,36 @@ Describe "repoMgr Unit Tests" {
         $config.Lookback | Should -Be "7 days ago"
         $config.DrBranch | Should -Be "DR-TEST"
         $config.DryRun | Should -BeTrue
+    }
+
+    It "Provides an argument-safe Git execution helper without using Invoke-Expression" {
+        $scriptText = Get-Content -Path "$PSScriptRoot\repoMgr.ps1" -Raw
+        $scriptText.Contains("Invoke-Expression") | Should -BeFalse
+
+        $base = Join-Path ([System.IO.Path]::GetTempPath()) "repoMgr-tests"
+        $fixture = Join-Path $base "unit-safe-git"
+
+        if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }
+
+        try {
+            New-Item -ItemType Directory -Path $fixture -Force | Out-Null
+            git -C $fixture init | Out-Null
+            git -C $fixture checkout -b main | Out-Null
+            git -C $fixture config user.name "RepoMgr Test"
+            git -C $fixture config user.email "repomgr@example.com"
+            "base" | Set-Content -Path (Join-Path $fixture "tracked.txt")
+            git -C $fixture add tracked.txt
+            git -C $fixture commit -m "base" | Out-Null
+
+            "dirty" | Set-Content -Path (Join-Path $fixture "dirty.txt")
+            $status = Invoke-GitSafe -RepoPath $fixture -GitArgs @('status', '--short')
+            @($status) | Should -Not -BeNullOrEmpty
+            @($status)[0] | Should -Match 'dirty\.txt'
+            @($status).Count | Should -Be 1
+        }
+        finally {
+            if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }
+        }
     }
 
     It "Builds a repo inventory with explicit path and branch metadata" {

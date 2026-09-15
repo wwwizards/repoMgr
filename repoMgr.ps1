@@ -14,7 +14,7 @@
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  v0.6.4.1
+# VERSION:  v0.6.4.2
 #           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
@@ -34,6 +34,10 @@
 #     -help             # Displays this help message.
 #     -all              # Executes backup + stats + recovery + reintegration (not risk, by design).
 #     -topology         # Captures the current topology of all repositories (roles, branches, remotes).
+#     -noexecute        # Import functions without running the default workflow (alias: NoExecute).
+#     -force            # Explicitly override destructive operations (alias: Force).
+# SUMMARY:
+#     This script manages Git repositories with features for backup, recovery, reintegration, risk analysis, and more.
 #--------------------------------------------------------------------------#>
 
 param(
@@ -52,7 +56,8 @@ param(
     [switch]$risk,              # Analyze risk for the repository
     [switch]$dryrun,            # Perform a dry run without making changes
     [switch]$help,              # Display help information
-    [switch]$all                # Apply the operation to all repositories
+    [switch]$all,               # Apply the operation to all repositories
+    [switch]$NoExecute          # Import functions without running the default workflow
 )
 
 #------------------------------------------------------------------------------#>
@@ -67,13 +72,9 @@ param(
 # corresponding override params when invoking the script.
 #------------------------------------------------------------------------------#>
 #
-$cfgPath = Join-Path $PSScriptRoot "repoMgr.config.psd1"
-# Gracefully handle missing configuration file
-if (!(Test-Path $cfgPath)) {
-    Write-Warning " -Configuration file not found at path: $cfgPath - using default values instead."
-} else {
-    $cfg = Import-PowerShellDataFile $cfgPath
-}
+# NOTE: keep all runtime/config evaluation behind the import guard. Dot-sourcing
+# this file for unit testing must only load the function library, not run the root
+# validation or default repo workflow.
 
 # --- Determine effective configuration values based on overrides and defaults ---
 
@@ -192,40 +193,9 @@ function Get-RepoInventory {
     return @($inventory)
 }
 
-$config = Get-RepoManagerConfig -Root $root -Safedest $safedest -Lookback $lookback -DrBranch $drBranch -Force:$Force -Config $cfg
-$root = $config.Root
-$safedest = $config.Safedest
-$lookback = $config.Lookback
-$drBranch = $config.DrBranch
-$Force = $config.Force
-$dryrun = $config.DryRun
-$repoInventory = Get-RepoInventory -Root $root -Config $config
-
-# --- Guard: validate the resolved root before anything else runs ---
-if (-not (Test-Path $root)) {
-    Write-Error "root path does not exist: '$root' — aborting."
-    exit 1
-}
-
-# --- Generate timestamp and define paths for backup and logging ---
-$timestamp = (Get-Date).ToString("yyMMdd-HHmmss")
-$zipPath   = "$root\$timestamp-SafeCopy-backup.zip"
-$logDir    = "$root\repoMgr-logs"
-$logFile   = "$logDir\repoMgr-$timestamp.json"
-
-# --- Ensure log directory exists ---
-if (!(Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
-
-# --- Default: Use DRYRUN mode unless FORCE is explicitly specified ---
-if (-not $PSBoundParameters.ContainsKey('force')) {
-    $dryrun = $true
-}
-
-# --- Architecture boundary checkpoint: keep config + repo inventory as explicit objects.
-if ($null -eq $repoInventory) {
-    $repoInventory = Get-RepoInventory -Root $root -Config $config
-}
-
+# NOTE: runtime config/bootstrap is intentionally deferred until the script entry
+# point so dot-sourcing this file loads the function library without executing the
+# default repo workflow. The import-only guard lives near the bottom of the file.
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: Write-Banner - Displays a banner message ---
@@ -270,6 +240,24 @@ function Show-Spinner($scriptBlock) {
 }
 
 #------------------------------------------------------------------------------#>
+# --- FUNCTION: Initialize-Logging - Ensure log paths are valid before first write ---
+#------------------------------------------------------------------------------#>
+# DESCRIPTION: Creates a stable log location under the active repo root and clears
+#              any stale global path values from earlier script runs.
+#------------------------------------------------------------------------------#>
+function Initialize-Logging {
+    $script:timestamp = if ($script:timestamp) { $script:timestamp } else { (Get-Date).ToString("yyMMdd-HHmmss") }
+    $rootCandidate = if ($root) { $root } elseif ($script:root) { $script:root } else { (Get-Location).Path }
+    $script:root = $rootCandidate
+    $script:logDir = Join-Path $rootCandidate "repoMgr-logs"
+    $script:logFile = Join-Path $script:logDir ("repoMgr-$($script:timestamp).json")
+
+    if (-not (Test-Path $script:logDir)) {
+        New-Item -ItemType Directory -Path $script:logDir -Force | Out-Null
+    }
+}
+
+#------------------------------------------------------------------------------#>
 # --- FUNCTION: log - Logging helper ---
 #------------------------------------------------------------------------------#>
 # DESCRIPTION: Logs actions performed by the script, including dry runs and actual executions.
@@ -281,6 +269,7 @@ function Show-Spinner($scriptBlock) {
 #------------------------------------------------------------------------------#>
 function log {
     param([string]$action, [string]$path, [string]$result)
+    Initialize-Logging
     $entry = [ordered]@{
         timestamp = (Get-Date).ToString("o")
         action    = $action
@@ -288,10 +277,11 @@ function log {
         result    = $result
     }
     $json = ($entry | ConvertTo-Json -Depth 5)
-    Add-Content -Path $logFile -Value $json
+    Add-Content -Path $script:logFile -Value $json
 }
 
 # Write initial log entry
+Initialize-Logging
 log "INIT" $root "Script started"
 
 # write current configuration to the screen & log
@@ -302,6 +292,30 @@ $cfgInfo += "`n - Configuration: -- Root: $root, `n    --> SafeDest: $safedest, 
 $cfgInfo += "`n--------------------------------------------------------------------------------------------"
 Write-Host $cfgInfo -ForegroundColor Darkgray
 log "CONFIG" $root $cfgInfo
+
+#------------------------------------------------------------------------------#>
+# --- FUNCTION: Invoke-GitSafe - Safe Git invocation helper ---
+#------------------------------------------------------------------------------#>
+# DESCRIPTION: Executes git arguments without shell-string evaluation.
+# PARAMETERS:
+#     [string]$RepoPath - Repository path to operate within.
+#     [string[]]$GitArgs - Git arguments to execute.
+# RETURNS: The output of the git invocation, or an empty array when nothing is run.
+#------------------------------------------------------------------------------#>
+function Invoke-GitSafe {
+    param(
+        [string]$RepoPath = '.',
+        [string[]]$GitArgs = @()
+    )
+
+    if (-not $RepoPath) { $RepoPath = '.' }
+    if (-not $GitArgs -or $GitArgs.Count -eq 0) { return @() }
+
+    $gitCmd = @('git', '-C', $RepoPath) + @($GitArgs)
+    $output = & $gitCmd[0] @($gitCmd[1..($gitCmd.Count - 1)]) 2>$null
+    if ($null -eq $output) { return @() }
+    return @($output)
+}
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: exec - Safe structured command wrapper ---
@@ -357,7 +371,20 @@ function exec {
     }
 
     Write-Host $commandText
-    $out = & $exe @args 2>&1
+    if ($exe -eq 'git') {
+        $gitPath = if ($Path) { $Path } else { '.' }
+        $gitArgs = @($args)
+        if ($gitArgs.Count -ge 2 -and $gitArgs[0] -eq '-C') {
+            $gitPath = $gitArgs[1]
+            $gitArgs = @($gitArgs[2..($gitArgs.Count - 1)])
+        }
+
+        $out = Invoke-GitSafe -RepoPath $gitPath -GitArgs $gitArgs
+    }
+    else {
+        $out = & $exe @args 2>&1
+    }
+
     $exitCode = $LASTEXITCODE
     log "EXEC" $Path $commandText
 
@@ -1399,6 +1426,54 @@ function show-help {
 
 #------------------------------------------------------------------------------#>
 #  --- DISCOVERY DISPATCHER  -  ALWAYS EXECUTED REGARDLESS OF OPTION FLAGS --- #>
+if ($NoExecute) {
+    return
+}
+
+$cfgPath = Join-Path $PSScriptRoot "repoMgr.config.psd1"
+if (!(Test-Path $cfgPath)) {
+    Write-Warning " -Configuration file not found at path: $cfgPath - using default values instead."
+} else {
+    $cfg = Import-PowerShellDataFile $cfgPath
+}
+
+$config = Get-RepoManagerConfig -Root $root -Safedest $safedest -Lookback $lookback -DrBranch $drBranch -Force:$Force -Config $cfg
+$root = $config.Root
+$safedest = $config.Safedest
+$lookback = $config.Lookback
+$drBranch = $config.DrBranch
+$Force = $config.Force
+$dryrun = $config.DryRun
+$repoInventory = Get-RepoInventory -Root $root -Config $config
+
+# --- Guard: validate the resolved root before anything else runs ---
+if (-not (Test-Path $root)) {
+    Write-Error "root path does not exist: '$root' — aborting."
+    exit 1
+}
+
+# --- Generate timestamp and define paths for backup and logging ---
+$timestamp = (Get-Date).ToString("yyMMdd-HHmmss")
+$script:timestamp = $timestamp
+$zipPath   = "$root\$timestamp-SafeCopy-backup.zip"
+$logDir    = Join-Path $root "repoMgr-logs"
+$logFile   = Join-Path $logDir "repoMgr-$timestamp.json"
+$script:logDir = $logDir
+$script:logFile = $logFile
+
+# --- Ensure log directory exists ---
+if (!(Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir -Force | Out-Null }
+
+# --- Default: Use DRYRUN mode unless FORCE is explicitly specified ---
+if (-not $PSBoundParameters.ContainsKey('force')) {
+    $dryrun = $true
+}
+
+# --- Architecture boundary checkpoint: keep config + repo inventory as explicit objects.
+if ($null -eq $repoInventory) {
+    $repoInventory = Get-RepoInventory -Root $root -Config $config
+}
+
 #------------------------------------------------------------------------------#>
 if ($help) { show-help; exit }
 Write-Banner "Executing BASE REPORTING Tasks  "

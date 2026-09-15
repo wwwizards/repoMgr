@@ -1,0 +1,34 @@
+
+Containers            : {[-] C:\PROJECTS\repoMgr\repoMgr.unit.Tests.ps1}
+Result                : Failed
+FailedCount           : 7
+FailedBlocksCount     : 0
+FailedContainersCount : 1
+PassedCount           : 0
+SkippedCount          : 0
+InconclusiveCount     : 0
+NotRunCount           : 0
+TotalCount            : 7
+Duration              : 00:00:51.0779470
+Executed              : True
+ExecutedAt            : 9/15/2026 6:44:20 AM
+Version               : 5.7.1
+PSVersion             : 7.6.5
+PSBoundParameters     : {[Configuration, PesterConfiguration]}
+Plugins               : 
+PluginConfiguration   : 
+PluginData            : 
+Configuration         : PesterConfiguration
+DiscoveryDuration     : 00:00:00.2455228
+UserDuration          : 00:00:50.4995291
+FrameworkDuration     : 00:00:00.3328951
+Failed                : {[-] Creates the expected repo log directory during the recovery/discovery reporting flow, [-] Detects nested repos and respects dry-run-only repo operations used by triage work, [-] Executes git operations via structured arguments instead of string-evaluated shell commands, [-] Normalizes config overrides before repo discovery and recovery actions run…}
+FailedBlocks          : {}
+FailedContainers      : {[-] C:\PROJECTS\repoMgr\repoMgr.unit.Tests.ps1}
+Passed                : {}
+Skipped               : {}
+Inconclusive          : {}
+NotRun                : {}
+Tests                 : {[-] Creates the expected repo log directory during the recovery/discovery reporting flow, [-] Detects nested repos and respects dry-run-only repo operations used by triage work, [-] Executes git operations via structured arguments instead of string-evaluated shell commands, [-] Normalizes config overrides before repo discovery and recovery actions run…}
+CodeCoverage          : 
+
