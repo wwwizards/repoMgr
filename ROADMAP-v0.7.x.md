@@ -8,10 +8,11 @@
 ---
 ## Validation-first gate (prerequisite before refactoring)
 
-- [ ] Refresh the `psst` test baseline to match the current repoMgr functionality.
-- [ ] Confirm the current CLI contract and defaults in [repoMgr.ps1](repoMgr.ps1).
-- [ ] Review the current behavior in [README.md](README.md) and [CHANGELOG.md](CHANGELOG.md) before changing architecture.
-- [ ] Lock the refactor scope to a validated baseline, not an inferred one.
+- [x] Refresh the `psst` test baseline to match the current repoMgr functionality.
+- [x] Confirm the current CLI contract and defaults in [repoMgr.ps1](repoMgr.ps1).
+- [x] Review the current behavior in [README.md](README.md) and [CHANGELOG.md](CHANGELOG.md) before changing architecture.
+- [x] Lock the refactor scope to a validated baseline, not an inferred one.
+- [x] Verify the forced-recovery fixture path for detached HEAD, orphaned files, and same-remote collisions against disposable temp repos only.
 
 ---
 ## Current initiative summary
@@ -23,6 +24,7 @@ The immediate workstream is validation-first refactoring:
 3. Prioritize safety, purity, and testability over feature expansion.
 4. Treat the current script as the operational baseline while we isolate refactor work into a smaller, cleaner pipeline.
 5. Preserve the active recovery/discovery and triage operations that are currently being used to stabilize a compromised repo environment.
+6. Validate against disposable temp repos only; do not recurse the live monorepo during the test run.
 
 ### Recovery/discovery and triage impact
 This project is being used as a live forensic and recovery-support tool, not only as a repo-management script. The refactor priorities therefore must keep all of the following behaviors stable while the larger recovery work continues:
@@ -34,15 +36,25 @@ This project is being used as a live forensic and recovery-support tool, not onl
 - dry-run-safe reporting, especially when the team is diagnosing a corrupted repo state
 - structured JSON artifacts that support downstream triage, handoff analysis, and ETL-style recovery planning
 
+### Verified baseline (260914)
+The validation-first baseline is now confirmed on disposable temp repos only:
+
+- 10 fixture-based tests pass under `psst repoMgr`.
+- The suite includes a forced-recovery scenario covering detached HEAD, orphaned files, and shared remote collisions.
+- The recovery path verifies the script creates DR branches, creates an archival branch for detached HEAD, and then restores the repo to the good branch instead of leaving it on `HEAD`.
+
 ### Live baseline evidence (260914)
 The most recent baseline run confirms the operational reality:
+**SEE:** [REPORT-260914-all-backup-recovery.txt](REPORT-260914-all-backup-recovery.txt) 
 
 - `repoMgr.ps1 -all -backup -recovery` was executed in DRYRUN mode.
 - The root repo was active on `DEV` with 79 pending changes (3 staged, 76 untracked).
 - The `.AI-TRAINING` repo was already on `RepoMgr-DR-260901` with 68 pending changes.
 - The repo is generating repeated `repoMgr-logs` and `topology-*.json` artifacts as part of the ongoing discovery and recovery workflow.
 
-This is not a generic cleanup task. It is the live recovery system in use. The goal is to refactor for clarity and safety while preserving the current forensic and triage value already produced by the tool.
+> **APORIA:** This is not a generic cleanup task. It is the live recovery system which is currently in use for an ongoing recovery effort for LogicWizards-core repo.
+>  
+**The Goal** is to refactor for clarity and safety while preserving the current forensic and triage value already produced by the tool.
 
 ---
 ## Prioritized refactor plan for `repoMgr.ps1`

@@ -10,31 +10,74 @@
 #--------------------------------------------------------------------------#>
 Describe "repoMgr Sanity Tests" {
     It "Dry-run discovery and recovery reporting flow does not mutate state" {
-        { . "$PSScriptRoot\repoMgr.ps1" -backup -stats -topology -risk -dryrun | Out-Null } | Should -Not -Throw
+        $base = Join-Path ([System.IO.Path]::GetTempPath()) "repoMgr-tests"
+        $fixture = Join-Path $base "sanity-default"
+        $safeDir = Join-Path ([System.IO.Path]::GetTempPath()) "repoMgr-test-safe-default"
+
+        if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }
+        if (Test-Path $safeDir) { Remove-Item $safeDir -Recurse -Force -ErrorAction SilentlyContinue }
+
+        try {
+            New-Item -ItemType Directory -Path $fixture -Force | Out-Null
+            git -C $fixture init | Out-Null
+            git -C $fixture checkout -b main | Out-Null
+            git -C $fixture config user.name "RepoMgr Test"
+            git -C $fixture config user.email "repomgr@example.com"
+            "seed" | Set-Content -Path (Join-Path $fixture "README.md")
+            git -C $fixture add README.md
+            git -C $fixture commit -m "seed" | Out-Null
+
+            { . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -backup -stats -topology -risk -dryrun | Out-Null } | Should -Not -Throw
+        }
+        finally {
+            for ($i = 0; $i -lt 5; $i++) {
+                try {
+                    if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction Stop }
+                    if (Test-Path $safeDir) { Remove-Item $safeDir -Recurse -Force -ErrorAction Stop }
+                    break
+                }
+                catch {
+                    Start-Sleep -Milliseconds 300
+                }
+            }
+        }
     }
 
     It "Shows help and resolves a valid repo branch under the current recovery/discovery config contract" {
-        $fixture = Join-Path $PSScriptRoot ".repoMgr-sanity-fixture"
-        if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force }
+        $base = Join-Path ([System.IO.Path]::GetTempPath()) "repoMgr-tests"
+        $fixture = Join-Path $base "sanity-help"
+        $safeDir = Join-Path ([System.IO.Path]::GetTempPath()) "repoMgr-test-safe-help"
 
-        New-Item -ItemType Directory -Path $fixture -Force | Out-Null
-        git -C $fixture init | Out-Null
-        git -C $fixture checkout -b main | Out-Null
-        git -C $fixture config user.name "RepoMgr Test"
-        git -C $fixture config user.email "repomgr@example.com"
-        "seed" | Set-Content -Path (Join-Path $fixture "README.md")
-        git -C $fixture add README.md
-        git -C $fixture commit -m "seed" | Out-Null
+        if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }
+        if (Test-Path $safeDir) { Remove-Item $safeDir -Recurse -Force -ErrorAction SilentlyContinue }
 
-        . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest "$PSScriptRoot\.repoMgr-safe" -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
+        try {
+            New-Item -ItemType Directory -Path $fixture -Force | Out-Null
+            git -C $fixture init | Out-Null
+            git -C $fixture checkout -b main | Out-Null
+            git -C $fixture config user.name "RepoMgr Test"
+            git -C $fixture config user.email "repomgr@example.com"
+            "seed" | Set-Content -Path (Join-Path $fixture "README.md")
+            git -C $fixture add README.md
+            git -C $fixture commit -m "seed" | Out-Null
 
-        { show-help } | Should -Not -Throw
-        Get-GoodBranch -repoPath $fixture | Should -Be "main"
-        Get-RepoRole -repoPath $fixture | Should -Be "Root"
+            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
 
-        for ($i = 0; $i -lt 5; $i++) {
-            try { Remove-Item $fixture -Recurse -Force -ErrorAction Stop; break }
-            catch { Start-Sleep -Milliseconds 300 }
+            { show-help } | Should -Not -Throw
+            Get-GoodBranch -repoPath $fixture | Should -Be "main"
+            Get-RepoRole -repoPath $fixture | Should -Be "Root"
+        }
+        finally {
+            for ($i = 0; $i -lt 5; $i++) {
+                try {
+                    if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction Stop }
+                    if (Test-Path $safeDir) { Remove-Item $safeDir -Recurse -Force -ErrorAction Stop }
+                    break
+                }
+                catch {
+                    Start-Sleep -Milliseconds 300
+                }
+            }
         }
     }
 }

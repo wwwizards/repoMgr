@@ -48,9 +48,11 @@
 
 | Related docs | Purpose |
 | --- | --- |
-| [CHANGELOG.md](CHANGELOG.md) | Version history and release notes for repoMgr. |
+| [advanced-git-recovery-commands.md](advanced-git-recovery-commands.md) | Git forensics, recovery, detached HEAD, and branch archaeology cheatsheet & playbook. |
+|AGENTS.md  | Guardrails for AI-Assisted R&D|
 | [BACKLOG-v0.6.3.md](BACKLOG-v0.6.3.md) | Active backlog, operational notes, and dispatcher/UX rationale. |
-| [advanced-git-recovery-commands.md](advanced-git-recovery-commands.md) | Git forensics, recovery, detached HEAD, and branch archaeology playbook. |
+| [CHANGELOG.md](CHANGELOG.md) | Version history and release notes for repoMgr. |
+|ROADMAP.md| Living doc for tracking SDLC-STATE|
 
 ![alt text](BACKLOG-v0.6.3.md-RepoMgr-OnePage.png)
 
@@ -118,6 +120,8 @@ Use the project’s preferred harness:
 ```powershell
 psst repoMgr
 ```
+
+The validation suite is intentionally scoped to disposable Git fixtures created under the system temp directory. This keeps the live monorepo and any active recovery workspace out of the test path while still exercising the real dry-run behavior, DR branch safety checks, topology reporting, and risk analysis logic.
 
 This runs the validation set for:
 - repoMgr.sanity.Tests.ps1
