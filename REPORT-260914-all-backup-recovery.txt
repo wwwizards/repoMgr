@@ -1,0 +1,1020 @@
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:  .\repoMgr.ps1 -all -backup -recovery *>&1 | tee REPORT-260914-all-backup-recovery.txt    <-- Timestamp: 260914-122824
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\PROJECTS\LogicWizards, 
+    --> SafeDest: C:\Users\User\OneDrive - Logic Wizards\Backups\RepoMgr-v6.3, 
+    --  Lookback: 30 days ago, 
+    --  DR Branch: RepoMgr-v0.6.3-RECOVERY-260914
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: DEV
+  Pending changes: 79 total  [M:3  D:0  ?:76]
+
+  ── Modified (3) ──
+
+Code Scope  File
+---- -----  ----
+M    Staged SOLUTIONS/DevOps/SIDE-PROJECTS/ai-labs
+M    Staged SOLUTIONS/DevOps/SIDE-PROJECTS/tools/a2m8-toolkit
+M    Staged SOLUTIONS/DevOps/SIDE-PROJECTS/vsCode/ai-labs-toolkit
+
+
+
+  ── Untracked (76) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/repoMgr-260912-220758.json
+??   -     repoMgr-logs/repoMgr-260912-225318.json
+??   -     repoMgr-logs/repoMgr-260913-030328.json
+??   -     repoMgr-logs/repoMgr-260913-030812.json
+??   -     repoMgr-logs/repoMgr-260913-032011.json
+??   -     repoMgr-logs/repoMgr-260913-032750.json
+??   -     repoMgr-logs/repoMgr-260913-034618.json
+??   -     repoMgr-logs/repoMgr-260913-035031.json
+??   -     repoMgr-logs/repoMgr-260913-040001.json
+??   -     repoMgr-logs/repoMgr-260913-040401.json
+??   -     repoMgr-logs/repoMgr-260913-044818.json
+??   -     repoMgr-logs/repoMgr-260913-045302.json
+??   -     repoMgr-logs/repoMgr-260913-045428.json
+??   -     repoMgr-logs/repoMgr-260913-050227.json
+??   -     repoMgr-logs/repoMgr-260913-054954.json
+??   -     repoMgr-logs/repoMgr-260913-055107.json
+??   -     repoMgr-logs/repoMgr-260913-055117.json
+??   -     repoMgr-logs/repoMgr-260913-055152.json
+??   -     repoMgr-logs/repoMgr-260913-055306.json
+??   -     repoMgr-logs/repoMgr-260913-055319.json
+??   -     repoMgr-logs/repoMgr-260913-055504.json
+??   -     repoMgr-logs/repoMgr-260913-055803.json
+??   -     repoMgr-logs/repoMgr-260913-055839.json
+??   -     repoMgr-logs/repoMgr-260913-055914.json
+??   -     repoMgr-logs/repoMgr-260913-055956.json
+??   -     repoMgr-logs/repoMgr-260913-060014.json
+??   -     repoMgr-logs/repoMgr-260913-105929.json
+??   -     repoMgr-logs/repoMgr-260913-110240.json
+??   -     repoMgr-logs/repoMgr-260913-123806.json
+??   -     repoMgr-logs/repoMgr-260913-124722.json
+??   -     repoMgr-logs/repoMgr-260913-125122.json
+??   -     repoMgr-logs/repoMgr-260913-125514.json
+??   -     repoMgr-logs/repoMgr-260913-125920.json
+??   -     repoMgr-logs/repoMgr-260913-130319.json
+??   -     repoMgr-logs/repoMgr-260913-130613.json
+??   -     repoMgr-logs/repoMgr-260913-203043.json
+??   -     repoMgr-logs/repoMgr-260914-024503.json
+??   -     repoMgr-logs/repoMgr-260914-030125.json
+??   -     repoMgr-logs/repoMgr-260914-030432.json
+??   -     repoMgr-logs/repoMgr-260914-031317.json
+??   -     repoMgr-logs/repoMgr-260914-031551.json
+??   -     repoMgr-logs/repoMgr-260914-050157.json
+??   -     repoMgr-logs/repoMgr-260914-050657.json
+??   -     repoMgr-logs/repoMgr-260914-052003.json
+??   -     repoMgr-logs/repoMgr-260914-122824.json
+??   -     repoMgr-logs/topology-260912-220758.json
+??   -     repoMgr-logs/topology-260913-030328.json
+??   -     repoMgr-logs/topology-260913-030812.json
+??   -     repoMgr-logs/topology-260913-032011.json
+??   -     repoMgr-logs/topology-260913-032750.json
+??   -     repoMgr-logs/topology-260913-034618.json
+??   -     repoMgr-logs/topology-260913-035031.json
+??   -     repoMgr-logs/topology-260913-040001.json
+??   -     repoMgr-logs/topology-260913-040401.json
+??   -     repoMgr-logs/topology-260913-045428.json
+??   -     repoMgr-logs/topology-260913-050227.json
+??   -     repoMgr-logs/topology-260913-054954.json
+??   -     repoMgr-logs/topology-260913-060014.json
+??   -     repoMgr-logs/topology-260913-105929.json
+??   -     repoMgr-logs/topology-260913-110240.json
+??   -     repoMgr-logs/topology-260913-123806.json
+??   -     repoMgr-logs/topology-260913-124722.json
+??   -     repoMgr-logs/topology-260913-125122.json
+??   -     repoMgr-logs/topology-260913-125514.json
+??   -     repoMgr-logs/topology-260913-125920.json
+??   -     repoMgr-logs/topology-260913-130319.json
+??   -     repoMgr-logs/topology-260913-130613.json
+??   -     repoMgr-logs/topology-260913-203043.json
+??   -     repoMgr-logs/topology-260914-024503.json
+??   -     repoMgr-logs/topology-260914-030125.json
+??   -     repoMgr-logs/topology-260914-030432.json
+??   -     repoMgr-logs/topology-260914-031317.json
+??   -     repoMgr-logs/topology-260914-031551.json
+??   -     repoMgr-logs/topology-260914-050157.json
+??   -     repoMgr-logs/topology-260914-050657.json
+??   -     repoMgr-logs/topology-260914-052003.json
+
+
+
+History since 30 days ago :
+*   cd1ac9f 2026-09-12 20:01:51 -0400  (HEAD -> DEV, origin/master, origin/HEAD, origin/DEV, RECOVER-260912JN) Merge pull request #10 from LogicWizards/DEV
+|\  
+| * 4790c70 2026-09-12 19:53:58 -0400  v0.7.8.113 - POST-MERGE CLEANUP
+| | *   cdb00f4 2026-09-12 08:26:05 -0400  (origin/wip/a2m8-intune-tooling) Merge pull request #9 from LogicWizards/DEV
+| | |\  
+| | |/  
+| |/|   
+| * |   dbc9e29 2026-09-12 05:29:37 -0400  Merge pull request #8 from LogicWizards/master
+| |\ \  
+| |/ /  
+|/| |   
+* | | 6b1c1d3 2026-09-12 05:13:36 -0400  (master) Update version and metadata in Package-Win32App.ps1
+* | |   6960683 2026-09-12 04:59:29 -0400  Merge pull request #7 from LogicWizards/RECOVER
+|\ \ \  
+| |/ /  
+|/| |   
+| * | ad502ec 2026-09-12 04:48:01 -0400  (origin/RECOVER, RECOVER-260911JN) MERGE: HEAD-v0.7.8.110+ --> RECOVER <-- wip/260522-acrobat-pro-A1B05 v0.7.8.110 - digest: Resolve merge conflicts by incorporating both suggestions         modified:   SOLUTIONS/CloudOps/Intune-Deployments/Bootstrap-Chocolatey.ps1         modified:   SOLUTIONS/CloudOps/Intune-Deployments/Package-Win32App.ps1         modified:   SOLUTIONS/CloudOps/Intune-Deployments/Send-StakeholderDigest.ps1         modified:   SOLUTIONS/CloudOps/Intune-Deployments/choco-installers/Win32-Apps/AcrobatPro/README.md         modified:   SOLUTIONS/CloudOps/Intune-Deployments/choco-installers/Win32-Apps/AcrobatPro/intune-install.ps1         modified:   SOLUTIONS/DevOps/SIDE-PROJECTS/tools/a2m8-choco/packages-source/acrobat-pro/acrobat-pro.nuspec         modified:   SOLUTIONS/DevOps/SIDE-PROJECTS/tools/a2m8-choco/packages-source/acrobat-pro/tools/chocolateyInstall.ps1         new file:   SOLUTIONS/DevOps/SIDE-PROJECTS/tools/a2m8-choco/packages-source/acrobat-pro/tools/chocolateyUninstall.ps1
+|/ /  
+* | 824aca1 2026-09-10 12:23:23 -0400  chore(repoMgr): Add generated log and topology files
+* | d3d34fb 2026-09-10 12:23:12 -0400  refactor(a2m8-intune): Update command set and resolve merge conflict
+* | 78e6538 2026-09-10 12:23:05 -0400  feat(gitlogs): Add gitlogs as a submodule
+* | ac64e5e 2026-09-10 12:22:54 -0400  feat(.AI-TRAINING): Add RepoMgr git status baseline and detached analysis file
+* | 19a94f2 2026-09-10 12:22:50 -0400  feat: Add repoMgr artifacts to .gitignore
+* | 1f00709 2026-09-10 11:13:20 -0400  Merge pull request #3 from LogicWizards/wip/a2m8-intune-tooling
+|\| 
+| * be929ed 2026-09-10 15:08:49 +0000  Merge remote-tracking branch 'origin/master' into wip/a2m8-intune-tooling
+|/  
+* 5cc9b59 2026-09-10 11:04:09 -0400  Merge pull request #2 from LogicWizards/wip/a2m8-choco-tooling
+*   698e6b4 2026-09-01 20:55:45 -0400  Merge pull request #1 from LogicWizards/RepoMgr-DR-260901
+|\  
+| * ef9d56a 2026-09-01 20:47:39 -0400  (origin/RepoMgr-DR-260901, RepoMgr-DR-260901JN) 260901JN - dirty files stash after triage
+|/  
+* d4dbeee 2026-08-26 16:12:04 -0400  v0.7.8.112 - session handoff state
+* 304ead5 2026-08-24 01:50:53 -0400  fix(fleet): prefer self-heal breadcrumbs and stale pending requests
+* 01178fb 2026-08-24 00:01:54 -0400  Intune-Deployments: handoff + watcher payload contract cleanup
+* 734c2c6 2026-08-23 22:34:23 -0400  v0.7.8.103 - Intune fleet handoff payload contract docs
+* 6121509 2026-08-22 17:39:45 -0400  fix(SaaS-Tracker): ensure Microsoft.Graph.Authentication is installed/imported before Connect-MgGraph
+* 37544fb 2026-08-22 17:18:35 -0400  chore: bump a2m8-toolkit pointer (set-watcher-debug cert-response.json fix)
+* 18403e8 2026-08-22 17:17:54 -0400  fix(SaaS-Tracker): collector self-heal fetches cert-response.json, not the never-published device-auth.json
+* d623adc 2026-08-22 14:35:49 -0400  v0.7.8.111 - SaaS-Tracker: found+fixed why cert-requests never became telemetry, WATCHER glyph UX rework
+* acf7feb 2026-08-20 13:25:18 -0400  v0.7.8.110 - digest: -LookbackDays passthrough + rolling-window fix + SaaS telemetry wired to all pilot device folders
+* 9537e9c 2026-08-20 12:43:54 -0400  v0.7.8.109 - WebWatcher v0.2.2: PAT force-write + fleet-wide rotation channel
+* d65a7a4 2026-08-20 11:15:20 -0400  chore: bump a2m8-toolkit pointer (set-gist-pat)
+* 5050fac 2026-08-20 11:06:50 -0400  chore(topology): register a2m8-toolkit as submodule (was monorepo stub)
+* 6638738 2026-08-20 09:21:17 -0400  feat(fleet): add WATCHER column + natural-sort the fleet listing (v0.5.8)
+* 4f444ee 2026-08-20 08:23:52 -0400  docs(B1T06): note update-toolkit + check-webwatcher client feedback loop
+* b317f2e 2026-08-20 07:31:08 -0400  feat(B1T06): hands-off device-auth self-heal + version-aware Intune upgrade
+* 2c4ba3e 2026-08-19 23:59:40 -0400  feat(B1T06): fold provisioning fixes into Grant script + UPN identity
+* 4c6987e 2026-08-19 23:32:53 -0400  tickets(B1S05): close B1T03+B1T05 (proven live on P22), add B1T06 prod-readiness
+* 8abf38b 2026-08-19 22:05:20 -0400  handoff(intune): B1S05 proven live on P22 + Grant v0.1.2 -DeviceName scoping
+* 63f321d 2026-08-19 20:03:04 -0400  fix(intune): WebWatcher detection keys on choco marker, not pre-existing collector
+* c323aed 2026-08-19 19:44:41 -0400  fix(saas-tracker): Grant-SaaSTrackerDeviceAccess v0.1.1 - correct item-grant shape + add -DeviceItemId
+* 6ed597d 2026-08-19 19:09:31 -0400  feat(intune): Publish-WebWatcherIntune.ps1 - hand-rolled Win32 LOB publisher via Graph
+* 18fc219 2026-08-19 18:30:49 -0400  B1T05 ticket (WebWatcher wrapper + choco/Intune packaging, WIP w/ AS-BUILT + Artifacts); design doc v0.2.0 (live item-level-grant finding + delivery mechanism); WebWatcher-Intune-Playbook.md (last-mile runbook)
+* b8fb4bc 2026-08-19 18:13:11 -0400  WebWatcher Intune Win32 app: install.ps1 wrapper (choco install from bundled .intunewin content dir) + .gitignore for build artifacts. .intunewin built green (18KB) for pilot-group push.
+* d3ff530 2026-08-19 17:17:50 -0400  WebWatcher: bootstrap-WebWatcher.ps1 device-side wrapper + standalone choco package (webwatcher.nuspec/chocolateyInstall/Pack-WebWatcher) bundling all device scripts as real files (fixes Intune single-file base64 hack); collector v0.2.0 adds additive per-device cert-auth branch (device-auth.json) with legacy WAM fallback
+* 61e6f44 2026-08-19 12:50:33 -0400  B1T03: DISCOVER/DIAGNOSE/DESIGN/DOCUMENT complete, DELIVER safe-parts done (3 scripts + tests, 25/25 green) -- STOPPED at live-mutation boundary pending CTO go-ahead
+* c5ba33f 2026-08-19 11:54:27 -0400  Option-1 POC: ticket-drift warn-only pre-commit check, HR blank-line-spacing fix in Check-MarkdownReflow.ps1, fix python3 App-Execution-Alias stub + exclude Agile-Wizard tickets from header-check (convention mismatch), Relations=INPUTS vs Artifacts=OUTPUTS + Expected-Artifacts DESIGN requirement in STORY B1S05
+* 62a9b83 2026-08-19 10:50:51 -0400  Fix B1T02 ticket-drift: STATUS NEW->DONE, filename renamed, cross-refs updated (matches B1T01 pattern)
+* f588092 2026-08-19 10:42:49 -0400  Add linked Artifacts table (date/file/type/action/verified) to B1T01/B1T02 AS-BUILT, establish as standing DELIVER-phase convention in STORY B1S05 Delegation Protocol
+* e7f9bda 2026-08-19 10:20:38 -0400  Reconcile diff-review orphan collision (deleted byte-identical duplicate), hoist 5D Delegation Protocol to STORY B1S05 for DRY, fix A1F05 title typo, record CTO-directed sub-experiment in MVx doc
+* 4454617 2026-08-19 02:08:06 -0400  B1T03: add 5D-phase-gated delegation protocol (DISCOVER/DIAGNOSE/DESIGN/DOCUMENT/DELIVER) + cherry-picked MVx-260816-01 aporiae table, prepping for next-session subagent delegation
+* 77cb2fb 2026-08-19 01:34:04 -0400  v0.7.8.108 - B1T02 delegated (Gist cert protocol), subagent terminal-contract aporia promoted to global gates, AutoExec.BOT tickets backfilled
+* 511e048 2026-08-18 23:53:46 -0400  v0.7.8.107 followup 2: stage B1T01 ticket acceptance-criteria checkoff (missed in prior split commit)
+* 78ca2d1 2026-08-18 23:52:44 -0400  v0.7.8.107 followup: stage remaining B1T01 files (STATE.md updates, cert script+tests, installer wiring, ai-labs pointer)
+* 1e5ccdb 2026-08-18 23:51:14 -0400  v0.7.8.107 - B1T01 on-device cert generation (TDD-first, subagent-delegated), Explore agent read-only finding recorded
+* bf77880 2026-08-18 21:59:28 -0400  v0.7.8.106 - Cert-bridge design scoped as STORY B1S05 + 4 TASKs, shared-cert risk explicitly rejected
+* 30ec4fa 2026-08-18 17:06:05 -0400  v0.7.8.105 - SaaS-Tracker auth chain: 6 real bugs found+fixed, P15 proven live, Alice flags the design itself needs to change
+* a12a76a 2026-08-18 14:20:46 -0400  v0.7.8.104 - Backtalk PAT incident fix, fleet CLI hardening (manage/sync -Reboot), SaaS-Tracker installer made self-sufficient, real terminal-profile fix
+* bde2ea0 2026-08-18 09:56:40 -0400  B1S04: Intune installer built, real PS5.1 parse bug found+fixed, domain allowlist gap closed
+* d6578b7 2026-08-17 20:14:53 -0400  Make LIGHTBULB-LOG.md hub-and-spoke read+write mandatory (root PROTOCOL.md #7, AGENTS.md, copilot-instructions.md)
+* 7a5ff71 2026-08-17 18:56:53 -0400  B1S03: live end-to-end proof with real Entra anchor + real SaaS browser telemetry
+* 09b4617 2026-08-17 17:53:07 -0400  B1S03: SaaS telemetry session ingestion (design decisions + implementation)
+* e632093 2026-08-17 12:54:56 -0400  Scope SaaS-Tracker follow-on work: B1S02 DONE, new B1S03 (session ingestion) + B1S04 (productionization rollout)
+* 584de96 2026-08-17 08:46:21 -0400  STATE.md catch-up: SaaS-Tracker MVx final proof, manager-report live-send incident, P21/P22 status, CredMagic test-prompt gap
+* af8f799 2026-08-17 01:36:12 -0400  Fix .AI-TRAINING/ vs .HANDOFF/*.json mislabeling (GAP-2 + a companion drift)
+* 8c7ea51 2026-08-16 21:09:01 -0400  Fix real root cause: @() over List[object] throws Argument types do not match
+* 5a28bb2 2026-08-16 20:33:11 -0400  Handoff: sqlite3 blocker cleared by CTO, JSON-join bug fixed, one bug open, FLEET terminal incident
+* 0512a82 2026-08-16 20:32:04 -0400  Fix sqlite3 -json multi-line output not joined before ConvertFrom-Json
+* 76685a4 2026-08-16 13:33:02 -0400  Autonomous session: real bugs found by execution, offline/heartbeat/upload proven, sqlite3 blocked on elevation
+* 22294b9 2026-08-16 13:07:01 -0400  Supervised MAI-Code delegation: wire SharePoint upload + Agile-Wizard PROTOCOL/STYLE-GUIDE docs
+* f301ef2 2026-08-16 13:02:50 -0400  Handoff: SaaS-Tracker MVx auth+storage loop proven end-to-end
+* 833242e 2026-08-16 07:58:29 -0400  Baseline: P21/P22 Win11 upgrade pilot + SaaS-Tracker MVx discovery/scoping
+* 96a0a03 2026-08-15 20:26:52 -0400  v0.7.8.103 - BigBrother third-party connector awareness + 4 real bugs found via live-data verification
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\.AI-TRAINING  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: RepoMgr-DR-260901
+  Pending changes: 68 total  [M:14  D:4  ?:50]
+
+  ── Deleted (4) ──
+
+Code Scope    File
+---- -----    ----
+ D   Unstaged 20251126-Handoff.json
+ D   Unstaged 251201-MVSx-Stories-Enhancement-Summary.md
+ D   Unstaged AI-GPU-Tweaks.md
+ D   Unstaged mvsx-stories/251201-ONNX-TensorFlow-TensorRT-Comparison.md
+
+
+
+  ── Modified (14) ──
+
+Code Scope    File
+---- -----    ----
+ M   Unstaged .gitignore
+ M   Unstaged 251129-ROADMAP-CourseCorrections.md
+ M   Unstaged 251201-Handoff.json
+ M   Unstaged 251204-CourseCorrections-v0.7.8.1-Dashboard-DataTier.md
+ M   Unstaged 251204-Handoff-v0.7.8.1-Dashboard-AutoExec.json
+ M   Unstaged 251219-Handoff-v0.7.8.9-Instruction-Modularization.json
+ M   Unstaged 251222-Handoff-v0.7.8.10-AVD-Incident-Dashboard-DataTier.json
+ M   Unstaged ANALYSIS-260107-Instruction-Ecosystem-Strategy.md
+ M   Unstaged COMPARISON-260107-Instructions-Sections.md
+ M   Unstaged FUTURE-LAPTOP-MIGRATION-NOTES.md
+ M   Unstaged GPU-SETUP.md
+ M   Unstaged README.md
+ M   Unstaged templates/decision-matrix.md
+ M   Unstaged WHITEPAPER-OUTLINE.md
+
+
+
+  ── Untracked (50) ──
+
+Code Scope File
+---- ----- ----
+??   -     .HOBOTS/
+??   -     20260602-1013-Handoff-v0.7.8.65-Theresa-Lori-NameChange.json
+??   -     251013-Handoff-v0.7.8.65-Theresa-Lori-NameChange.json
+??   -     251126-Handoff.json
+??   -     251201-MVx-Stories-Enhancement-Summary.md
+??   -     260509-Handoff-v0.7.8.12-StreamSplit.json
+??   -     260509-Handoff-v0.7.8.14-DeviceProvisioning.json
+??   -     260510-Handoff-v0.7.8.15-a2m8-intune-Launch.json
+??   -     260510-Handoff-v0.7.8.16-Phoenix-Fleet.json
+??   -     260510-Handoff-v0.7.8.17-WhatIf-FeedbackLoop.json
+??   -     260510-Handoff-v0.7.8.18-a2m8-choco-Scaffold.json
+??   -     260511-Handoff-v0.7.8.19-Playbook-and-a2m8-intune.json
+??   -     260511-Handoff-v0.7.8.20-GHE-Setup-Plan.json
+??   -     260511-Handoff-v0.7.8.21-PostLunch-PlaybookGapTest.json
+??   -     260512-Handoff-v0.7.8.28-Bootstrap-Hardening.json
+??   -     260512-Handoff-v0.7.8.29-schtasks-nonAdmin.json
+??   -     260514-Handoff-v0.7.8.32-Sloptimization-Tests.json
+??   -     260514-PI-Planning-ART-of-ARTs.json
+??   -     260514-SprintRetro-v0.7.8.x-TaxSeason-CapeWay.md
+??   -     260518-Handoff-v0.7.8.34-Bootstrap-BacktalkBookend.json
+??   -     260520-Handoff-v0.7.8.35-a2m8-m365-SPAuth.json
+??   -     260520-Handoff-v0.7.8.36-a2m8-m365-ListProvisioned.json
+??   -     260521-Handoff-v0.7.8.36-psstel-v0.2.0.json
+??   -     260521-Handoff-v0.7.8.37-psstel-v0.2.1-SpaceTime.json
+??   -     260527-EOM-ROI-Digest-SideProjects-vs-Client.md
+??   -     260527-Handoff-v0.7.8.38-pickaxe-v0.2.0.json
+??   -     260527-Handoff-v0.7.8.38-pickaxe-v0.3.1.json
+??   -     260603-Handoff-v0.7.8.67-PersonaRegistry-v0.2.json
+??   -     260603-Handoff-v0.7.8.68-DesignB-TerminalFix.json
+??   -     260603-Handoff-v0.7.8.68-pickaxe-v0.3.2-gitlink-fix.json
+??   -     260604-Handoff-v0.7.8.71-redactor-v0.2.0.json
+??   -     260608-Handoff-v0.7.8.73-adventure-genesis.json
+??   -     260613-b-Handoff-v0.7.8.75-3D-epiAGENTology.json
+??   -     260617-Handoff-v0.7.8.76-PICKAXE-July4-Release.json
+??   -     260722-Handoff-v0.7.8.74-P16-P17-Fleet-Provisioning.json
+??   -     260722-Handoff-v0.7.8.75-P16-P17-P18-Dana-Fleet-v0.4.7.json
+??   -     260728-Handoff-v0.7.8.92-PUA-Policy-Chrome-Cleanup-STATE-Discovery.json
+??   -     260801-Handoff-v0.7.8.98-M365-Activity-Digest-Fleet-Onboarding.json
+??   -     ANTI-PATTERN-260521-DRY-Across-Runtime-Boundaries.md
+??   -     detached-analysis.json
+??   -     DISCOVERY-260724-ai-labs-toolkit-federation-delivery.md
+??   -     DISCOVERY-260725-Workspace-Optimization.md
+??   -     GPU-SETUP-260601-Handoff-CuPy-Pascal-Blocker.md
+??   -     GPU-VsCode-TroublleShooting-101.md
+??   -     GPU-VsCode-TweakingForAI.md
+??   -     GPU-VsCode-UnderTheHood.md
+??   -     mvx-stories/
+??   -     probes.json
+??   -     RepoMgr-260901-00.git-status.BASELINE.txt
+??   -     templates/PROJECT-THUMBPRINT-TEMPLATE.json
+
+
+
+History since 30 days ago :
+  (no commits in window: 30 days ago → now)
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\Agile-Wizard  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: DEV
+  Pending changes: 79 total  [M:3  D:0  ?:76]
+
+  ── Modified (3) ──
+
+Code Scope  File
+---- -----  ----
+M    Staged SOLUTIONS/DevOps/SIDE-PROJECTS/ai-labs
+M    Staged SOLUTIONS/DevOps/SIDE-PROJECTS/tools/a2m8-toolkit
+M    Staged SOLUTIONS/DevOps/SIDE-PROJECTS/vsCode/ai-labs-toolkit
+
+
+
+  ── Untracked (76) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/repoMgr-260912-220758.json
+??   -     repoMgr-logs/repoMgr-260912-225318.json
+??   -     repoMgr-logs/repoMgr-260913-030328.json
+??   -     repoMgr-logs/repoMgr-260913-030812.json
+??   -     repoMgr-logs/repoMgr-260913-032011.json
+??   -     repoMgr-logs/repoMgr-260913-032750.json
+??   -     repoMgr-logs/repoMgr-260913-034618.json
+??   -     repoMgr-logs/repoMgr-260913-035031.json
+??   -     repoMgr-logs/repoMgr-260913-040001.json
+??   -     repoMgr-logs/repoMgr-260913-040401.json
+??   -     repoMgr-logs/repoMgr-260913-044818.json
+??   -     repoMgr-logs/repoMgr-260913-045302.json
+??   -     repoMgr-logs/repoMgr-260913-045428.json
+??   -     repoMgr-logs/repoMgr-260913-050227.json
+??   -     repoMgr-logs/repoMgr-260913-054954.json
+??   -     repoMgr-logs/repoMgr-260913-055107.json
+??   -     repoMgr-logs/repoMgr-260913-055117.json
+??   -     repoMgr-logs/repoMgr-260913-055152.json
+??   -     repoMgr-logs/repoMgr-260913-055306.json
+??   -     repoMgr-logs/repoMgr-260913-055319.json
+??   -     repoMgr-logs/repoMgr-260913-055504.json
+??   -     repoMgr-logs/repoMgr-260913-055803.json
+??   -     repoMgr-logs/repoMgr-260913-055839.json
+??   -     repoMgr-logs/repoMgr-260913-055914.json
+??   -     repoMgr-logs/repoMgr-260913-055956.json
+??   -     repoMgr-logs/repoMgr-260913-060014.json
+??   -     repoMgr-logs/repoMgr-260913-105929.json
+??   -     repoMgr-logs/repoMgr-260913-110240.json
+??   -     repoMgr-logs/repoMgr-260913-123806.json
+??   -     repoMgr-logs/repoMgr-260913-124722.json
+??   -     repoMgr-logs/repoMgr-260913-125122.json
+??   -     repoMgr-logs/repoMgr-260913-125514.json
+??   -     repoMgr-logs/repoMgr-260913-125920.json
+??   -     repoMgr-logs/repoMgr-260913-130319.json
+??   -     repoMgr-logs/repoMgr-260913-130613.json
+??   -     repoMgr-logs/repoMgr-260913-203043.json
+??   -     repoMgr-logs/repoMgr-260914-024503.json
+??   -     repoMgr-logs/repoMgr-260914-030125.json
+??   -     repoMgr-logs/repoMgr-260914-030432.json
+??   -     repoMgr-logs/repoMgr-260914-031317.json
+??   -     repoMgr-logs/repoMgr-260914-031551.json
+??   -     repoMgr-logs/repoMgr-260914-050157.json
+??   -     repoMgr-logs/repoMgr-260914-050657.json
+??   -     repoMgr-logs/repoMgr-260914-052003.json
+??   -     repoMgr-logs/repoMgr-260914-122824.json
+??   -     repoMgr-logs/topology-260912-220758.json
+??   -     repoMgr-logs/topology-260913-030328.json
+??   -     repoMgr-logs/topology-260913-030812.json
+??   -     repoMgr-logs/topology-260913-032011.json
+??   -     repoMgr-logs/topology-260913-032750.json
+??   -     repoMgr-logs/topology-260913-034618.json
+??   -     repoMgr-logs/topology-260913-035031.json
+??   -     repoMgr-logs/topology-260913-040001.json
+??   -     repoMgr-logs/topology-260913-040401.json
+??   -     repoMgr-logs/topology-260913-045428.json
+??   -     repoMgr-logs/topology-260913-050227.json
+??   -     repoMgr-logs/topology-260913-054954.json
+??   -     repoMgr-logs/topology-260913-060014.json
+??   -     repoMgr-logs/topology-260913-105929.json
+??   -     repoMgr-logs/topology-260913-110240.json
+??   -     repoMgr-logs/topology-260913-123806.json
+??   -     repoMgr-logs/topology-260913-124722.json
+??   -     repoMgr-logs/topology-260913-125122.json
+??   -     repoMgr-logs/topology-260913-125514.json
+??   -     repoMgr-logs/topology-260913-125920.json
+??   -     repoMgr-logs/topology-260913-130319.json
+??   -     repoMgr-logs/topology-260913-130613.json
+??   -     repoMgr-logs/topology-260913-203043.json
+??   -     repoMgr-logs/topology-260914-024503.json
+??   -     repoMgr-logs/topology-260914-030125.json
+??   -     repoMgr-logs/topology-260914-030432.json
+??   -     repoMgr-logs/topology-260914-031317.json
+??   -     repoMgr-logs/topology-260914-031551.json
+??   -     repoMgr-logs/topology-260914-050157.json
+??   -     repoMgr-logs/topology-260914-050657.json
+??   -     repoMgr-logs/topology-260914-052003.json
+
+
+
+History since 30 days ago :
+*   cd1ac9f 2026-09-12 20:01:51 -0400  (HEAD -> DEV, origin/master, origin/HEAD, origin/DEV, RECOVER-260912JN) Merge pull request #10 from LogicWizards/DEV
+|\  
+| * 4790c70 2026-09-12 19:53:58 -0400  v0.7.8.113 - POST-MERGE CLEANUP
+| | *   cdb00f4 2026-09-12 08:26:05 -0400  (origin/wip/a2m8-intune-tooling) Merge pull request #9 from LogicWizards/DEV
+| | |\  
+| | |/  
+| |/|   
+| * |   dbc9e29 2026-09-12 05:29:37 -0400  Merge pull request #8 from LogicWizards/master
+| |\ \  
+| |/ /  
+|/| |   
+* | | 6b1c1d3 2026-09-12 05:13:36 -0400  (master) Update version and metadata in Package-Win32App.ps1
+* | |   6960683 2026-09-12 04:59:29 -0400  Merge pull request #7 from LogicWizards/RECOVER
+|\ \ \  
+| |/ /  
+|/| |   
+| * | ad502ec 2026-09-12 04:48:01 -0400  (origin/RECOVER, RECOVER-260911JN) MERGE: HEAD-v0.7.8.110+ --> RECOVER <-- wip/260522-acrobat-pro-A1B05 v0.7.8.110 - digest: Resolve merge conflicts by incorporating both suggestions         modified:   SOLUTIONS/CloudOps/Intune-Deployments/Bootstrap-Chocolatey.ps1         modified:   SOLUTIONS/CloudOps/Intune-Deployments/Package-Win32App.ps1         modified:   SOLUTIONS/CloudOps/Intune-Deployments/Send-StakeholderDigest.ps1         modified:   SOLUTIONS/CloudOps/Intune-Deployments/choco-installers/Win32-Apps/AcrobatPro/README.md         modified:   SOLUTIONS/CloudOps/Intune-Deployments/choco-installers/Win32-Apps/AcrobatPro/intune-install.ps1         modified:   SOLUTIONS/DevOps/SIDE-PROJECTS/tools/a2m8-choco/packages-source/acrobat-pro/acrobat-pro.nuspec         modified:   SOLUTIONS/DevOps/SIDE-PROJECTS/tools/a2m8-choco/packages-source/acrobat-pro/tools/chocolateyInstall.ps1         new file:   SOLUTIONS/DevOps/SIDE-PROJECTS/tools/a2m8-choco/packages-source/acrobat-pro/tools/chocolateyUninstall.ps1
+|/ /  
+* | 824aca1 2026-09-10 12:23:23 -0400  chore(repoMgr): Add generated log and topology files
+* | d3d34fb 2026-09-10 12:23:12 -0400  refactor(a2m8-intune): Update command set and resolve merge conflict
+* | 78e6538 2026-09-10 12:23:05 -0400  feat(gitlogs): Add gitlogs as a submodule
+* | ac64e5e 2026-09-10 12:22:54 -0400  feat(.AI-TRAINING): Add RepoMgr git status baseline and detached analysis file
+* | 19a94f2 2026-09-10 12:22:50 -0400  feat: Add repoMgr artifacts to .gitignore
+* | 1f00709 2026-09-10 11:13:20 -0400  Merge pull request #3 from LogicWizards/wip/a2m8-intune-tooling
+|\| 
+| * be929ed 2026-09-10 15:08:49 +0000  Merge remote-tracking branch 'origin/master' into wip/a2m8-intune-tooling
+|/  
+* 5cc9b59 2026-09-10 11:04:09 -0400  Merge pull request #2 from LogicWizards/wip/a2m8-choco-tooling
+*   698e6b4 2026-09-01 20:55:45 -0400  Merge pull request #1 from LogicWizards/RepoMgr-DR-260901
+|\  
+| * ef9d56a 2026-09-01 20:47:39 -0400  (origin/RepoMgr-DR-260901, RepoMgr-DR-260901JN) 260901JN - dirty files stash after triage
+|/  
+* d4dbeee 2026-08-26 16:12:04 -0400  v0.7.8.112 - session handoff state
+* 304ead5 2026-08-24 01:50:53 -0400  fix(fleet): prefer self-heal breadcrumbs and stale pending requests
+* 01178fb 2026-08-24 00:01:54 -0400  Intune-Deployments: handoff + watcher payload contract cleanup
+* 734c2c6 2026-08-23 22:34:23 -0400  v0.7.8.103 - Intune fleet handoff payload contract docs
+* 6121509 2026-08-22 17:39:45 -0400  fix(SaaS-Tracker): ensure Microsoft.Graph.Authentication is installed/imported before Connect-MgGraph
+* 37544fb 2026-08-22 17:18:35 -0400  chore: bump a2m8-toolkit pointer (set-watcher-debug cert-response.json fix)
+* 18403e8 2026-08-22 17:17:54 -0400  fix(SaaS-Tracker): collector self-heal fetches cert-response.json, not the never-published device-auth.json
+* d623adc 2026-08-22 14:35:49 -0400  v0.7.8.111 - SaaS-Tracker: found+fixed why cert-requests never became telemetry, WATCHER glyph UX rework
+* acf7feb 2026-08-20 13:25:18 -0400  v0.7.8.110 - digest: -LookbackDays passthrough + rolling-window fix + SaaS telemetry wired to all pilot device folders
+* 9537e9c 2026-08-20 12:43:54 -0400  v0.7.8.109 - WebWatcher v0.2.2: PAT force-write + fleet-wide rotation channel
+* d65a7a4 2026-08-20 11:15:20 -0400  chore: bump a2m8-toolkit pointer (set-gist-pat)
+* 5050fac 2026-08-20 11:06:50 -0400  chore(topology): register a2m8-toolkit as submodule (was monorepo stub)
+* 6638738 2026-08-20 09:21:17 -0400  feat(fleet): add WATCHER column + natural-sort the fleet listing (v0.5.8)
+* 4f444ee 2026-08-20 08:23:52 -0400  docs(B1T06): note update-toolkit + check-webwatcher client feedback loop
+* b317f2e 2026-08-20 07:31:08 -0400  feat(B1T06): hands-off device-auth self-heal + version-aware Intune upgrade
+* 2c4ba3e 2026-08-19 23:59:40 -0400  feat(B1T06): fold provisioning fixes into Grant script + UPN identity
+* 4c6987e 2026-08-19 23:32:53 -0400  tickets(B1S05): close B1T03+B1T05 (proven live on P22), add B1T06 prod-readiness
+* 8abf38b 2026-08-19 22:05:20 -0400  handoff(intune): B1S05 proven live on P22 + Grant v0.1.2 -DeviceName scoping
+* 63f321d 2026-08-19 20:03:04 -0400  fix(intune): WebWatcher detection keys on choco marker, not pre-existing collector
+* c323aed 2026-08-19 19:44:41 -0400  fix(saas-tracker): Grant-SaaSTrackerDeviceAccess v0.1.1 - correct item-grant shape + add -DeviceItemId
+* 6ed597d 2026-08-19 19:09:31 -0400  feat(intune): Publish-WebWatcherIntune.ps1 - hand-rolled Win32 LOB publisher via Graph
+* 18fc219 2026-08-19 18:30:49 -0400  B1T05 ticket (WebWatcher wrapper + choco/Intune packaging, WIP w/ AS-BUILT + Artifacts); design doc v0.2.0 (live item-level-grant finding + delivery mechanism); WebWatcher-Intune-Playbook.md (last-mile runbook)
+* b8fb4bc 2026-08-19 18:13:11 -0400  WebWatcher Intune Win32 app: install.ps1 wrapper (choco install from bundled .intunewin content dir) + .gitignore for build artifacts. .intunewin built green (18KB) for pilot-group push.
+* d3ff530 2026-08-19 17:17:50 -0400  WebWatcher: bootstrap-WebWatcher.ps1 device-side wrapper + standalone choco package (webwatcher.nuspec/chocolateyInstall/Pack-WebWatcher) bundling all device scripts as real files (fixes Intune single-file base64 hack); collector v0.2.0 adds additive per-device cert-auth branch (device-auth.json) with legacy WAM fallback
+* 61e6f44 2026-08-19 12:50:33 -0400  B1T03: DISCOVER/DIAGNOSE/DESIGN/DOCUMENT complete, DELIVER safe-parts done (3 scripts + tests, 25/25 green) -- STOPPED at live-mutation boundary pending CTO go-ahead
+* c5ba33f 2026-08-19 11:54:27 -0400  Option-1 POC: ticket-drift warn-only pre-commit check, HR blank-line-spacing fix in Check-MarkdownReflow.ps1, fix python3 App-Execution-Alias stub + exclude Agile-Wizard tickets from header-check (convention mismatch), Relations=INPUTS vs Artifacts=OUTPUTS + Expected-Artifacts DESIGN requirement in STORY B1S05
+* 62a9b83 2026-08-19 10:50:51 -0400  Fix B1T02 ticket-drift: STATUS NEW->DONE, filename renamed, cross-refs updated (matches B1T01 pattern)
+* f588092 2026-08-19 10:42:49 -0400  Add linked Artifacts table (date/file/type/action/verified) to B1T01/B1T02 AS-BUILT, establish as standing DELIVER-phase convention in STORY B1S05 Delegation Protocol
+* e7f9bda 2026-08-19 10:20:38 -0400  Reconcile diff-review orphan collision (deleted byte-identical duplicate), hoist 5D Delegation Protocol to STORY B1S05 for DRY, fix A1F05 title typo, record CTO-directed sub-experiment in MVx doc
+* 4454617 2026-08-19 02:08:06 -0400  B1T03: add 5D-phase-gated delegation protocol (DISCOVER/DIAGNOSE/DESIGN/DOCUMENT/DELIVER) + cherry-picked MVx-260816-01 aporiae table, prepping for next-session subagent delegation
+* 77cb2fb 2026-08-19 01:34:04 -0400  v0.7.8.108 - B1T02 delegated (Gist cert protocol), subagent terminal-contract aporia promoted to global gates, AutoExec.BOT tickets backfilled
+* 511e048 2026-08-18 23:53:46 -0400  v0.7.8.107 followup 2: stage B1T01 ticket acceptance-criteria checkoff (missed in prior split commit)
+* 78ca2d1 2026-08-18 23:52:44 -0400  v0.7.8.107 followup: stage remaining B1T01 files (STATE.md updates, cert script+tests, installer wiring, ai-labs pointer)
+* 1e5ccdb 2026-08-18 23:51:14 -0400  v0.7.8.107 - B1T01 on-device cert generation (TDD-first, subagent-delegated), Explore agent read-only finding recorded
+* bf77880 2026-08-18 21:59:28 -0400  v0.7.8.106 - Cert-bridge design scoped as STORY B1S05 + 4 TASKs, shared-cert risk explicitly rejected
+* 30ec4fa 2026-08-18 17:06:05 -0400  v0.7.8.105 - SaaS-Tracker auth chain: 6 real bugs found+fixed, P15 proven live, Alice flags the design itself needs to change
+* a12a76a 2026-08-18 14:20:46 -0400  v0.7.8.104 - Backtalk PAT incident fix, fleet CLI hardening (manage/sync -Reboot), SaaS-Tracker installer made self-sufficient, real terminal-profile fix
+* bde2ea0 2026-08-18 09:56:40 -0400  B1S04: Intune installer built, real PS5.1 parse bug found+fixed, domain allowlist gap closed
+* d6578b7 2026-08-17 20:14:53 -0400  Make LIGHTBULB-LOG.md hub-and-spoke read+write mandatory (root PROTOCOL.md #7, AGENTS.md, copilot-instructions.md)
+* 7a5ff71 2026-08-17 18:56:53 -0400  B1S03: live end-to-end proof with real Entra anchor + real SaaS browser telemetry
+* 09b4617 2026-08-17 17:53:07 -0400  B1S03: SaaS telemetry session ingestion (design decisions + implementation)
+* e632093 2026-08-17 12:54:56 -0400  Scope SaaS-Tracker follow-on work: B1S02 DONE, new B1S03 (session ingestion) + B1S04 (productionization rollout)
+* 584de96 2026-08-17 08:46:21 -0400  STATE.md catch-up: SaaS-Tracker MVx final proof, manager-report live-send incident, P21/P22 status, CredMagic test-prompt gap
+* af8f799 2026-08-17 01:36:12 -0400  Fix .AI-TRAINING/ vs .HANDOFF/*.json mislabeling (GAP-2 + a companion drift)
+* 8c7ea51 2026-08-16 21:09:01 -0400  Fix real root cause: @() over List[object] throws Argument types do not match
+* 5a28bb2 2026-08-16 20:33:11 -0400  Handoff: sqlite3 blocker cleared by CTO, JSON-join bug fixed, one bug open, FLEET terminal incident
+* 0512a82 2026-08-16 20:32:04 -0400  Fix sqlite3 -json multi-line output not joined before ConvertFrom-Json
+* 76685a4 2026-08-16 13:33:02 -0400  Autonomous session: real bugs found by execution, offline/heartbeat/upload proven, sqlite3 blocked on elevation
+* 22294b9 2026-08-16 13:07:01 -0400  Supervised MAI-Code delegation: wire SharePoint upload + Agile-Wizard PROTOCOL/STYLE-GUIDE docs
+* f301ef2 2026-08-16 13:02:50 -0400  Handoff: SaaS-Tracker MVx auth+storage loop proven end-to-end
+* 833242e 2026-08-16 07:58:29 -0400  Baseline: P21/P22 Win11 upgrade pilot + SaaS-Tracker MVx discovery/scoping
+* 96a0a03 2026-08-15 20:26:52 -0400  v0.7.8.103 - BigBrother third-party connector awareness + 4 real bugs found via live-data verification
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\ai-labs  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: DEV
+  (clean — no pending changes)
+
+History since 30 days ago :
+*   4d0b962 2026-09-11 05:01:14 -0400  (HEAD -> DEV) Merge branch 'main' into DEV
+|\  
+| * bd4ca73 2026-09-11 05:00:09 -0400  (origin/main, origin/HEAD, main) restored working copy (no symlink)
+| *   914588b 2026-09-11 04:47:22 -0400  Merge pull request #2 from wwwizards/DEV
+| |\  
+| |/  
+|/|   
+* | 19df951 2026-09-11 04:38:16 -0400  (origin/DEV) Merge remote-tracking branch 'origin/main' into HEAD
+|\| 
+| *   4b896f8 2026-09-02 03:35:09 -0400  Merge pull request #2 from wwwizards/RepoMgr-DR-260902
+| |\  
+| | * aa65e25 2026-09-01 23:08:07 -0400  (origin/RepoMgr-DR-260902, RepoMgr-DR-260902) 260902JN: RepoMgr-DR-260902 - interrim commmit for orphan files touched 8/24-26 and 9/1
+| * | eda9d17 2026-08-26 15:17:25 -0400  v0.7.8.112 - continuity handoff and repo hygiene
+| * | 8c48686 2026-08-26 15:10:17 -0400  v0.7.8.112 - continuity handoff and repo hygiene
+| * | 84a3849 2026-08-26 01:46:22 -0400  v0.2.4 - interlock drift remediation checkpoint
+| |/  
+* / 45c9c4f 2026-09-11 04:28:52 -0400  592ed46 feat(mvx): MVx-260619-01 ΓÇö redactor as smart rename engine, token efficiency proof (Juneteenth)
+|/  
+* 411692c 2026-08-19 10:41:32 -0400  (origin/recovered-411692c, recovered-411692c) MVx doc: formatting/wording polish pass (CTO manual edits)
+* 9cfbccc 2026-08-19 09:56:03 -0400  MVx-260816-01: record diff-review Keep-on-renamed-file orphan sub-experiment (CTO-directed)
+* ee0e05d 2026-08-19 01:31:25 -0400  MVx-260816-01: Delegation 6 re-test (compliance is prompt-sensitive, not guaranteed) + CTO cost data point
+* fc52e04 2026-08-18 23:50:33 -0400  MVx-260816-01: record Delegation 4 - runSubagent agentName Explore is read-only by design
+* f9d3c74 2026-08-18 10:23:33 -0400  260818JN - itterim commit dirty files to avoid debate with agent - after hardwrap cleanup
+* 0be5040 2026-08-18 10:20:41 -0400  260818JN - itterim commit dirty files to avoid debate with agent
+* 0ff0e17 2026-08-17 12:53:33 -0400  Update case study: B1S02 DONE, pointers to new B1S03/B1S04 stories, cost data point
+* 332f9b9 2026-08-17 01:33:49 -0400  Log session: 5-star protocol drift reconciliation (partial)
+* 7253fbc 2026-08-16 21:24:08 -0400  Record first real-world validation of the rabbit-hole Alice/Matthew protocol
+* ff3673a 2026-08-16 21:08:22 -0400  Log Delegation 3: Opus 4.8 debugging escalation found+fixed the real root cause
+* 4ec85e9 2026-08-16 13:03:37 -0400  Add MVx-260816-01: BotSwarming case study for BigBrother SaaS-Tracker MVx
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\gitlogs  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 30 days ago :
+* 539c2b9 2026-08-26 14:53:34 -0400  (HEAD -> main) v0.7.8.112 - continuity handoff and repo hygiene
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\ipscan  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 30 days ago :
+  (no commits in window: 30 days ago → now)
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\pickaxe  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 30 days ago :
+* 9367e5f 2026-08-19 11:32:46 -0400  (HEAD -> main) Track B: record temporary-workaround decision (root repo Check-TicketDrift.ps1 POC) pending real diagnose ticket-drift build
+* ab0729a 2026-08-18 10:15:17 -0400  (origin/main, origin/HEAD) 260818JN: +    MVx (2026-07-30): compact grep-able provenance line, substituted for a +    full fenced NOTES header block on rollup-generated files only. Sits +    after the YAML frontmatter's closing '---' (not before it) because +    frontmatter parsers require '---' to be the file's literal first line. +    Not yet a repo-wide header-convention change ΓÇö experimental, scoped to +    deliver instruction-rollup output pending further validation.
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\redactor  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 30 days ago :
+  (no commits in window: 30 days ago → now)
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\a2m8-toolkit  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 30 days ago :
+*   e7205af 2026-09-11 05:10:43 -0400  (HEAD -> main, origin/master, origin/HEAD, DEV) Merge remote-tracking branch 'origin/master'
+|\  
+| * ad9ffc9 2026-09-11 02:56:53 -0400  Recovered Add Test-IsAdmin script for elevation checks
+|/  
+* a5618cb 2026-08-22 17:16:35 -0400  fix(set-watcher-debug): fetch cert-response.json, not the never-published device-auth.json
+* f0d26a3 2026-08-20 11:39:49 -0400  feat: fix-watcher-task (RunLevel Highest so scheduled cert-auth uploads work)
+* e1e035c 2026-08-20 11:15:01 -0400  feat: set-gist-pat alias (operator supplies PAT; never stored in repo)
+* 3f7a291 2026-08-20 11:06:38 -0400  feat: set-watcher-debug all-in-one remote kick+diagnostics; restore ROADMAP
+* f553572 2026-08-20 08:37:58 -0400  feat: add bounce-ime alias (restart IME + MDM sync to speed Intune delivery)
+* 7f47e95 2026-08-20 08:19:48 -0400  fix: global-scope check-webwatcher so it survives update-toolkit dot-source
+* 1800600 2026-08-20 08:05:17 -0400  feat: add aliases.ps1 with check-webwatcher (update-toolkit delivery; alias-extraction start)
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\clipd  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 30 days ago :
+  (no commits in window: 30 days ago → now)
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\psst  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 30 days ago :
+  (no commits in window: 30 days ago → now)
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\psstel  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 30 days ago :
+  (no commits in window: 30 days ago → now)
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\vsCode\ai-labs-toolkit  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: DEV
+  (clean — no pending changes)
+
+History since 30 days ago :
+*   0cc0f59 2026-09-11 05:18:05 -0400  (main) Merge branch 'DEV'
+|\  
+| *   0a25fc2 2026-09-11 05:17:17 -0400  (HEAD -> DEV) Merge branch 'main' into DEV
+| |\  
+| |/  
+|/|   
+* | ba49663 2026-08-26 01:46:34 -0400  (origin/main, origin/HEAD, origin/DEV) v0.4.3 - exact-name bridge checkpoint
+| * 6bd8466 2026-08-26 01:46:34 -0400  v0.4.5 - exact-name bridge checkpoint
+|/  
+* 978ca37 2026-08-18 10:09:54 -0400  260818JN: interrim commmit for files touched after vscode upgrade + cleanup of sessions data
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\PROJECTS\LogicWizards\repoMgr-logs\topology-260914-122824.json
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\PROJECTS\LogicWizards\repoMgr-logs\topology-260914-122824.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+ ⚠ Remote Collision ⚠ 
+ [Repo]
+ — https://github.com/logicwizards/core 
+ ← C:\PROJECTS\LogicWizards, C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\Agile-Wizard
+
+ ⚠ Remote Collision ⚠ 
+ [Repo]
+ — https://github.com/wwwizards/ai-labs 
+ ← C:\PROJECTS\LogicWizards\.AI-TRAINING, C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\ai-labs
+
+
+ -- Repo: C:\PROJECTS\LogicWizards 
+
+    Role          : Root
+    CurrentBranch : 
+DEV
+    GoodBranch    : master
+    DetachedHead  : 
+No
+    Dirty         : 
+Yes
+    Divergence    : 0	3
+    Collision     : https://github.com/logicwizards/core
+
+ -- Repo: C:\PROJECTS\LogicWizards\.AI-TRAINING 
+
+    Role          : Standard
+    CurrentBranch : 
+RepoMgr-DR-260901
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+Yes
+    Divergence    : 0	0
+    Collision     : https://github.com/wwwizards/ai-labs
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\Agile-Wizard 
+
+    Role          : Agile-Wizard
+    CurrentBranch : 
+DEV
+    GoodBranch    : master
+    DetachedHead  : 
+No
+    Dirty         : 
+Yes
+    Divergence    : 0	3
+    Collision     : https://github.com/logicwizards/core
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\ai-labs 
+
+    Role          : Standard
+    CurrentBranch : 
+DEV
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	1
+    Collision     : https://github.com/wwwizards/ai-labs
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\gitlogs 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\ipscan 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\pickaxe 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\redactor 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\a2m8-toolkit 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\clipd 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\psst 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\psstel 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\vsCode\ai-labs-toolkit 
+
+    Role          : Standard
+    CurrentBranch : 
+DEV
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 1	0
+
+ -- Repo: C:\PROJECTS\LogicWizards 
+
+    Role          : Root
+    CurrentBranch : 
+DEV
+    GoodBranch    : master
+    DetachedHead  : 
+No
+    Dirty         : 
+Yes
+    Divergence    : 0	3
+
+ -- Repo: C:\PROJECTS\LogicWizards\.AI-TRAINING 
+
+    Role          : Standard
+    CurrentBranch : 
+RepoMgr-DR-260901
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+Yes
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\Agile-Wizard 
+
+    Role          : Agile-Wizard
+    CurrentBranch : 
+DEV
+    GoodBranch    : master
+    DetachedHead  : 
+No
+    Dirty         : 
+Yes
+    Divergence    : 0	3
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\ai-labs 
+
+    Role          : Standard
+    CurrentBranch : 
+DEV
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	1
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\gitlogs 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\ipscan 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\pickaxe 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\redactor 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\a2m8-toolkit 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\clipd 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\psst 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\psstel 
+
+    Role          : Standard
+    CurrentBranch : 
+main
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 0	0
+
+ -- Repo: C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\vsCode\ai-labs-toolkit 
+
+    Role          : Standard
+    CurrentBranch : 
+DEV
+    GoodBranch    : main
+    DetachedHead  : 
+No
+    Dirty         : 
+No
+    Divergence    : 1	0
+
+--------------------------------------------------------------------------------------------
+  === Creating DR branches (RepoMgr-v0.6.3-RECOVERY-260914)  ===
+      Caller: [create-drBranches]
+--------------------------------------------------------------------------------------------
+⚠ DR branch creation requires -Force; running in DRYRUN-only mode.
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards (from DEV)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'DEV'
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards\.AI-TRAINING (from RepoMgr-DR-260901)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'RepoMgr-DR-260901'
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\Agile-Wizard (from DEV)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'DEV'
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\ai-labs (from DEV)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'DEV'
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\gitlogs (from main)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'main'
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\ipscan (from main)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'main'
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\pickaxe (from main)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'main'
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\redactor (from main)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'main'
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\a2m8-toolkit (from main)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'main'
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\clipd (from main)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'main'
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\psst (from main)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'main'
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\tools\modules\psstel (from main)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'main'
+[DRYRUN] Would create DR branch 'RepoMgr-v0.6.3-RECOVERY-260914' in C:\PROJECTS\LogicWizards\SOLUTIONS\DevOps\SIDE-PROJECTS\vsCode\ai-labs-toolkit (from DEV)
+[DRYRUN] Would push 'RepoMgr-v0.6.3-RECOVERY-260914' to origin and then switch back to 'DEV'

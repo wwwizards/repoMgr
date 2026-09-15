@@ -76,63 +76,24 @@ if (!(Test-Path $cfgPath)) {
 }
 
 # --- Determine effective configuration values based on overrides and defaults ---
-
-
-
-
-#-----------------------------------------------------------------------------#>
-# FUNCTION: Get-EffectiveConfig - Determine config values for the repoMgr script
-#-----------------------------------------------------------------------------#>
-# Description:
-#     Determines the effective configuration values for the repository manager script,
-#     taking into account command-line overrides, configuration file values, and defaults.
-# Parameters:
-#     -Root      : The root directory for repository operations
-#     -Safedest  : The safe destination for backups
-#     -Lookback  : The lookback period for repository analysis
-#     -DrBranch  : The name of the disaster recovery branch
-#     -Config    : The hashtable containing configuration file values
-# Returns:
-#     A PSCustomObject containing the effective configuration values for the repository manager script.
-#-----------------------------------------------------------------------------#>
-function Get-EffectiveConfig {
-    param(
-        [string]$Root,
-        [string]$Safedest,
-        [string]$Lookback,
-        [string]$DrBranch,
-        [hashtable]$Config
-    )
-
-    $effectiveRoot = if ($Root) { $Root } elseif ($Config -and $Config.ContainsKey('root') -and $Config.root) { $Config.root } else { '.' }
-    if ($effectiveRoot -match '^-root=(.+)$') {
-        Write-Warning @"
+$root =  ($root) ? $root : ((!$cfg.root) ? "." : $cfg.root) # the root-dir for repository operations, (default = "." if not specified in config or override.)
+$safedest = ($safedest) ? $safedest : (!$cfg.safedest) ? "." : $cfg.safedest  # the safe-dir for backups, (default = "." if not specified in config or override.)
+$lookback = ($lookback) ? $lookback : (!$cfg.lookback) ? "2 weeks ago" : $cfg.lookback  # the lookback period for repo-analysis, (default = "2 weeks ago" if not specified in config or override.)
+$drBranch = ($drBranch) ? $drBranch : (!$cfg.drBranch) ? "DR-YYMMDD" : $cfg.drBranch  # Determine the name of the disaster recovery branch, (default = "DR-YYMMDD" if not specified in config or override.)
+# --- PATCH v0.5.2: Sanitize $root against shell tokenizer quirk ---
+# When invoked as -root='C:\path', PS passes the literal string '-root=C:\path'
+# as the value. Strip the prefix defensively and warn the user.
+if ($root -match '^-root=(.+)$') {
+    Write-Warning @"
 `$root received a '-root=' prefix — this is a shell tokenizer bug.
-  Got   : $effectiveRoot
+  Got   : $root
   Fixed : $($Matches[1])
   Hint  : Use -root 'C:\path'  (space-separated), NOT -root='C:\path' (equals-sign form).
 "@
-        $effectiveRoot = $Matches[1]
-    }
-    $effectiveRoot = $effectiveRoot.TrimEnd('\').TrimEnd('/')
-
-    $effectiveSafedest = if ($Safedest) { $Safedest } elseif ($Config -and $Config.ContainsKey('safedest') -and $Config.safedest) { $Config.safedest } else { '.' }
-    $effectiveLookback = if ($Lookback) { $Lookback } elseif ($Config -and $Config.ContainsKey('lookback') -and $Config.lookback) { $Config.lookback } else { '2 weeks ago' }
-    $effectiveDrBranch = if ($DrBranch) { $DrBranch } elseif ($Config -and $Config.ContainsKey('drBranch') -and $Config.drBranch) { $Config.drBranch } else { 'DR-YYMMDD' }
-
-    return [pscustomobject]@{
-        Root      = $effectiveRoot
-        Safedest  = $effectiveSafedest.TrimEnd('\').TrimEnd('/')
-        Lookback  = $effectiveLookback
-        DrBranch  = $effectiveDrBranch
-    }
+    $root = $Matches[1]
 }
-
-$config = Get-EffectiveConfig -Root $root -Safedest $safedest -Lookback $lookback -DrBranch $drBranch -Config $cfg
-$root = $config.Root
-$safedest = $config.Safedest
-$lookback = $config.Lookback
-$drBranch = $config.DrBranch
+# Normalize: strip trailing slashes so Join-Path never gets double-backslashes
+$root = $root.TrimEnd('\').TrimEnd('/')
 
 # --- Guard: validate the resolved root before anything else runs ---
 if (-not (Test-Path $root)) {
@@ -232,67 +193,26 @@ Write-Host $cfgInfo -ForegroundColor Darkgray
 log "CONFIG" $root $cfgInfo
 
 #------------------------------------------------------------------------------#>
-# --- FUNCTION: exec - Safe structured command wrapper ---
+# --- FUNCTION: exec - DRYRUN wrapper ---
 #------------------------------------------------------------------------------#>
-# DESCRIPTION: Executes a command without string-evaluating shell input.
+# DESCRIPTION: Executes a command, respecting the dry run mode.
 # PARAMETERS:
-#     [string[]]$Command - Structured command arguments.
-#     [string]$Path      - The path associated with the command.
+#     [string]$cmd  - The command to execute.
+#     [string]$path - The path associated with the command.
 # RETURNS: The output of the executed command (unless dryrun).
 #------------------------------------------------------------------------------#>
 function exec {
-    param(
-        [Parameter(Position = 0)]
-        [object[]]$Command,
-        [Parameter(Position = 1)]
-        [string]$Path = ''
-    )
-
-    if (-not $Command -or $Command.Count -eq 0) {
-        return
-    }
-
-    $commandList = @()
-    foreach ($item in $Command) {
-        if ($null -eq $item) { continue }
-        $commandList += [string]$item
-    }
-
-    if ($commandList.Count -eq 0) {
-        return
-    }
-
-    $commandText = (($commandList | ForEach-Object {
-        $value = [string]$_
-        if ($value.Contains(' ') -or $value.Contains('"')) {
-            '"' + ($value -replace '"', '\"') + '"'
-        }
-        else {
-            $value
-        }
-    }) -join ' ')
+    param([string]$cmd, [string]$path)
 
     if ($dryrun) {
-        Write-Host "[DRYRUN] Would execute: $commandText"
-        log "DRYRUN" $Path $commandText
+        Write-Host "[DRYRUN] Would execute: $cmd"
+        log "DRYRUN" $path $cmd
         return
     }
 
-    $exe = $commandList[0]
-    $args = @()
-    if ($commandList.Count -gt 1) {
-        $args = @($commandList[1..($commandList.Count - 1)])
-    }
-
-    Write-Host $commandText
-    $out = & $exe @args 2>&1
-    $exitCode = $LASTEXITCODE
-    log "EXEC" $Path $commandText
-
-    if ($null -ne $exitCode -and $exitCode -ne 0) {
-        Write-Warning "Command failed ($exitCode): $commandText"
-    }
-
+    Write-Host $cmd
+    $out = Invoke-Expression $cmd
+    log "EXEC" $path $cmd
     return $out
 }
 
@@ -970,27 +890,21 @@ function create-drBranches {
 
         # NEW v0.6.0: capture original branch so we can restore it.
         $originalBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
-        $restoreBranch = if ($originalBranch -and $originalBranch -ne 'HEAD') {
-            $originalBranch
-        } else {
-            Get-GoodBranch -repoPath $path
-        }
 
         if ($dryrun) {
-            Write-Host "[DRYRUN] Would create DR branch '$drBranch' in $path (from $restoreBranch)"
-            Write-Host "[DRYRUN] Would push '$drBranch' to origin and then switch back to '$restoreBranch'"
-            log "DR-BRANCH-DRYRUN" $path "Create '$drBranch' from '$restoreBranch' and restore"
+            Write-Host "[DRYRUN] Would create DR branch '$drBranch' in $path (from $originalBranch)"
+            Write-Host "[DRYRUN] Would push '$drBranch' to origin and then switch back to '$originalBranch'"
+            log "DR-BRANCH-DRYRUN" $path "Create '$drBranch' from '$originalBranch' and restore"
             continue
         }
 
         # Actual DR branch creation + push
-        exec -Command @('git', '-C', $path, 'checkout', '-b', $drBranch) -Path $path
-        exec -Command @('git', '-C', $path, 'push', '-u', 'origin', $drBranch) -Path $path
+        exec "git -C `"$path`" checkout -b $drBranch" $path
+        exec "git -C `"$path`" push -u origin $drBranch" $path
 
-        # Restore the repo to the original branch when possible. Detached HEADs
-        # should return to the repo's good branch (usually main/master), not to HEAD.
-        if ($restoreBranch -and $restoreBranch -ne $drBranch) {
-            exec -Command @('git', '-C', $path, 'checkout', $restoreBranch) -Path $path
+        # Restore original branch pointer to avoid leaving the repo on DR.
+        if ($originalBranch -and $originalBranch -ne $drBranch) {
+            exec "git -C `"$path`" checkout $originalBranch" $path
         }
     }
 }
@@ -1201,42 +1115,43 @@ function Analyze-RepoRisk {
         # Divergence: files that differ between goodBranch and this commit
         $files = git -C $repoPath diff --name-only $goodBranch $commit
         if (!$files) { continue }
+        Invoke-Spinner -Message "Working..." -ScriptBlock { 
+            foreach ($file in $files) {
+                # Timestamps (for stale detection)
+                $goodDate = git -C $repoPath log -1 --pretty=format:"%ad" --date=iso $goodBranch -- $file
+                $badDate  = git -C $repoPath log -1 --pretty=format:"%ad" --date=iso $commit -- $file
 
-        foreach ($file in $files) {
-            # Timestamps (for stale detection)
-            $goodDate = git -C $repoPath log -1 --pretty=format:"%ad" --date=iso $goodBranch -- $file
-            $badDate  = git -C $repoPath log -1 --pretty=format:"%ad" --date=iso $commit -- $file
+                # Simple diff stat (for destructive classification)
+                $diffStat = git -C $repoPath diff --stat $goodBranch $commit -- $file
 
-            # Simple diff stat (for destructive classification)
-            $diffStat = git -C $repoPath diff --stat $goodBranch $commit -- $file
+                # Stale detection: detached commit older than good branch version
+                $isStale =
+                    if ($goodDate -and $badDate) {
+                        ([DateTime]$badDate) -lt ([DateTime]$goodDate)
+                    }
+                    else {
+                        $false
+                    }
 
-            # Stale detection: detached commit older than good branch version
-            $isStale =
-                if ($goodDate -and $badDate) {
-                    ([DateTime]$badDate) -lt ([DateTime]$goodDate)
+                # Destructive classification: presence of "deletions" in diffStat
+                $isDestructive = $diffStat -match "deletions"
+
+                # Divergence classification (simple: any difference = divergent)
+                $isDivergent = $true
+
+                $results += [PSCustomObject]@{
+                    RepoPath          = $repoPath
+                    Role              = $role
+                    Commit            = $commit
+                    File              = $file
+                    GoodBranch        = $goodBranch
+                    GoodTimestamp     = $goodDate
+                    DetachedTimestamp = $badDate
+                    DiffStat          = $diffStat
+                    IsStale           = [bool]$isStale
+                    IsDestructive     = [bool]$isDestructive
+                    IsDivergent       = [bool]$isDivergent
                 }
-                else {
-                    $false
-                }
-
-            # Destructive classification: presence of "deletions" in diffStat
-            $isDestructive = $diffStat -match "deletions"
-
-            # Divergence classification (simple: any difference = divergent)
-            $isDivergent = $true
-
-            $results += [PSCustomObject]@{
-                RepoPath          = $repoPath
-                Role              = $role
-                Commit            = $commit
-                File              = $file
-                GoodBranch        = $goodBranch
-                GoodTimestamp     = $goodDate
-                DetachedTimestamp = $badDate
-                DiffStat          = $diffStat
-                IsStale           = [bool]$isStale
-                IsDestructive     = [bool]$isDestructive
-                IsDivergent       = [bool]$isDivergent
             }
         }
     }
