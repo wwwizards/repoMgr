@@ -3,8 +3,8 @@
 #--------------------------------------------------------------------------#>
 # ABSTRACT: Unit tests for the current repoMgr PowerShell flow.
 # CREATED 260828 BY: Joe Negron
-# UPDATED 260914 BY: Copilot (refreshed for current repo discovery and dry-run semantics)
-# VERSION: 0.6.4.x - next refactor target
+# UPDATED 260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
+# VERSION: v0.6.4.0
 # LICENSE: MIT
 # REQUIREMENTS: PowerShell 7.0 or later + pester/psst module(s)
 #--------------------------------------------------------------------------#>

@@ -12,9 +12,9 @@
 #           - Detached HEAD risk analysis (Option‑D: Smart Divergence + Forensic Mode)
 # REQUIRES: Git, PowerShell 7+, and a repo or submodule checkout.
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
-# UPDATED:  260831 BY: Copilot (Fix: invalid $CFG-INFO variable name / function-call-before-definition order / v0.5.1)
+# UPDATED:  260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  0.6.3.2 - improved UX
+# VERSION:  v0.6.4.0
 #           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)

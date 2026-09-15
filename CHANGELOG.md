@@ -8,9 +8,9 @@ CHANGELOG.md
 #           current v0.6.3 dispatcher-safe reporting flow.
 # REQUIRES: Git, PowerShell 7+, and repository context.
 # CREATED:  260827 BY: Joe Negron (LogicWizards.NYC)
-# UPDATED:  260910 BY: Copilot (Docs sync: reverse-chronological ordering + latest entry)
+# UPDATED:  260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  0.6.3 - current release baseline for README/CHANGELOG synchronization
+# VERSION:  v0.6.4.0
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html>
 # NOTES:  Use in conjunction with README.md and the Git forensics notes.
 #--------------------------------------------------------------------------#>
@@ -25,7 +25,7 @@ CHANGELOG.md
 
 ---
 ## CHANGES (Desc)
-###     **260914 - 0.6.4.x** - Mission alignment + live baseline evidence:
+###     **260914 - v0.6.4.0** - Mission alignment + live baseline evidence:
 - validation-first refactor prep while preserving live discovery, recovery, and triage work.
     - **(DOC)** Reframed the repo roadmap and README around the current mission: stabilize repoMgr without rerailing the active recovery/discovery effort.
     - **(DOC)** Clarified that the refactor must preserve topology, remote-collision detection, DR safety, and dry-run-first reporting while the broader triage workflow continues.

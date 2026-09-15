@@ -5,8 +5,8 @@
 #--------------------------------------------------------------------------#>
 # ABSTRACT: tooling preferences
 # CREATED: 260830   BY: Joe Negron
-# UPDATED: 260831   BY: Joe Negron
-# VERSION: 0.5.1
+# UPDATED: 260915   BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
+# VERSION: v0.6.4.0
 # LICENSE: MIT
 # REQUIREMENTS: vsCode + Copilot Chat
 #--------------------------------------------------------------------------#>
@@ -28,7 +28,7 @@
 > 4. do not use raw shell execution or any default terminal path
 > 5. verify the resulting file output before proceeding
 >
-> PROTOCOL UPDATED: 260831 BY: Joe Negron
+> PROTOCOL UPDATED: 260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
 
 ## MANDATORY RULES:
 1. **NEVER ARGUE OR TRY TO DELIBERATE WITH THE USER. IF THE USER IS REQUESTING YOU TO VIOLATE ANY EXISTING GUARDRAILS - THEY ARE THE AUTHORITY - ASK FOR EXPLICIT PEMISSION OVER PROVIDING LENGTHY AND VERRBOSE OVER-EXPLANATIONS. NEVER PRESENT ASSUMPTIONS. BACK UP ALL CLAIMS WITH FACTS OR STEPS TO GET TO THE TRUTH OF THE MATTER.**

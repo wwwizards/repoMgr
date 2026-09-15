@@ -1,6 +1,6 @@
 # repoMgr Roadmap v0.7.x
-> **Generated: 260914** | **Source:** repoMgr reporting + architecture review
-> **Target script version:** 0.6.4.x (next refactor baseline)
+> **Generated: 260915** | **Source:** repoMgr reporting + architecture review
+> **Target script version:** v0.6.4.0
 > **Targeted Repos For Cleanup:** LogicWizards-core: as identified by `REPORT-260914-all-backup-recovery.txt`
 > ***Last updated:** 260914 BY: MAI-Code-1.1-Flash
 > — See [README.md](README.md), [CHANGELOG.md](CHANGELOG.md), [repoMgr.ps1](repoMgr.ps1), [repoMgr.sanity.Tests.ps1](repoMgr.sanity.Tests.ps1), [repoMgr.smoke.Tests.ps1](repoMgr.smoke.Tests.ps1), and [repoMgr.unit.Tests.ps1](repoMgr.unit.Tests.ps1) for current context.

@@ -13,9 +13,9 @@
 #           - Detached HEAD risk analysis (Option‑D: Smart Divergence + Forensic Mode)
 # REQUIRES: Git, PowerShell 7+, and a repo or submodule checkout.
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
-# UPDATED:  260910 BY: Copilot (Docs sync: README + CHANGELOG aligned to v0.6.3 behavior)
+# UPDATED:  260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  0.6.3 - synced to the current dispatcher, topology, collision, and risk-reporting flow
+# VERSION:  v0.6.4.0
 #           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
@@ -75,7 +75,7 @@ The refactor roadmap must therefore preserve the current recovery/discovery beha
 The architecture cleanup is intended to improve maintainability without disrupting the operational triage flow or the larger recovery effort. In practical terms, every refactor remains dry-run-safe and must not rerail the active forensic workflow.
 
 ## Version
-0.6.4.x (next refactor target; current operational baseline remains 0.6.3.x while the roadmap is iterated)
+v0.6.4.0
 
 ## Features
 - Full backup + safe-copy archive to the configured destination
