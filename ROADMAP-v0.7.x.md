@@ -1,8 +1,8 @@
 # repoMgr Roadmap v0.7.x
 > **Generated: 260915** | **Source:** repoMgr reporting + architecture review
-> **Target script version:** v0.6.4.0
+> **Target script version:** v0.6.4.3
 > **Targeted Repos For Cleanup:** LogicWizards-core: as identified by `REPORT-260914-all-backup-recovery.txt`
-> ***Last updated:** 260914 BY: MAI-Code-1.1-Flash
+> ***Last updated:** 260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
 > — See [README.md](README.md), [CHANGELOG.md](CHANGELOG.md), [repoMgr.ps1](repoMgr.ps1), [repoMgr.sanity.Tests.ps1](repoMgr.sanity.Tests.ps1), [repoMgr.smoke.Tests.ps1](repoMgr.smoke.Tests.ps1), and [repoMgr.unit.Tests.ps1](repoMgr.unit.Tests.ps1) for current context.
 
 ---
@@ -61,7 +61,7 @@ The most recent baseline run confirms the operational reality:
 
 This plan assumes the current script remains the baseline while we refactor for safety, maintainability, and validation clarity.
 
-### [ ] Priority 1 — Fix the script’s architecture boundary
+### [x] Priority 1 — Fix the script’s architecture boundary
 This is the biggest improvement by far.
 
 #### Problem
@@ -101,8 +101,11 @@ function Get-RepoManagerConfig {
 
 ---
 
-### [ ] Priority 2 — Remove `Invoke-Expression`
+### [x] Priority 2 — Remove `Invoke-Expression`
 This is the highest-risk reliability issue in the script.
+
+#### Status
+The Git execution path is now routed through a structured, argument-safe helper and the project includes a regression guard to ensure shell-string evaluation does not return.
 
 #### Problem
 The helper `exec` relies on `Invoke-Expression`, which is brittle for quoting, escaping, and shell-tokenization edge cases.
@@ -136,6 +139,9 @@ $raw = Invoke-GitSafe -RepoPath $repoPath -GitArgs @('-C', $repoPath, 'status', 
 ---
 
 ### [ ] Priority 3 — Make repo discovery a single-pass pipeline
+#### Status
+This is the live v0.6.4.3 milestone. The objective is to remove redundant repo scans by building one repo inventory object and reusing it across the reporting and risk-analysis pipeline, without expanding scope beyond the current validation-first refactor gate.
+
 #### Problem
 The script repeatedly scans the repo tree in multiple functions, and repo metadata is recomputed on demand.
 
@@ -364,9 +370,9 @@ $output | ConvertTo-Json -Depth 5
 ---
 ## Recommended order of implementation
 
-1. [ ] Refresh the `psst` test baseline for current functionality
-2. [ ] Introduce config object and explicit function inputs
-3. [ ] Replace `Invoke-Expression`
+1. [x] Refresh the `psst` test baseline for current functionality
+2. [x] Introduce config object and explicit function inputs
+3. [x] Replace `Invoke-Expression`
 4. [ ] Cache repo discovery once per run
 5. [ ] Split analysis from rendering
 6. [ ] Add validation of flag combinations

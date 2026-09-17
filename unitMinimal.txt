@@ -1,0 +1,41 @@
+Switched to a new branch 'main'
+Switched to a new branch 'main'
+Switched to a new branch 'main'
+Switched to a new branch 'main'
+Switched to a new branch 'main'
+Switched to a new branch 'main'
+Switched to a new branch 'main'
+
+Containers            : {[-] C:\PROJECTS\repoMgr\repoMgr.unit.Tests.ps1}
+Result                : Failed
+FailedCount           : 1
+FailedBlocksCount     : 0
+FailedContainersCount : 0
+PassedCount           : 6
+SkippedCount          : 0
+InconclusiveCount     : 0
+NotRunCount           : 0
+TotalCount            : 7
+Duration              : 00:01:39.8738491
+Executed              : True
+ExecutedAt            : 9/15/2026 7:59:01 AM
+Version               : 5.7.1
+PSVersion             : 7.6.5
+PSBoundParameters     : {[Configuration, PesterConfiguration]}
+Plugins               : 
+PluginConfiguration   : 
+PluginData            : 
+Configuration         : PesterConfiguration
+DiscoveryDuration     : 00:00:00.1894727
+UserDuration          : 00:01:39.1425059
+FrameworkDuration     : 00:00:00.5418705
+Failed                : {[-] Provides an argument-safe Git execution helper without using Invoke-Expression}
+FailedBlocks          : {}
+FailedContainers      : {}
+Passed                : {[+] Creates the expected repo log directory during the recovery/discovery reporting flow, [+] Detects nested repos and respects dry-run-only repo operations used by triage work, [+] Executes git operations via structured arguments instead of string-evaluated shell commands, [+] Normalizes config overrides before repo discovery and recovery actions run…}
+Skipped               : {}
+Inconclusive          : {}
+NotRun                : {}
+Tests                 : {[+] Creates the expected repo log directory during the recovery/discovery reporting flow, [+] Detects nested repos and respects dry-run-only repo operations used by triage work, [+] Executes git operations via structured arguments instead of string-evaluated shell commands, [+] Normalizes config overrides before repo discovery and recovery actions run…}
+CodeCoverage          : 
+

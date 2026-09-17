@@ -4,7 +4,7 @@
 # ABSTRACT: Smoke tests for the current repoMgr PowerShell reporting flow.
 # CREATED 260828 BY: Joe Negron
 # UPDATED 260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
-# VERSION: v0.6.4.0
+# VERSION: v0.6.4.3
 # LICENSE: MIT
 # REQUIREMENTS: PowerShell 7.0 or later + pester/psst module(s)
 #--------------------------------------------------------------------------#>

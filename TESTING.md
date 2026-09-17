@@ -83,3 +83,22 @@ TESTING.md
   > Duration: 00:04:39.8600000
 
 **Conclusion:** repo validation passed (10/10) using disposable fixture repositories only, with the default dry-run-safe guard preserved unless Force is explicitly supplied. Remediation path: continue validation-first refactoring and keep the live repo out of test execution.
+
+---
+
+## 2026-09-15T02:02:00 
+- Replaced the shell-string Git execution path with an argument-safe helper and added a regression check that fails if `Invoke-Expression` is reintroduced; expected result: the active script uses structured Git invocation while keeping the dry-run-safe default model intact.
+  > Tests completed in 39.82s
+  > Tests Passed: 13, 
+  > Failed: 0, 
+  > Skipped: 0, 
+  > Inconclusive: 0, 
+  > NotRun: 0
+  > 
+  > TEST SUMMARY: 100%
+  > Total Tests: 13
+  > Passed: 13
+  > Duration: 00:00:39.8200000
+
+**Conclusion:** repo validation passed (13/13) using disposable fixture repositories only, and the active path no longer depends on `Invoke-Expression`. Remediation path: proceed to the next highest-priority refactor step with the same validation gate and no live monorepo traversal.
+</br>---</br>

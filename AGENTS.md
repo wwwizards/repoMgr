@@ -6,7 +6,7 @@
 # ABSTRACT: tooling preferences
 # CREATED: 260830   BY: Joe Negron
 # UPDATED: 260915   BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
-# VERSION: v0.6.4.0
+# VERSION: v0.6.4.2
 # LICENSE: MIT
 # REQUIREMENTS: vsCode + Copilot Chat
 #--------------------------------------------------------------------------#>
@@ -60,23 +60,31 @@
 
 4. **TEMP FILES:** Do not use any temp files OR STORE ANYTHING outside of this directory; keep everything contained to the working folder.
 
+## ADDITIONAL RULES: <!-- This section is NOT expected to change very often -->
+5. **TESTING:** The validation suite lives in [repoMgr.sanity.Tests.ps1](repoMgr.sanity.Tests.ps1), [repoMgr.smoke.Tests.ps1](repoMgr.smoke.Tests.ps1), and [repoMgr.unit.Tests.ps1](repoMgr.unit.Tests.ps1); these tests must operate on disposable fixtures and preserve the no-live-monorepo rule. Testing and other experimental cofing activities should never happen on a PROD codebase until it has been thoroughly validated and tested on a synthetic repo structure with 100% coverage and 0% failures - in a perfect world. Testing process simply shortens the feedback loop for known quantities - but we should expect agile-adjustments-as-aporia-alters-actions. 
+6. **SDLC:** Any code changes or refactoring always starts in DISCOVER/DIAGNOSE Mode - where there is NO CODING allowed; Then it goes into DESIGN mode where the tests can be developed as "Acceptance Criteria"; R&D remains TDD as "validation-first" and must keep dry-run-safe behavior, DR branch safety checks, and forensic reporting intact. In-Flight changes may require DISCOVER/DIAGNOSE/DESIGN sessions for proper alignment and to aviod re-work.
+
 **If you have any issues WITH ANY OF THE ABOVE, STOP!**
 
-## Current mission
+---
+## Current Mission
 The repo is in a validation-first refactor gate for [repoMgr.ps1](repoMgr.ps1): verify the current recovery/discovery behavior, refresh the `psst` baseline to match the active script, and only then proceed with the architecture cleanup tracked in [ROADMAP-v0.7.x.md](ROADMAP-v0.7.x.md).
 
-- In plain terms:
+In plain terms:
 - keep the dry-run-safe reporting model intact while debugging real repo-risk logic
 - use the exact named terminal: TOOLS
 - validate through disposable fixtures and the live baseline evidence in [REPORT-260914-all-backup-recovery.txt](REPORT-260914-all-backup-recovery.txt)
 - capture proof in [TESTING.md](TESTING.md)
 - read the file back as verification evidence before proceeding to the next refactor step
 
-## Current repo state
-The repo is currently in a pre-refactor validation gate that is grounded in real recovery-discovery use, not generic repo cleanup.
+## Current STATE (`v0.6.4.3`) <!-- This section is expected to be updated as needed when versions are incremented -->
 
-- The active implementation is [repoMgr.ps1](repoMgr.ps1), and it remains the operational baseline for repo topology, drift detection, detached-HEAD risk analysis, and dry-run-safe recovery reporting.
-- The release history and current notes are tracked in [CHANGELOG.md](CHANGELOG.md), the active backlog is in [BACKLOG-v0.6.3.md](BACKLOG-v0.6.3.md), and the refactor path is documented in [ROADMAP-v0.7.x.md](ROADMAP-v0.7.x.md).
-- The project documentation and repo intent are aligned with the current initiative in [README.md](README.md), [REPORT-260914-all-backup-recovery.txt](REPORT-260914-all-backup-recovery.txt), and [advanced-git-recovery-commands.md](advanced-git-recovery-commands.md).
-- The validation suite lives in [repoMgr.sanity.Tests.ps1](repoMgr.sanity.Tests.ps1), [repoMgr.smoke.Tests.ps1](repoMgr.smoke.Tests.ps1), and [repoMgr.unit.Tests.ps1](repoMgr.unit.Tests.ps1); these tests must operate on disposable fixtures and preserve the no-live-monorepo rule.
-- Any refactor remains validation-first and must keep dry-run-safe behavior, DR branch safety checks, and forensic reporting intact.
+The repo is currently centered on the P3 discovery refactor: reduce redundant repository scans by building a single repo inventory and passing it through the reporting pipeline without widening the scope beyond the current validation-first gate.
+
+- **MAIN:** The active implementation's primary script is [repoMgr.ps1](repoMgr.ps1), and it remains the operational baseline for repo topology, drift detection, detached-HEAD risk analysis, and dry-run-safe recovery reporting.
+- **CONTEXT:** This tool was created to facilitate the repair of a broken monorepo. The release history and most current notes are tracked in our [CHANGELOG](CHANGELOG.md). 
+   - **RELEASES & ROADMAP:** We have been releasing 0.6.4.`p` where p matches the Priority-`p` refactoring item-priority number as laid out in the [ROADMAP](ROADMAP-v0.7.x.md) doc. As of `v0.6.4.3`, the active milestone is P3: "Priority 3 — Make repo discovery a single-pass pipeline". P1 and P2 are complete and retained as historical release checkpoints; P4 and P5 remain future work.
+     - The active backlog is in [BACKLOG-v0.6.3.md](BACKLOG-v0.6.3.md) for the project that this tool was created for, and the refactor path for the tool (itself) is documented in [ROADMAP-v0.7.x.md](ROADMAP-v0.7.x.md).
+     - The project documentation and repo intent are aligned with the current initiative in [README.md](README.md), [REPORT-260914-all-backup-recovery.txt](REPORT-260914-all-backup-recovery.txt), and [advanced-git-recovery-commands.md](advanced-git-recovery-commands.md).
+
+ 
