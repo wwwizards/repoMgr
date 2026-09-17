@@ -14,7 +14,7 @@
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  v0.6.4.2
+# VERSION:  v0.6.4.3
 #           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
@@ -582,6 +582,16 @@ function Normalize-RemoteUrl {
 # RETURNS: A list of collision objects with Type, Url, and Paths properties.
 #------------------------------------------------------------------------------#>
 function Get-RemoteCollisions {
+    param([object[]]$RepoInventory)
+
+    if ($RepoInventory) {
+        $resolvedRoot = Split-Path (Resolve-RepoPath ($RepoInventory | Select-Object -First 1)) -Parent
+        if ($resolvedRoot) {
+            $root = $resolvedRoot
+            $script:root = $resolvedRoot
+        }
+    }
+
     Write-Banner "Detecting Remote Collisions"
 
     $collisions = @()
@@ -848,12 +858,36 @@ function Show-PendingChanges {
 # PARAMETERS: None.
 # RETURNS: None.
 #------------------------------------------------------------------------------#>
+function Resolve-RepoPath {
+    param([object]$RepoEntry)
+
+    if ($null -eq $RepoEntry) { return $null }
+    if ($RepoEntry -is [string]) { return $RepoEntry }
+    if ($RepoEntry -is [System.IO.DirectoryInfo]) { return $RepoEntry.FullName }
+
+    if ($RepoEntry.PSObject.Properties.Name -contains 'Path') { return [string]$RepoEntry.Path }
+    if ($RepoEntry.PSObject.Properties.Name -contains 'FullName') { return [string]$RepoEntry.FullName }
+
+    return $null
+}
+
 function write-repoStats {
+    param([object[]]$RepoInventory)
+
+    if ($RepoInventory) {
+        $resolvedRoot = Split-Path (Resolve-RepoPath ($RepoInventory | Select-Object -First 1)) -Parent
+        if ($resolvedRoot) {
+            $root = $resolvedRoot
+            $script:root = $resolvedRoot
+        }
+    }
+
     Write-Banner "Repo Drift Report"
-    $repos = get-repoList
+    $repos = if ($RepoInventory) { @($RepoInventory) } else { get-repoList }
 
     foreach ($repo in $repos) {
-        $path   = $repo.FullName
+        $path = Resolve-RepoPath $repo
+        if (-not $path) { continue }
         $branch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
 
         Write-Banner "Repo: $path"
@@ -863,7 +897,7 @@ function write-repoStats {
         Write-Host "`nHistory since $lookback :"
         get-repoHistory $path
     }
-    Write-TopologySnapshot
+    Write-TopologySnapshot -RepoInventory $repos
 }
 
 #------------------------------------------------------------------------------#>
@@ -877,17 +911,27 @@ function write-repoStats {
 # RETURNS:    None.                                                            #>
 #------------------------------------------------------------------------------#>
 function Write-RiskReport {
+    param([object[]]$RepoInventory)
+
+    if ($RepoInventory) {
+        $resolvedRoot = Split-Path (Resolve-RepoPath ($RepoInventory | Select-Object -First 1)) -Parent
+        if ($resolvedRoot) {
+            $root = $resolvedRoot
+            $script:root = $resolvedRoot
+        }
+    }
+
     Write-Banner "Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)"
     if (-not $Force) {
         Write-Host "  (DRYRUN: No Mutations Will Occur)" -ForegroundColor DarkGray
     }
 
     # Check for remote collisions (submodules + nested repos sharing the same origin URL)
-    $repos      = get-repoList
-    $collisions = Get-RemoteCollisions
+    $repos = if ($RepoInventory) { @($RepoInventory) } else { get-repoList }
+    $collisions = Get-RemoteCollisions -RepoInventory $repos
 
     # Detached HEAD + divergence + dirty status across all repos
-    Analyze-AllRepoRisk -collisions $collisions
+    Analyze-AllRepoRisk -collisions $collisions -RepoInventory $repos
 }
 
 #------------------------------------------------------------------------------#>
@@ -901,12 +945,13 @@ function Write-RiskReport {
 # RETURNS:    None. Prints summary and logs machine-readable entries.          #>
 #------------------------------------------------------------------------------#>
 function Analyze-AllRepoRisk {
-    param($collisions)
-    $repos = get-repoList
+    param($collisions, [object[]]$RepoInventory)
+    $repos = if ($RepoInventory) { @($RepoInventory) } else { get-repoList }
 
     foreach ($repo in $repos) {
         # compute the easy stuff first
-        $path          = $repo.FullName
+        $path = Resolve-RepoPath $repo
+        if (-not $path) { continue }
         $remote        = Normalize-RemoteUrl (git -C $path remote get-url origin 2>$null)
         $role          = Get-RepoRole -repoPath $path
         $goodBranch    = Get-GoodBranch -repoPath $path
@@ -1000,13 +1045,32 @@ function Analyze-AllRepoRisk {
 # RETURNS:    None. Writes topology JSON to repoMgr-logs.                      #>
 #------------------------------------------------------------------------------#>
 function Write-TopologySnapshot {
+    param([object[]]$RepoInventory)
+
+    if ($RepoInventory) {
+        $resolvedRoot = Split-Path (Resolve-RepoPath ($RepoInventory | Select-Object -First 1)) -Parent
+        if ($resolvedRoot) {
+            $root = $resolvedRoot
+            $script:root = $resolvedRoot
+        }
+    }
+
+    if (-not $script:timestamp) { $script:timestamp = (Get-Date).ToString("yyMMdd-HHmmss") }
+    if (-not $script:logDir) {
+        $script:logDir = Join-Path $root "repoMgr-logs"
+    }
+    if (-not (Test-Path $script:logDir)) {
+        New-Item -ItemType Directory -Path $script:logDir -Force | Out-Null
+    }
+
     Write-Banner "Topology Snapshot"
 
-    $repos = get-repoList
+    $repos = if ($RepoInventory) { @($RepoInventory) } else { get-repoList }
     $snapshot = @()
 
     foreach ($repo in $repos) {
-        $path   = $repo.FullName
+        $path = Resolve-RepoPath $repo
+        if (-not $path) { continue }
         $role   = Get-RepoRole -repoPath $path
         $branch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
         $good   = Get-GoodBranch -repoPath $path
@@ -1023,7 +1087,7 @@ function Write-TopologySnapshot {
 
     # create artifact for an AI-Agent to perform the “unscramble the omelette” work.
     $json = $snapshot | ConvertTo-Json -Depth 5
-    $topologyFile = Join-Path $logDir "topology-$timestamp.json"
+    $topologyFile = Join-Path $script:logDir "topology-$($script:timestamp).json"
 
     Set-Content -Path $topologyFile -Value $json
     Write-Host "Topology snapshot written to $topologyFile" -ForegroundColor Cyan
@@ -1490,9 +1554,9 @@ if (-not $Force) {
 }
 
 # DISCOVER/DIAGNOSE TASKS 
-write-repoStats         # Drift Detection
-Write-TopologySnapshot  # Capture topology of all repos & submodules for handoff to AI-Agents 
-Write-RiskReport        # Analyze risk across all repositories (>6.2+ NOW includes collision detection)
+write-repoStats -RepoInventory $repoInventory         # Drift Detection
+Write-TopologySnapshot -RepoInventory $repoInventory  # Capture topology of all repos & submodules for handoff to AI-Agents 
+Write-RiskReport -RepoInventory $repoInventory        # Analyze risk across all repositories (>6.2+ NOW includes collision detection)
 
 # ORTHOGONAL KNOBS - Variates which can be treated as statistically independent
 if (($backup -or $backupdest) -and -not $all)    { archive-safecopy    } # (full backup + safe-copy) trigger 

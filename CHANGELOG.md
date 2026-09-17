@@ -25,6 +25,14 @@
 
 ---
 ## CHANGES (Desc)
+###     **260915 - v0.6.4.3** - Single-pass repo discovery: inventory reused across the reporting pipeline.
+- validation-first refactor cleanup while preserving live discovery, recovery, and triage work.
+    - **(MOD)** Added a reusable repo inventory path to the reporting pipeline so the same inventory object is shared across drift, topology, and risk analysis instead of rescanning the filesystem on each pass.
+    - **(TEST)** Added a single-pass regression check that fails if reporting functions recompute repo discovery rather than reusing the inventory object.
+    - **(DOC)** Re-centered the roadmap and AI workflow docs on P3 only: "Priority 3 — Make repo discovery a single-pass pipeline".
+
+---
+
 ###     **260915 - v0.6.4.2** - Safe command execution hardening: explicit Git helper + no-eval contract.
 - validation-first refactor cleanup while preserving live discovery, recovery, and triage work.
     - **(MOD)** Added `Invoke-GitSafe` and routed the safe exec wrapper through a structured argument path so Git commands are no longer evaluated from shell strings.

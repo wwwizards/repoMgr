@@ -15,7 +15,7 @@
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  v0.6.4.2
+# VERSION:  v0.6.4.3
 #           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
@@ -43,6 +43,7 @@
 #     -Force            # Enables destructive or mutating operations.
 #     -help             # Displays this help message.
 #     -all              # Runs the workspace-level reporting flow plus deeper repo analysis.
+#     -NoExecute        # Imports the function library without executing the default workflow.
 #--------------------------------------------------------------------------#>
 ```
 
@@ -75,7 +76,7 @@ The refactor roadmap must therefore preserve the current recovery/discovery beha
 The architecture cleanup is intended to improve maintainability without disrupting the operational triage flow or the larger recovery effort. In practical terms, every refactor remains dry-run-safe and must not rerail the active forensic workflow.
 
 ## Version
-v0.6.4.2
+v0.6.4.3
 
 ## Features
 - Full backup + safe-copy archive to the configured destination
@@ -109,6 +110,7 @@ The script reads repoMgr.config.psd1 and uses the following values:
 .\repoMgr.ps1 -recovery -dirtyonly
 .\repoMgr.ps1 -reintegration
 .\repoMgr.ps1 -all
+.\repoMgr.ps1 -NoExecute
 .\repoMgr.ps1 -Force -recovery
 ```
 

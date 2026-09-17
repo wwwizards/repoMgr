@@ -77,14 +77,14 @@ In plain terms:
 - capture proof in [TESTING.md](TESTING.md)
 - read the file back as verification evidence before proceeding to the next refactor step
 
-## Current STATE (`v0.6.4.2`) <!-- This section is expected to be updated as needed when versions are incremented -->
+## Current STATE (`v0.6.4.3`) <!-- This section is expected to be updated as needed when versions are incremented -->
 
-The repo is currently in a pre-refactor validation gate that is grounded in real recovery-discovery use, not generic repo cleanup.
+The repo is currently centered on the P3 discovery refactor: reduce redundant repository scans by building a single repo inventory and passing it through the reporting pipeline without widening the scope beyond the current validation-first gate.
 
 - **MAIN:** The active implementation's primary script is [repoMgr.ps1](repoMgr.ps1), and it remains the operational baseline for repo topology, drift detection, detached-HEAD risk analysis, and dry-run-safe recovery reporting.
-- **CONTEXT:** This tool was created to facilitate the repair of a broken monorepo The release history and most current notes are tracked in our [CHANGELOG](CHANGELOG.md). 
-   - **RELEASES & ROADMAP:** We have been releasing 0.6.4.`p` where p matches the Priority-`p` refactoring item-priority number as laid out in the [ROADMAP](ROADMAP-v0.7.x.md) doc: where (as of `v0.6.4.2`) versions `v0.6.4.3 through v0.6.4.5` are to be aligned with p3, p4, p5 (respectively) AND are still in a TO-BE state
-     - The active backlog is in [BACKLOG-v0.6.3.md](BACKLOG-v0.6.3.md) for the project that this tools were created for, and the refactor path for the tool (itself) is documented in [ROADMAP-v0.7.x.md](ROADMAP-v0.7.x.md).
+- **CONTEXT:** This tool was created to facilitate the repair of a broken monorepo. The release history and most current notes are tracked in our [CHANGELOG](CHANGELOG.md). 
+   - **RELEASES & ROADMAP:** We have been releasing 0.6.4.`p` where p matches the Priority-`p` refactoring item-priority number as laid out in the [ROADMAP](ROADMAP-v0.7.x.md) doc. As of `v0.6.4.3`, the active milestone is P3: "Priority 3 — Make repo discovery a single-pass pipeline". P1 and P2 are complete and retained as historical release checkpoints; P4 and P5 remain future work.
+     - The active backlog is in [BACKLOG-v0.6.3.md](BACKLOG-v0.6.3.md) for the project that this tool was created for, and the refactor path for the tool (itself) is documented in [ROADMAP-v0.7.x.md](ROADMAP-v0.7.x.md).
      - The project documentation and repo intent are aligned with the current initiative in [README.md](README.md), [REPORT-260914-all-backup-recovery.txt](REPORT-260914-all-backup-recovery.txt), and [advanced-git-recovery-commands.md](advanced-git-recovery-commands.md).
 
  

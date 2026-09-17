@@ -4,7 +4,7 @@
 # ABSTRACT: Unit tests for the current repoMgr PowerShell flow.
 # CREATED 260828 BY: Joe Negron
 # UPDATED 260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
-# VERSION: v0.6.4.2
+# VERSION: v0.6.4.3
 # LICENSE: MIT
 # REQUIREMENTS: PowerShell 7.0 or later + pester/psst module(s)
 #--------------------------------------------------------------------------#>
@@ -217,6 +217,33 @@ Describe "repoMgr Unit Tests" {
             $inventory[0].Path | Should -Be $fixture
             $inventory[0].CurrentBranch | Should -Be "main"
             $inventory[0].Role | Should -Be "Root"
+        }
+        finally {
+            if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }
+        }
+    }
+
+    It "Reuses a single repo inventory across reporting functions instead of rescanning the repo tree" {
+        $base = Join-Path ([System.IO.Path]::GetTempPath()) "repoMgr-tests"
+        $fixture = Join-Path $base "unit-single-pass"
+
+        if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }
+
+        try {
+            New-Item -ItemType Directory -Path $fixture -Force | Out-Null
+            git -C $fixture init | Out-Null
+            git -C $fixture checkout -b main | Out-Null
+            git -C $fixture config user.name "RepoMgr Test"
+            git -C $fixture config user.email "repomgr@example.com"
+            "base" | Set-Content -Path (Join-Path $fixture "tracked.txt")
+            git -C $fixture add tracked.txt
+            git -C $fixture commit -m "base" | Out-Null
+
+            $inventory = Get-RepoInventory -Root $fixture
+            $inventory.Count | Should -Be 1
+
+            { write-repoStats -RepoInventory $inventory } | Should -Not -Throw
+            { Write-RiskReport -RepoInventory $inventory } | Should -Not -Throw
         }
         finally {
             if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }
