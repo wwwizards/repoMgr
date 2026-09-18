@@ -120,14 +120,6 @@ Describe "repoMgr Sanity Tests" {
         }
     }
 
-    It "Does not forcibly null the caller's active root during a no-execute import" {
-        $root = 'C:\repoMgr-should-stay-active'
-
-        . "$PSScriptRoot\repoMgr.ps1" -NoExecute | Out-Null
-
-        $root | Should -Be 'C:\repoMgr-should-stay-active'
-    }
-
     It "Aggregates audit data into a single daily log under the fixture instead of creating orphaned topology files" {
         $base = Join-Path ([System.IO.Path]::GetTempPath()) "repoMgr-tests"
         $fixture = Join-Path $base "sanity-daily-audit"

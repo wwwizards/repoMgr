@@ -274,7 +274,7 @@ function Get-RepoAuditLogPath {
     param([string]$TargetRoot)
 
     $baseRoot = if ($TargetRoot) { $TargetRoot }
-                elseif ($script:root) { $script:root }
+                elseif ($script:repoMgrRoot) { $script:repoMgrRoot }
                 elseif ($root) { $root }
                 else { (Get-Location).Path }
 
@@ -286,14 +286,14 @@ function Get-RepoAuditLogPath {
 function Initialize-Logging {
     $script:timestamp = if ($script:timestamp) { $script:timestamp } else { (Get-Date).ToString("yyMMdd-HHmmss") }
 
-    # Crucially reset stale globals to prevent a previous call from poisoning the
-    # next import-only or test invocation. This is the root cause behind the fixture.
-    $script:root = $null
+    # Internal run state is namespaced so dot-sourcing cannot clobber the caller's
+    # own $root / $script:root. Reset per run to avoid stale-path reuse.
+    $script:repoMgrRoot = $null
     $script:logDir = $null
     $script:logFile = $null
 
-    $rootCandidate = if ($root) { $root } elseif ($script:root) { $script:root } else { (Get-Location).Path }
-    $script:root = $rootCandidate
+    $rootCandidate = if ($root) { $root } elseif ($script:repoMgrRoot) { $script:repoMgrRoot } else { (Get-Location).Path }
+    $script:repoMgrRoot = $rootCandidate
     $script:logDir = Join-Path $rootCandidate "repoMgr-logs"
     $script:logFile = Get-RepoAuditLogPath -TargetRoot $rootCandidate
 
@@ -317,7 +317,7 @@ function Initialize-Logging {
 # RETURNS: None. Logs the specified action to the audit file as a JSON array entry.
 #------------------------------------------------------------------------------#>
 function log {
-    param([string]$action, [string]$path, [string]$result)
+    param([string]$action, [string]$path, [object]$result)
     Initialize-Logging
 
     $fileContent = Get-Content -Path $script:logFile -Raw -ErrorAction SilentlyContinue
@@ -343,7 +343,7 @@ function log {
         timestamp = (Get-Date).ToString("o")
         action   = $action
         path     = $path
-        root     = $script:root
+        root     = $script:repoMgrRoot
         dryRun   = [bool]$dryrun
         force    = [bool]$Force
         result   = $result
@@ -648,7 +648,7 @@ function Get-RemoteCollisions {
         $resolvedRoot = Get-InventoryRootPath -RepoInventory $RepoInventory
         if ($resolvedRoot) {
             $root = $resolvedRoot
-            $script:root = $resolvedRoot
+            $script:repoMgrRoot = $resolvedRoot
         }
     }
 
@@ -752,8 +752,8 @@ function Get-RepoRole {
         if ($RootPath) {
             $resolvedRoot = (Resolve-Path $RootPath -ErrorAction Stop).Path
         }
-        elseif ($script:root) {
-            $resolvedRoot = (Resolve-Path $script:root -ErrorAction Stop).Path
+        elseif ($script:repoMgrRoot) {
+            $resolvedRoot = (Resolve-Path $script:repoMgrRoot -ErrorAction Stop).Path
         }
         elseif ($root) {
             $resolvedRoot = (Resolve-Path $root -ErrorAction Stop).Path
@@ -998,7 +998,7 @@ function write-repoStats {
         $resolvedRoot = Get-InventoryRootPath -RepoInventory $RepoInventory
         if ($resolvedRoot) {
             $root = $resolvedRoot
-            $script:root = $resolvedRoot
+            $script:repoMgrRoot = $resolvedRoot
         }
     }
 
@@ -1017,7 +1017,6 @@ function write-repoStats {
         Write-Host "`nHistory since $lookback :"
         get-repoHistory $path
     }
-    Write-TopologySnapshot -RepoInventory $repos
 }
 
 #------------------------------------------------------------------------------#>
@@ -1036,7 +1035,7 @@ function Get-RepoRiskReport {
     $repos = if ($RepoInventory) { @($RepoInventory) } else { get-repoList }
     $rootForRole = Get-InventoryRootPath -RepoInventory $repos
     if ($rootForRole) {
-        $script:root = $rootForRole
+        $script:repoMgrRoot = $rootForRole
         $root = $rootForRole
     }
     $collisions = Get-RemoteCollisions -RepoInventory $repos
@@ -1104,7 +1103,7 @@ function Write-RiskReport {
         $resolvedRoot = Get-InventoryRootPath -RepoInventory $RepoInventory
         if ($resolvedRoot) {
             $root = $resolvedRoot
-            $script:root = $resolvedRoot
+            $script:repoMgrRoot = $resolvedRoot
         }
     }
 
@@ -1114,10 +1113,9 @@ function Write-RiskReport {
     }
 
     $repos = if ($RepoInventory) { @($RepoInventory) } else { get-repoList }
-    $report = Show-Spinner -Message "Analyzing repo risk" -ScriptBlock {
-        param($Inventory)
-        Get-RepoRiskReport -RepoInventory $Inventory
-    } -ArgumentList @($repos)
+    # Analysis runs inline: Show-Spinner executes in a separate runspace, which drops
+    # the resolved root/config and silently returns zero rows. Spinner UX is deferred to P9.
+    $report = Get-RepoRiskReport -RepoInventory $repos
 
     Write-RepoRiskReport -Report $report
 }
@@ -1138,7 +1136,7 @@ function Analyze-AllRepoRisk {
     $resolvedRoot = Get-InventoryRootPath -RepoInventory $repos
     if ($resolvedRoot) {
         $root = $resolvedRoot
-        $script:root = $resolvedRoot
+        $script:repoMgrRoot = $resolvedRoot
     }
 
     foreach ($repo in $repos) {
@@ -1244,7 +1242,7 @@ function Write-TopologySnapshot {
         $resolvedRoot = Get-InventoryRootPath -RepoInventory $RepoInventory
         if ($resolvedRoot) {
             $root = $resolvedRoot
-            $script:root = $resolvedRoot
+            $script:repoMgrRoot = $resolvedRoot
         }
     }
 
@@ -1278,13 +1276,11 @@ function Write-TopologySnapshot {
         }
     }
 
-    # create artifact for an AI-Agent to perform the “unscramble the omelette” work.
-    $json = $snapshot | ConvertTo-Json -Depth 5
-    $topologyFile = Join-Path $script:logDir "topology-$($script:timestamp).json"
-
-    Set-Content -Path $topologyFile -Value $json
-    Write-Host "Topology snapshot written to $topologyFile" -ForegroundColor Cyan
-    log "TOPOLOGY" $root $topologyFile
+    # create artifact for an AI-Agent to perform the "unscramble the omelette" work.
+    # The payload rides inside the daily audit log so a single file stays auditable,
+    # rather than scattering one topology-*.json sidecar per run.
+    log "TOPOLOGY" $root $snapshot
+    Write-Host "Topology snapshot recorded for $(@($snapshot).Count) repo(s) in $script:logFile" -ForegroundColor Cyan
 }
 
 #------------------------------------------------------------------------------#>
@@ -1702,6 +1698,11 @@ $drBranch = $config.DrBranch
 $Force = $config.Force
 $dryrun = $config.DryRun
 
+# Establish the run timestamp before the first audit write so log entries and any
+# artifacts produced by the same run agree.
+$timestamp = (Get-Date).ToString("yyMMdd-HHmmss")
+$script:timestamp = $timestamp
+
 # Only create the audit log for actual execution, not dot-sourced imports.
 Initialize-Logging
 log "INIT" $root "Script started"
@@ -1713,7 +1714,15 @@ $cfgInfo += "`n-----------------------------------------------------------------
 $cfgInfo += "`n - Configuration: -- Root: $root, `n    --> SafeDest: $safedest, `n    --  Lookback: $lookback, `n    --  DR Branch: $drBranch"
 $cfgInfo += "`n--------------------------------------------------------------------------------------------"
 Write-Host $cfgInfo -ForegroundColor Darkgray
-log "CONFIG" $root $cfgInfo
+# Audit gets the fields, not the rendered banner.
+log "CONFIG" $root ([ordered]@{
+    invocation = "$($MyInvocation.Line)".Trim()
+    root       = $root
+    safedest   = $safedest
+    lookback   = $lookback
+    drBranch   = $drBranch
+    mode       = if ($Force) { 'EXEC' } else { 'DRYRUN' }
+})
 
 $repoInventory = Get-RepoInventory -Root $root -Config $config
 
@@ -1723,14 +1732,10 @@ if (-not (Test-Path $root)) {
     exit 1
 }
 
-# --- Generate timestamp and define paths for backup and logging ---
-$timestamp = (Get-Date).ToString("yyMMdd-HHmmss")
-$script:timestamp = $timestamp
+# --- Define paths for backup and logging ---
 $zipPath   = "$root\$timestamp-SafeCopy-backup.zip"
 $logDir    = Join-Path $root "repoMgr-logs"
-$logFile   = Join-Path $logDir "repoMgr-$timestamp.json"
 $script:logDir = $logDir
-$script:logFile = $logFile
 
 # --- Ensure log directory exists ---
 if (!(Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir -Force | Out-Null }
@@ -1771,6 +1776,10 @@ if ($all)               { Analyze-ALLRepoRisk       }   # Deep-Dive Risk Analysi
 # REPAIR MODE: Default = DRYRUN unless -Force is passed (USE CAUTION: WHEN RISK IS HIGH OR COLLISIONS ARE POSSIBLE)
 if ($recovery)          { create-drBranches         }   # as of v0.5.x - includes DirtyRepo branching logic 
 if ($reintegration )    { reintegrate-nestedRepo    }   # Provides a scaffold for reintegrating a nested repository into the monorepo.
+
+# Benign probes such as `git remote get-url origin` on a remote-less repo leave a
+# non-zero $LASTEXITCODE behind even though the reporting flow itself succeeded.
+$global:LASTEXITCODE = 0
 
 #-----------------------------------------------------------------------------------#>
 # (CopyLeft:AGPL-v3) 2015-2026 LogicWizards <LogicWizards.NYC> - ALL Rights Reserved.
