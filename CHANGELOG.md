@@ -25,6 +25,15 @@
 
 ---
 ## CHANGES (Desc)
+###     **260916 - v0.6.4.4** - Reporting/output separation with UX spinner and regression guard.
+- validation-first refactor cleanup while preserving live discovery, recovery, and triage work.
+    - **(MOD)** Added `Get-RepoRiskReport` + `Write-RepoRiskReport` to separate repository analysis logic from final report rendering.
+    - **(UX)** Reworked the simple spinner so the reporting path shows live progress without noisy terminal churn.
+    - **(TEST)** Added a regression covering the report-data/render boundary to keep output formatting side-effect free.
+    - **(DOC)** Refreshed the roadmap and AI workflow docs to advance the active milestone to the P4 reporting-separation workstream.
+
+---
+
 ###     **260915 - v0.6.4.3** - Single-pass repo discovery: inventory reused across the reporting pipeline.
 - validation-first refactor cleanup while preserving live discovery, recovery, and triage work.
     - **(MOD)** Added a reusable repo inventory path to the reporting pipeline so the same inventory object is shared across drift, topology, and risk analysis instead of rescanning the filesystem on each pass.

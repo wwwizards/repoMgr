@@ -6,6 +6,23 @@ TESTING.md
 ---
 # TEST RESULTS (TODO: Rev-Sort - newest on top)
 
+## 2026-09-16T21:00:00 
+- P4 reporting-separation validation in the required TOOLS terminal: verify the report/data split and lightweight spinner stayed dry-run-safe without regressing the repoMgr baseline; expected result: the full validation suite remains green under the active refactor gate.
+  > Tests completed in 1.34s
+  > Tests Passed: 15
+  > Failed: 0
+  > Skipped: 0
+  > Inconclusive: 0
+  > NotRun: 0
+  > TEST SUMMARY: 100%
+  > Total Tests: 15
+  > Passed: 15
+  > Failed: 0
+  > Duration: 00:00:01.3400000
+
+**Conclusion:** repo validation passed (15/15) on disposable fixture repositories only; the active P4 reporting-separation work remains green and the live monorepo is not traversed during validation. Remediation path: hold the current scope and avoid broad refactor drift until the next milestone.
+</br>---</br>
+
 ## 2026-09-01T00:06:23 
 - Fixed \$CFG-INFO invalid-variable ParseException and call-before-definition order in repoMgr.ps1 (v0.5.1), fixed Format-Table stdout pollution in Analyze-RepoRisk, aligned repoMgr.sanity/smoke/unit.Tests.ps1 to actual v0.5.1 behavior (Root role, nested-repo fixture, Out-Host), and added retry-on-lock to fixture cleanup; expected result: full psst repoMgr suite passes.
   > Tests Passed: 7

@@ -1,6 +1,6 @@
 # repoMgr Roadmap v0.7.x
 > **Generated: 260915** | **Source:** repoMgr reporting + architecture review
-> **Target script version:** v0.6.4.3
+> **Target script version:** v0.6.4.4
 > **Targeted Repos For Cleanup:** LogicWizards-core: as identified by `REPORT-260914-all-backup-recovery.txt`
 > ***Last updated:** 260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
 > — See [README.md](README.md), [CHANGELOG.md](CHANGELOG.md), [repoMgr.ps1](repoMgr.ps1), [repoMgr.sanity.Tests.ps1](repoMgr.sanity.Tests.ps1), [repoMgr.smoke.Tests.ps1](repoMgr.smoke.Tests.ps1), and [repoMgr.unit.Tests.ps1](repoMgr.unit.Tests.ps1) for current context.
@@ -138,7 +138,7 @@ $raw = Invoke-GitSafe -RepoPath $repoPath -GitArgs @('-C', $repoPath, 'status', 
 
 ---
 
-### [ ] Priority 3 — Make repo discovery a single-pass pipeline
+### [x] Priority 3 — Make repo discovery a single-pass pipeline
 #### Status
 This is the live v0.6.4.3 milestone. The objective is to remove redundant repo scans by building one repo inventory object and reusing it across the reporting and risk-analysis pipeline, without expanding scope beyond the current validation-first refactor gate.
 
@@ -174,6 +174,9 @@ function Get-RepoInventory {
 ---
 
 ### [ ] Priority 4 — Separate reporting output from logic
+#### Status
+This is the live v0.6.4.4 milestone. We are splitting the analysis logic from the final rendering layer while keeping the current dry-run-safe reporting flow intact and adding the lightweight spinner to improve UX without changing the operational contract.
+
 #### Problem
 Many functions both compute values and directly print to the console.
 
