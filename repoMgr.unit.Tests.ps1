@@ -12,7 +12,7 @@ BeforeAll {
     . "$PSScriptRoot\repoMgr.ps1" -NoExecute
 }
 
-Describe "repoMgr Unit Tests" {
+Describe "repoMgr Unit Tests" -Tag 'Unit' {
     It "Creates the expected repo log directory during the recovery/discovery reporting flow" {
         $base = Join-Path ([System.IO.Path]::GetTempPath()) "repoMgr-tests"
         $fixture = Join-Path $base "unit-logdir"
@@ -31,7 +31,7 @@ Describe "repoMgr Unit Tests" {
             git -C $fixture add tracked.txt
             git -C $fixture commit -m "base" | Out-Null
 
-            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -all -backup -recovery -dryrun | Out-Null
+            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -backupdest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -all -backup -recovery -dryrun | Out-Null
             $logDir = Join-Path $fixture "repoMgr-logs"
             Test-Path $logDir | Should -BeTrue
         }
@@ -77,7 +77,7 @@ Describe "repoMgr Unit Tests" {
             git -C $nested add nested.txt
             git -C $nested commit -m "nested base" | Out-Null
 
-            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dirtyonly -dryrun | Out-Null
+            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -backupdest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dirtyonly -dryrun | Out-Null
 
             $repos = get-repoList
             $repos.Count | Should -BeGreaterThan 0
@@ -114,7 +114,7 @@ Describe "repoMgr Unit Tests" {
             git -C $fixture add tracked.txt
             git -C $fixture commit -m "base" | Out-Null
 
-            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -Force | Out-Null
+            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -backupdest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -Force | Out-Null
             $result = exec -Command @("git", "-C", $fixture, "branch", "--show-current") -Path $fixture
             $result | Should -Be "main"
         }
@@ -142,7 +142,7 @@ Describe "repoMgr Unit Tests" {
             git -C $fixture add tracked.txt
             git -C $fixture commit -m "base" | Out-Null
 
-            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
+            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -backupdest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
             $config = Get-EffectiveConfig -Root "C:\temp\repo\" -Safedest "C:\temp\safe\" -Lookback "7 days ago" -DrBranch "DR-TEST"
 
             $config.Root | Should -Be "C:\temp\repo"

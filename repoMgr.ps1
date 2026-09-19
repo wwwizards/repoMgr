@@ -12,9 +12,9 @@
 #           - Detached HEAD risk analysis (Option‑D: Smart Divergence + Forensic Mode)
 # REQUIRES: Git, PowerShell 7+, and a repo or submodule checkout.
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
-# UPDATED:  260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
+# UPDATED:  260918 BY: Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  v0.6.4.4
+# VERSION:  v0.6.4.5
 #           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
@@ -22,35 +22,45 @@
 #               ~ FEE: $99 = for commercial use (requires separate licensing & registration - bulk pricing is available).
 # NOTES:  Ensure that the configuration file is correctly set up to avoid unexpected behavior.
 # USAGE:
-#     .\repoMgr.ps1 -backup -stats -topology -recovery -reintegration -risk -dirtyonly -dryrun -help -all 
+#     .\repoMgr.ps1 [-all] [-backup] [-backupdest <path>] [-collisions] [-dirtyonly]
+#                   [-drBranch <name>] [-dryrun] [-force] [-help] [-lookback <period>]
+#                   [-recovery|-dr] [-reintegration] [-risk] [-stats] [-topology]
 # OPTIONS:
-#     -backup           # Performs a backup of the repository (SafeCopy ZIP + copy to safedest).
-#     -stats            # Displays drift statistics about all discovered repositories.
-#     -recovery         # Creates DR branches for repositories (optionally only dirty ones).
-#     -reintegration    # Handles reintegration scaffold tasks for nested repositories.
-#     -risk             # Analyzes detached HEAD risk across repos (Option‑D: Smart Divergence + Forensic Mode).
-#     -dirtyonly        # Operates only on dirty repositories (for DR branch creation).
-#     -dryrun           # Simulates actions without making any changes (logged as DRYRUN).
+#     -all              # Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode.
+#     -backup           # Full backup + safe-copy according to Config-File settings.
+#     -backupdest       # Override config-file's backup destination (used with -backup).
+#     -collisions       # Detect remote URL collisions among submodules and nested Git repos.
+#                       #   Used ALONE this is a fast path that skips the base reporting sweep.
+#     -dirtyonly        # Only branch repos with pending changes (for -recovery).
+#     -drBranch         # Override config-file's DR branch-prefix (used with -recovery).
+#     -dryrun           # (DEFAULT) No changes, only simulate (logged as DRYRUN).
+#     -force            # Enable destructive operations (overrides -dryrun).
 #     -help             # Displays this help message.
-#     -all              # Executes backup + stats + recovery + reintegration (not risk, by design).
-#     -topology         # Captures the current topology of all repositories (roles, branches, remotes).
-#     -noexecute        # Import functions without running the default workflow (alias: NoExecute).
-#     -force            # Explicitly override destructive operations (alias: Force).
+#     -lookback         # Override config-file's lookback period for analysis (e.g., 7d, 1m).
+#     -recovery         # Create DR branches (legacy alias: -dr).
+#     -reintegration    # Scaffold for reintegrating a nested repository into the monorepo.
+#     -risk             # (DEFAULT) Option-D detached HEAD risk analysis across repos.
+#     -stats            # (DEFAULT) Repo drift report.
+#     -topology         # (DEFAULT) Capture topology of all repos (roles, branches, remotes).
+#     -noexecute        # Import functions without running the default workflow.
+# NOTE: -all is NOT a run-everything switch - it triggers Analyze-AllRepoRisk only, and
+#       -backup / -backupdest are honored only when -all is NOT set.
 # SUMMARY:
 #     This script manages Git repositories with features for backup, recovery, reintegration, risk analysis, and more.
 #--------------------------------------------------------------------------#>
 
 param(
     [string]$root,              # Override the root directory for repository operations
-    [string]$safedest,          # Override the safe destination for backups
+    [string]$backupdest,        # Override the config-file's backup destination (used with -backup)
     [string]$lookback,          # Override the lookback period for repository analysis
     [string]$drBranch,          # Override the name of the disaster recovery branch
     [switch]$backup,            # Perform a backup of the repository
     [switch]$topology,          # Capture the current topology of all repositories
-    [switch]$collisions,        # Run remote collision detection only
+    [switch]$collisions,        # Detect remote collisions; used alone it skips base reporting
     [switch]$Force,             # Explicit override for destructive operations
     [switch]$stats,             # Display repository statistics
-    [switch]$recovery,          # Perform a disaster recovery operation (alias: dr)
+    [Alias('dr')]
+    [switch]$recovery,          # Perform a disaster recovery operation
     [switch]$dirtyonly,         # Operate only on dirty repositories
     [switch]$reintegration,     # Perform reintegration of changes
     [switch]$risk,              # Analyze risk for the repository
@@ -1039,6 +1049,8 @@ function Get-RepoRiskReport {
         $root = $rootForRole
     }
     $collisions = Get-RemoteCollisions -RepoInventory $repos
+    # Cached so the -all deep dive can annotate collisions without re-scanning every remote.
+    $script:lastCollisions = $collisions
 
     $report = foreach ($repo in $repos) {
         $path = Resolve-RepoPath $repo
@@ -1664,6 +1676,8 @@ function show-help {
     Write-Host "-backup         : Full backup + safe-copy according to Config-File settings"
     Write-Host "-backupdest     : Override config-file's backup destination (used with -backup)"
     Write-Host "-collisions     : Detect remote URL collisions (multiple dirs → same remote) among submodules and nested Git repositories"
+    Write-Host "                    ALONE    : fast path - reports collisions only, skips base reporting"
+    Write-Host "                    COMBINED : collision detection runs inside the normal full sweep"
     Write-Host "-dirtyonly      : Only branch repos with pending changes (for -recovery)"
     Write-Host "-drBranch       : Override config-file's DR branch-prefix (used with -recovery)"
     Write-Host "-dryrun         : (DEFAULT) No changes, only simulate (logged as DRYRUN)"
@@ -1690,7 +1704,7 @@ if (!(Test-Path $cfgPath)) {
     $cfg = Import-PowerShellDataFile $cfgPath
 }
 
-$config = Get-RepoManagerConfig -Root $root -Safedest $safedest -Lookback $lookback -DrBranch $drBranch -Force:$Force -Config $cfg
+$config = Get-RepoManagerConfig -Root $root -Safedest $backupdest -Lookback $lookback -DrBranch $drBranch -Force:$Force -Config $cfg
 $root = $config.Root
 $safedest = $config.Safedest
 $lookback = $config.Lookback
@@ -1752,6 +1766,14 @@ if ($null -eq $repoInventory) {
 
 #------------------------------------------------------------------------------#>
 if ($help) { show-help; exit }
+
+# -collisions used alone is a fast path: report collisions, then stop before base reporting.
+if ($collisions -and -not ($all -or $backup -or $recovery -or $reintegration -or $stats -or $topology -or $risk)) {
+    Get-RemoteCollisions -RepoInventory $repoInventory | Out-Null
+    $global:LASTEXITCODE = 0
+    return
+}
+
 Write-Banner "Executing BASE REPORTING Tasks  "
 #------------------------------------------------------------------------------#>
 # In v0.6+ EVERYTHING defaults to DRYRUN mode unless -Force is explicitly set. #>
@@ -1772,7 +1794,7 @@ Write-RiskReport -RepoInventory $repoInventory        # Analyze risk across all 
 
 # ORTHOGONAL KNOBS - Variates which can be treated as statistically independent
 if (($backup -or $backupdest) -and -not $all)    { archive-safecopy    } # (full backup + safe-copy) trigger 
-if ($all)               { Analyze-ALLRepoRisk       }   # Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode
+if ($all)               { Analyze-ALLRepoRisk -collisions $script:lastCollisions -RepoInventory $repoInventory }   # Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode
 # REPAIR MODE: Default = DRYRUN unless -Force is passed (USE CAUTION: WHEN RISK IS HIGH OR COLLISIONS ARE POSSIBLE)
 if ($recovery)          { create-drBranches         }   # as of v0.5.x - includes DirtyRepo branching logic 
 if ($reintegration )    { reintegrate-nestedRepo    }   # Provides a scaffold for reintegrating a nested repository into the monorepo.

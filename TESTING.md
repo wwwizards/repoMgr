@@ -6,6 +6,23 @@ TESTING.md
 ---
 # TEST RESULTS (TODO: Rev-Sort - newest on top)
 
+## 2026-09-18T00:00:00
+- v0.6.4.5 flag-contract alignment to the one-page infographic: bound `-backupdest` as a real parameter, added the `-dr` alias for `-recovery`, wired the `-collisions` alone/combined fast path, fixed `Analyze-AllRepoRisk` being called without its `-collisions`/`-RepoInventory` arguments, and tagged every Describe block so `psst sanity|smoke|unit` subsets resolve; expected result: all three tiers green with the new flag-contract acceptance tests passing.
+  > Tests completed in 504.14s  (sanity)
+  > Tests Passed: 9, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+  > Tests completed in 263.48s  (unit)
+  > Tests Passed: 9, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+  > Tests completed in 197.68s  (smoke)
+  > Tests Passed: 4, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+  > TEST SUMMARY: 100%
+  > Total Tests: 22
+  > Passed: 22
+  > Failed: 0
+  > Duration: 00:16:05 (965.30s aggregate across three tiers)
+
+**Conclusion:** repo validation passed (22/22) on disposable fixtures only; the five new flag-contract tests prove `-backupdest` binds, `-dr` aliases to `-recovery`, `-collisions` alone short-circuits before base reporting while the combined form runs the full sweep, and `-all` forensic mode now receives collision data instead of silently dropping it. Remediation path: the suite was split into tagged tiers because the 965s aggregate exceeds the 600s terminal-bridge ceiling — run `psst sanity`, `psst unit`, and `psst smoke` as separate invocations rather than `psst repoMgr`, and open a follow-up to profile the per-test cost (single-repo fixture runs averaging 40-140s is a performance smell, not a correctness one).
+</br>---</br>
+
 ## 2026-09-16T21:00:00 
 - P4 reporting-separation validation in the required TOOLS terminal: verify the report/data split and lightweight spinner stayed dry-run-safe without regressing the repoMgr baseline; expected result: the full validation suite remains green under the active refactor gate.
   > Tests completed in 1.34s

@@ -5,8 +5,8 @@
 #--------------------------------------------------------------------------#>
 # ABSTRACT: tooling preferences
 # CREATED: 260830   BY: Joe Negron
-# UPDATED: 260915   BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
-# VERSION: v0.6.4.2
+# UPDATED: 260918   BY: Copilot::repoMgr.WIZ-00.TOOLS
+# VERSION: v0.6.4.5
 # LICENSE: MIT
 # REQUIREMENTS: vsCode + Copilot Chat
 #--------------------------------------------------------------------------#>
@@ -77,13 +77,15 @@ In plain terms:
 - capture proof in [TESTING.md](TESTING.md)
 - read the file back as verification evidence before proceeding to the next refactor step
 
-## Current STATE (`v0.6.4.4`) <!-- This section is expected to be updated as needed when versions are incremented -->
+## Current STATE (`v0.6.4.5`) <!-- This section is expected to be updated as needed when versions are incremented -->
 
-The repo is now advancing the P4 reporting-separation refactor: split analysis logic from rendering, add the lightweight spinner UX, and keep the existing dry-run-safe recovery model intact while validating the full regression path.
+P4 (reporting separation) is closed. v0.6.4.5 closed a conformance gap between the documented CLI surface in `BACKLOG-v0.6.3.md-RepoMgr-OnePage.png` and the dispatcher: `-backupdest` and the `-dr` alias now bind, `-collisions` has a defined alone/combined contract, and `-all` forensic mode no longer drops collision data. The next milestone is P5 (CLI combination validation).
+
+> **TEST EXECUTION NOTE:** the aggregate suite now runs ~965s, which exceeds the AI Labs bridge 600s ceiling. Run the tiers separately — `psst sanity`, `psst unit`, `psst smoke` — not `psst repoMgr`. All Describe blocks are tagged `Sanity`/`Smoke`/`Unit` to support this.
 
 - **MAIN:** The active implementation's primary script is [repoMgr.ps1](repoMgr.ps1), and it remains the operational baseline for repo topology, drift detection, detached-HEAD risk analysis, and dry-run-safe recovery reporting.
 - **CONTEXT:** This tool was created to facilitate the repair of a broken monorepo. The release history and most current notes are tracked in our [CHANGELOG](CHANGELOG.md). 
-   - **RELEASES & ROADMAP:** We have been releasing 0.6.4.`p` where p matches the Priority-`p` refactoring item-priority number as laid out in the [ROADMAP](ROADMAP-v0.7.x.md) doc. P3 is complete and retained as a historical checkpoint; the current active milestone is P4: "Priority 4 — Separate reporting output from logic". P1 and P2 remain historical release checkpoints; P5 and later remain future work.
+   - **RELEASES & ROADMAP:** We have been releasing 0.6.4.`p` where p matches the Priority-`p` refactoring item-priority number as laid out in the [ROADMAP](ROADMAP-v0.7.x.md) doc. P1 through P4 are complete and retained as historical checkpoints. v0.6.4.5 was an unplanned conformance insert (CLI surface vs. the one-page spec) rather than a numbered priority; the current active milestone is P5: "Priority 5 — Validate CLI flag combinations". P6 and later remain future work.
      - The active backlog is in [BACKLOG-v0.6.3.md](BACKLOG-v0.6.3.md) for the project that this tool was created for, and the refactor path for the tool (itself) is documented in [ROADMAP-v0.7.x.md](ROADMAP-v0.7.x.md).
      - The project documentation and repo intent are aligned with the current initiative in [README.md](README.md), [REPORT-260914-all-backup-recovery.txt](REPORT-260914-all-backup-recovery.txt), and [advanced-git-recovery-commands.md](advanced-git-recovery-commands.md).
 
