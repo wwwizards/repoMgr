@@ -6,6 +6,36 @@ TESTING.md
 ---
 # TEST RESULTS (TODO: Rev-Sort - newest on top)
 
+## 2026-09-19T12:00:00
+- v0.6.4.7 replaced the silent `-all` backup suppression with an explicit warning naming the remedy, and documented it in `show-help`; expected result: the two tests that pass `-all -backup` still pass, because a warning does not fail a run.
+  > Tests completed in 97.11s (unit)
+  > Tests Passed: 9, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+  > Tests completed in 70.94s (smoke)
+  > Tests Passed: 4, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+  > TEST SUMMARY: 100%
+  > Total Tests: 13 (the two affected tiers)
+  > Duration: 00:02:48
+
+**Conclusion:** both tiers stayed green and the warning was confirmed present in each run's output, validating that warn-instead-of-throw preserves the existing suite. Remediation path: **treat these timings as noise, not signal** — unit measured 63.24s and 97.11s, and smoke 197.68s, 108.14s, and 70.94s, across runs with no performance-relevant change between them. Any future optimization must be judged on repeated runs, not single samples. Separately, a genuine O(n²) defect was identified in `log`, which re-reads, re-parses, and re-serializes the entire daily audit JSON on every entry; it is now tracked under roadmap P8 and is the leading remaining cost.
+</br>---</br>
+
+## 2026-09-18T12:00:00
+- v0.6.4.6 P2/P3 carry-forward closeout: added the inventory-first `Get-RepoMetadata` resolver so the risk functions stop re-shelling branch/remote/dirty state the inventory already holds, removed a duplicated `rev-parse` in `Analyze-AllRepoRisk`, and migrated 16 hot-path `git -C` calls to `Invoke-GitSafe`; expected result: all 22 tests stay green and total runtime drops materially.
+  > Tests completed in 140.99s (sanity, was 504.14s)
+  > Tests Passed: 9, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+  > Tests completed in 63.24s  (unit, was 263.48s)
+  > Tests Passed: 9, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+  > Tests completed in 108.14s (smoke, was 197.68s)
+  > Tests Passed: 4, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+  > Tests completed in 582.16s (combined `psst repoMgr`, single session)
+  > Tests Passed: 22, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+  > TEST SUMMARY: 100%
+  > Total Tests: 22
+  > Duration: 00:09:42.1600208 (combined) / 00:05:12 (312.37s summed across tiers)
+
+**Conclusion:** repo validation passed (22/22) on disposable fixtures only, with no behavioral regressions from the inventory-reuse refactor. Aggregate runtime fell 965s → 312s (3.1x) and the `-all` forensic deep-dive test alone fell 140.07s → 14.72s (9.5x), confirming redundant git process spawns — not network or I/O — were the dominant cost. Remediation path: keep using the tiered invocation; the combined run finishes in 582s but per-test cost roughly doubles versus the split (e.g. `-backupdest` 14.95s split vs 38.29s combined), which points at intra-session fixture accumulation as a second, still-unexplained cost worth profiling before P5 adds combinatorial tests. 20 direct `git -C` call sites remain outside the reporting path as tracked debt.
+</br>---</br>
+
 ## 2026-09-18T00:00:00
 - v0.6.4.5 flag-contract alignment to the one-page infographic: bound `-backupdest` as a real parameter, added the `-dr` alias for `-recovery`, wired the `-collisions` alone/combined fast path, fixed `Analyze-AllRepoRisk` being called without its `-collisions`/`-RepoInventory` arguments, and tagged every Describe block so `psst sanity|smoke|unit` subsets resolve; expected result: all three tiers green with the new flag-contract acceptance tests passing.
   > Tests completed in 504.14s  (sanity)

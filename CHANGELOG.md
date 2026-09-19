@@ -25,6 +25,24 @@
 
 ---
 ## CHANGES (Desc)
+###     **260919 - v0.6.4.7** - Surface the silent `-all` backup suppression instead of hiding it.
+- UX fix for a legacy workaround that had been mistaken for a designed contract.
+    - **(UX)** `-all` combined with `-backup` / `-backupdest` now emits a warning naming the exact remedy ("run `repoMgr.ps1 -backup` separately, without the -all flag") instead of silently discarding the backup. Chosen over a hard throw so existing runs and tests stay valid.
+    - **(DOC)** `show-help` now states the suppression on both the `-all` and `-backup` entries. Previously the help text was generated to match the infographic, which had itself been generated from the source, so the workaround propagated into the docs as though it were intentional.
+    - **(NOTE)** Provenance recorded in the roadmap: the suppression was a timing workaround for cloud safecopy outlasting the run window, **not** a technical conflict. Once the runtime work lands, `-all` and `-backup` should simply compose and this warning should be deleted.
+
+---
+
+###     **260918 - v0.6.4.6** - P2/P3 carry-forward closeout: inventory reuse cuts the suite from 965s to 312s.
+- debt paydown against two priorities that were marked complete but were only partially implemented.
+    - **(PERF)** Added `Get-RepoMetadata`, an inventory-first resolver for branch/remote/role/dirty state. `Get-RepoRiskReport` and `Analyze-AllRepoRisk` were each re-shelling the same three `git` calls per repo that `Get-RepoInventory` had already captured, so the same facts were computed 3-4x per run. They now read the inventory.
+    - **(PERF)** Removed a duplicated `rev-parse --abbrev-ref HEAD` in `Analyze-AllRepoRisk` that ran the identical command twice into `$currentBranch` and `$headRef`.
+    - **(MOD)** Migrated 16 hot-path `git -C` call sites to `Invoke-GitSafe`, including the inventory builder, `Get-GoodBranch`, `get-repoHistory`, and `Show-PendingChanges`. 20 direct call sites remain outside the reporting path and are tracked as open debt.
+    - **(FIX)** `Get-GoodBranch` no longer leaks stderr; it had no `2>$null` redirect and now inherits the helper's handling.
+    - **(MEASURED)** Suite runtime fell from 965s to 312s as three tiers (sanity 504→141s, unit 263→63s, smoke 198→108s) with 22/22 still green. A combined `psst repoMgr` run completes in 582s, but per-test cost roughly doubles versus the split run, so the tiered invocation remains the recommended path.
+
+---
+
 ###     **260918 - v0.6.4.5** - CLI flag contract realigned to the one-page spec; `-all` collision data restored.
 - validation-first conformance pass: the documented flag surface and the dispatcher now agree.
     - **(FIX)** `Analyze-AllRepoRisk` was invoked with no arguments despite declaring `-collisions` and `-RepoInventory`, so forensic mode always evaluated `$collisions` as `$null` and silently dropped every collision finding from the `-all` deep dive. The dispatcher now passes the cached collision set.

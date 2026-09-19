@@ -14,7 +14,7 @@
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260918 BY: Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  v0.6.4.5
+# VERSION:  v0.6.4.7
 #           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
@@ -190,10 +190,10 @@ function Get-RepoInventory {
 
     $inventory = foreach ($repo in @($repos | Select-Object -ExpandProperty FullName -Unique)) {
         $path = $repo
-        $currentBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
+        $currentBranch = (Invoke-GitSafe -RepoPath $path -GitArgs @('rev-parse', '--abbrev-ref', 'HEAD')) | Select-Object -First 1
         $role = Get-RepoRole -repoPath $path -RootPath $inventoryRoot
         $goodBranch = Get-GoodBranch -repoPath $path
-        $remote = Normalize-RemoteUrl (git -C $path remote get-url origin 2>$null)
+        $remote = Normalize-RemoteUrl ((Invoke-GitSafe -RepoPath $path -GitArgs @('remote', 'get-url', 'origin')) | Select-Object -First 1)
 
         [pscustomobject]@{
             Path          = $path
@@ -201,7 +201,7 @@ function Get-RepoInventory {
             GoodBranch    = $goodBranch
             CurrentBranch = if ($currentBranch) { $currentBranch } else { 'HEAD' }
             IsDetachedHead = ($currentBranch -eq 'HEAD')
-            Dirty         = [bool](git -C $path status --short 2>$null)
+            Dirty         = [bool](Invoke-GitSafe -RepoPath $path -GitArgs @('status', '--short'))
             Remote        = $remote
         }
     }
@@ -804,7 +804,7 @@ function Get-RepoRole {
 function Get-GoodBranch {
     param([string]$repoPath)
 
-    $branches = git -C $repoPath branch --format="%(refname:short)"
+    $branches = Invoke-GitSafe -RepoPath $repoPath -GitArgs @('branch', '--format=%(refname:short)')
 
     if ($branches -contains "main") {
         return "main"
@@ -855,7 +855,7 @@ function detect-nestedRepos {
 #------------------------------------------------------------------------------#>
 function get-repoHistory($path) {
     # PATCH v0.5.4: Check for empty window first; original silently printed nothing.
-    $count = (git -C $path log --since=$lookback --oneline 2>$null | Measure-Object -Line).Lines
+    $count = (Invoke-GitSafe -RepoPath $path -GitArgs @('log', "--since=$lookback", '--oneline') | Measure-Object -Line).Lines
     if ($count -eq 0) {
         Write-Host "  (no commits in window: $lookback → now)" -ForegroundColor DarkGray
         return
@@ -877,7 +877,7 @@ function Show-PendingChanges {
         [switch]$Grouped          # Group output by Action type
     )
 
-    $raw = & git -C $RepoPath status --porcelain 2>$null
+    $raw = Invoke-GitSafe -RepoPath $RepoPath -GitArgs @('status', '--porcelain')
     if (-not $raw) {
         Write-Host "  (clean — no pending changes)" -ForegroundColor DarkGray
         return
@@ -1001,6 +1001,58 @@ function Get-InventoryRootPath {
     return $paths[0]
 }
 
+#------------------------------------------------------------------------------#>
+# --- FUNCTION: Get-RepoMetadata - Normalized repo facts, inventory-first ---  #>
+#------------------------------------------------------------------------------#>
+# DESCRIPTION: Returns branch/remote/role/dirty state for a repo, preferring the
+#              values Get-RepoInventory already captured. Only repos that arrive
+#              from a non-inventory source pay for a git round trip.
+# PARAMETERS:
+#     [object]$Repo     - An inventory row, DirectoryInfo, or path string.
+#     [string]$RootPath - Root used for role classification on the fallback path.
+# RETURNS:    A pscustomobject of repo facts, or $null when the path won't resolve.
+#------------------------------------------------------------------------------#>
+function Get-RepoMetadata {
+    param(
+        [object]$Repo,
+        [string]$RootPath
+    )
+
+    $path = Resolve-RepoPath $Repo
+    if (-not $path) { return $null }
+
+    $fields = @()
+    if ($null -ne $Repo -and $Repo.PSObject) { $fields = @($Repo.PSObject.Properties.Name) }
+    $fromInventory = ($fields -contains 'CurrentBranch') -and ($fields -contains 'Remote')
+
+    if ($fromInventory) {
+        $currentBranch = $Repo.CurrentBranch
+        $role          = $Repo.Role
+        $goodBranch    = $Repo.GoodBranch
+        $remote        = $Repo.Remote
+        $isDirty       = [bool]$Repo.Dirty
+        $isDetached    = if ($fields -contains 'IsDetachedHead') { [bool]$Repo.IsDetachedHead } else { $currentBranch -eq 'HEAD' }
+    }
+    else {
+        $currentBranch = (Invoke-GitSafe -RepoPath $path -GitArgs @('rev-parse', '--abbrev-ref', 'HEAD')) | Select-Object -First 1
+        $role          = Get-RepoRole -repoPath $path -RootPath $RootPath
+        $goodBranch    = Get-GoodBranch -repoPath $path
+        $remote        = Normalize-RemoteUrl ((Invoke-GitSafe -RepoPath $path -GitArgs @('remote', 'get-url', 'origin')) | Select-Object -First 1)
+        $isDirty       = [bool](Invoke-GitSafe -RepoPath $path -GitArgs @('status', '--short'))
+        $isDetached    = ($currentBranch -eq 'HEAD')
+    }
+
+    return [pscustomobject]@{
+        Path           = $path
+        Role           = $role
+        GoodBranch     = $goodBranch
+        CurrentBranch  = if ($currentBranch) { $currentBranch } else { 'HEAD' }
+        IsDetachedHead = $isDetached
+        Dirty          = $isDirty
+        Remote         = $remote
+    }
+}
+
 function write-repoStats {
     param([object[]]$RepoInventory)
 
@@ -1018,7 +1070,12 @@ function write-repoStats {
     foreach ($repo in $repos) {
         $path = Resolve-RepoPath $repo
         if (-not $path) { continue }
-        $branch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
+        $branch = if ($repo.PSObject -and (@($repo.PSObject.Properties.Name) -contains 'CurrentBranch')) {
+            $repo.CurrentBranch
+        }
+        else {
+            (Invoke-GitSafe -RepoPath $path -GitArgs @('rev-parse', '--abbrev-ref', 'HEAD')) | Select-Object -First 1
+        }
 
         Write-Banner "Repo: $path"
         Write-Host "Branch: $branch"
@@ -1053,21 +1110,21 @@ function Get-RepoRiskReport {
     $script:lastCollisions = $collisions
 
     $report = foreach ($repo in $repos) {
-        $path = Resolve-RepoPath $repo
-        if (-not $path) { continue }
+        $meta = Get-RepoMetadata -Repo $repo -RootPath $rootForRole
+        if (-not $meta) { continue }
 
-        $remote        = Normalize-RemoteUrl (git -C $path remote get-url origin 2>$null)
-        $role          = Get-RepoRole -repoPath $path -RootPath $rootForRole
-        $goodBranch    = Get-GoodBranch -repoPath $path
-        $currentBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
-        $isDetached    = ($currentBranch -eq 'HEAD')
-        $statusShort   = git -C $path status --short 2>$null
-        $isDirty       = [bool]$statusShort
+        $path          = $meta.Path
+        $remote        = $meta.Remote
+        $role          = $meta.Role
+        $goodBranch    = $meta.GoodBranch
+        $currentBranch = $meta.CurrentBranch
+        $isDetached    = $meta.IsDetachedHead
+        $isDirty       = $meta.Dirty
 
         $divergence = $null
         try {
             $compareRef = if ($isDetached) { 'HEAD' } else { $currentBranch }
-            $divergence = git -C $path rev-list --left-right --count "$goodBranch...$compareRef" 2>$null
+            $divergence = (Invoke-GitSafe -RepoPath $path -GitArgs @('rev-list', '--left-right', '--count', "$goodBranch...$compareRef")) | Select-Object -First 1
         }
         catch {
             $divergence = $null
@@ -1153,16 +1210,15 @@ function Analyze-AllRepoRisk {
 
     foreach ($repo in $repos) {
         # compute the easy stuff first
-        $path = Resolve-RepoPath $repo
-        if (-not $path) { continue }
-        $remote        = Normalize-RemoteUrl (git -C $path remote get-url origin 2>$null)
-        $role          = Get-RepoRole -repoPath $path -RootPath $resolvedRoot
-        $goodBranch    = Get-GoodBranch -repoPath $path
-        $currentBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
-        $headRef       = git -C $path rev-parse --abbrev-ref HEAD 2>$null
-        $isDetached    = ($headRef -eq "HEAD")
-        $statusShort   = git -C $path status --short 2>$null
-        $isDirty       = [bool]$statusShort
+        $meta = Get-RepoMetadata -Repo $repo -RootPath $resolvedRoot
+        if (-not $meta) { continue }
+        $path          = $meta.Path
+        $remote        = $meta.Remote
+        $role          = $meta.Role
+        $goodBranch    = $meta.GoodBranch
+        $currentBranch = $meta.CurrentBranch
+        $isDetached    = $meta.IsDetachedHead
+        $isDirty       = $meta.Dirty
         
         # now we need to compute the divergence entry safely before building the PSCustomObject
         # AND safely compute the divergence before building the risk entry
@@ -1171,9 +1227,8 @@ function Analyze-AllRepoRisk {
         # - otherwise, compare the current branch against the last-known "good" branch   
         $divergence = $null
         try {
-            # $divergence = git -C $path rev-list --left-right --count "$goodBranch...HEAD" 2>$null # it always bugs me when "$Good...HEAD" <-- just kinda sucks ;-}
             $compareRef = if ($isDetached) { "HEAD" } else { $currentBranch } ## FIX via v0.6.2 patch - when your HEAD is somewhere it shouldn't be
-            $divergence = git -C $path rev-list --left-right --count "$goodBranch...$compareRef" 2>$null ## END-PATCH
+            $divergence = (Invoke-GitSafe -RepoPath $path -GitArgs @('rev-list', '--left-right', '--count', "$goodBranch...$compareRef")) | Select-Object -First 1 ## END-PATCH
         } catch {
             $divergence = $null
         }
@@ -1673,7 +1728,9 @@ function Analyze-RepoRisk {
 function show-help {
     Write-Banner "repoMgr.ps1 — Flags"
     Write-Host "-all            : Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode"
+    Write-Host "                    NOTE     : suppresses -backup / -backupdest (legacy timing workaround)"
     Write-Host "-backup         : Full backup + safe-copy according to Config-File settings"
+    Write-Host "                    WARNING  : ignored when -all is set - run it as a separate invocation"
     Write-Host "-backupdest     : Override config-file's backup destination (used with -backup)"
     Write-Host "-collisions     : Detect remote URL collisions (multiple dirs → same remote) among submodules and nested Git repositories"
     Write-Host "                    ALONE    : fast path - reports collisions only, skips base reporting"
@@ -1793,6 +1850,11 @@ Write-TopologySnapshot -RepoInventory $repoInventory  # Capture topology of all 
 Write-RiskReport -RepoInventory $repoInventory        # Analyze risk across all repositories (>6.2+ NOW includes collision detection)
 
 # ORTHOGONAL KNOBS - Variates which can be treated as statistically independent
+# The -all suppression of -backup is a legacy timing workaround, not a safety rule:
+# cloud safecopy could outlast the run window. See ROADMAP-v0.7.x.md P5.
+if (($backup -or $backupdest) -and $all) {
+    Write-Warning "Backup skipped: -backup / -backupdest are ignored when -all is set. Run ``repoMgr.ps1 -backup`` separately, without the -all flag."
+}
 if (($backup -or $backupdest) -and -not $all)    { archive-safecopy    } # (full backup + safe-copy) trigger 
 if ($all)               { Analyze-ALLRepoRisk -collisions $script:lastCollisions -RepoInventory $repoInventory }   # Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode
 # REPAIR MODE: Default = DRYRUN unless -Force is passed (USE CAUTION: WHEN RISK IS HIGH OR COLLISIONS ARE POSSIBLE)

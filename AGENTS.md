@@ -6,7 +6,7 @@
 # ABSTRACT: tooling preferences
 # CREATED: 260830   BY: Joe Negron
 # UPDATED: 260918   BY: Copilot::repoMgr.WIZ-00.TOOLS
-# VERSION: v0.6.4.5
+# VERSION: v0.6.4.7
 # LICENSE: MIT
 # REQUIREMENTS: vsCode + Copilot Chat
 #--------------------------------------------------------------------------#>
@@ -68,20 +68,40 @@
 
 ---
 ## Current Mission
-The repo is in a validation-first refactor gate for [repoMgr.ps1](repoMgr.ps1): verify the current recovery/discovery behavior, refresh the `psst` baseline to match the active script, and only then proceed with the architecture cleanup tracked in [ROADMAP-v0.7.x.md](ROADMAP-v0.7.x.md).
+The validation-first gate for [repoMgr.ps1](repoMgr.ps1) is **satisfied**: the `psst` baseline matches the active script and all three tiers are green. The repo is now in incremental refactor execution against [ROADMAP-v0.7.x.md](ROADMAP-v0.7.x.md), one priority per patch release.
 
 In plain terms:
 - keep the dry-run-safe reporting model intact while debugging real repo-risk logic
 - use the exact named terminal: TOOLS
 - validate through disposable fixtures and the live baseline evidence in [REPORT-260914-all-backup-recovery.txt](REPORT-260914-all-backup-recovery.txt)
+- treat `BACKLOG-v0.6.3.md-RepoMgr-OnePage.png` as the authoritative CLI spec, not the in-script comments
 - capture proof in [TESTING.md](TESTING.md)
 - read the file back as verification evidence before proceeding to the next refactor step
 
-## Current STATE (`v0.6.4.5`) <!-- This section is expected to be updated as needed when versions are incremented -->
+## Current STATE (`v0.6.4.7`) <!-- This section is expected to be updated as needed when versions are incremented -->
 
-P4 (reporting separation) is closed. v0.6.4.5 closed a conformance gap between the documented CLI surface in `BACKLOG-v0.6.3.md-RepoMgr-OnePage.png` and the dispatcher: `-backupdest` and the `-dr` alias now bind, `-collisions` has a defined alone/combined contract, and `-all` forensic mode no longer drops collision data. The next milestone is P5 (CLI combination validation).
+P1-P4 are closed. v0.6.4.5 was an unplanned conformance insert that closed the gap between the documented CLI surface and the dispatcher. v0.6.4.6 paid down the P2/P3 carry-forwards: `Get-RepoMetadata` makes the reporting pipeline inventory-first, cutting suite runtime **965s -> 312s** with 22/22 green. v0.6.4.7 replaced the silent `-all` backup suppression with an explicit warning.
 
-> **TEST EXECUTION NOTE:** the aggregate suite now runs ~965s, which exceeds the AI Labs bridge 600s ceiling. Run the tiers separately — `psst sanity`, `psst unit`, `psst smoke` — not `psst repoMgr`. All Describe blocks are tagged `Sanity`/`Smoke`/`Unit` to support this.
+**NEXT:** v0.6.5.0 (P5 + P6). The earlier open question — whether to fix the audit-log O(n²) defect first — was **settled by measurement, not opinion**: MVx showed log scaling is below the noise floor, while git spawns are ~84% of runtime. Do not reopen it without new data.
+
+> **TEST EXECUTION NOTE:** run the tiers separately — `psst sanity` (141s), `psst unit` (63s), `psst smoke` (108s). A combined `psst repoMgr` now completes in 582s, but per-test cost roughly doubles versus the split run and it sits only 18s under the AI Labs bridge 600s ceiling. All Describe blocks are tagged `Sanity`/`Smoke`/`Unit`.
+
+**P5 decisions already made (do not re-ask):**
+1. **Warn, do not throw**, when a flag is silently suppressed (`-all -backup`). Revised 260919 from the earlier `throw` decision. Shipped in v0.6.4.7. `throw` is reserved for genuinely contradictory pairs such as `-Force -dryrun`.
+2. Nonzero exit codes on true validation failure are **approved**, including updating the smoke assertion that currently expects 0.
+3. `-recovery` needs no new guard — dry-run-by-default *is* the guard, since destructive work only happens under `-Force`.
+4. `-lookback` format validation is **deferred** as non-critical.
+
+> **PROVENANCE:** the `-all` suppression of `-backup` was a **timing workaround**, not a design decision — cloud safecopy could outlast the run window. It got canonized as spec when the infographic was generated from source, and `show-help` was then written to match. Once runtime is fixed, the two flags should compose and the warning should be deleted. Do not defend this behavior as intentional.
+
+**Known open items (carry forward, do not re-discover):**
+- **`log` is O(n²) in code, but measurement says it is NOT the top cost.** It re-reads, re-parses, and re-serializes the whole daily audit JSON on *every* entry, and `repoMgr-audit-<date>.json` is per-root and per-day, so cost compounds within a run *and* across runs that day. **However**, MVx (260919, `REPORT-perf-MVx.json`) pre-seeded 0/250/1000/2500 entries and medians did **not** climb: 52.6s / 45.2s / 30.8s / 38.5s. Underpowered (n=3, spread 22–79%), so treat as "not material at ≤2500 entries," not "acquitted." Still tracked under P8, now as correctness rather than performance.
+- **Git spawn time is the real cost: ~84% of a run — and ~93% of that is process creation, not git.** MVx median run 49.4s, of which 41.4s was inside `git.exe`. Spawn-cost probe (n=30 medians, warmed): `cmd /c exit` 122.8ms, `git --version` 389.0ms, `git rev-parse` 375.8ms, `git status --short` 415.8ms. Reading `.git` is free; git's actual work is ~7% of a call. The `cmd` control (123ms for a no-op process) shows the machine itself is ~10× slow at process creation — consistent with on-access AV scanning. Derived: **~106 git spawns per run**. Only two levers: reduce spawn *count* (in-code), or AV exclusions (operator decision, not a code change). PowerShell micro-optimization cannot pay.
+- **Test timings are noisy.** Same code measured unit 63s/97s and smoke 198s/108s/71s. Judge optimizations on repeated runs only.
+- **20 direct `git -C` call sites remain** outside the reporting path. These are argument-safe under PowerShell semantics — a consistency/testability gap, not a security hole.
+- **`exit` in dispatcher** (root guard and the `-help` path) is a host-runspace hazard when dot-sourced.
+- **Deferred, needs authorization:** purge of 113 orphan JSON + 3 legacy topology files in `repoMgr-logs/`, and `%TEMP%\repoMgr-tests\repoMgr-logs` residue (violates Rule 4).
+- **Infographic owes an update** for the `-collisions` ALONE/COMBINED split and the `-all`/`-backup` provenance note.
 
 - **MAIN:** The active implementation's primary script is [repoMgr.ps1](repoMgr.ps1), and it remains the operational baseline for repo topology, drift detection, detached-HEAD risk analysis, and dry-run-safe recovery reporting.
 - **CONTEXT:** This tool was created to facilitate the repair of a broken monorepo. The release history and most current notes are tracked in our [CHANGELOG](CHANGELOG.md). 
