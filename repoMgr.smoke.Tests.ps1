@@ -4,11 +4,11 @@
 # ABSTRACT: Smoke tests for the current repoMgr PowerShell reporting flow.
 # CREATED 260828 BY: Joe Negron
 # UPDATED 260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
-# VERSION: v0.6.4.3
+# VERSION: v0.6.4.4
 # LICENSE: MIT
 # REQUIREMENTS: PowerShell 7.0 or later + pester/psst module(s)
 #--------------------------------------------------------------------------#>
-Describe "repoMgr Smoke Tests" {
+Describe "repoMgr Smoke Tests" -Tag 'Smoke' {
     It "Loads the current config contract used by recovery/discovery reporting" {
         $cfg = Import-PowerShellDataFile "$PSScriptRoot\repoMgr.config.psd1"
         $cfg.root | Should -Not -BeNullOrEmpty
@@ -34,7 +34,7 @@ Describe "repoMgr Smoke Tests" {
             git -C $fixture add app.txt
             git -C $fixture commit -m "base" | Out-Null
 
-            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -stats -topology -risk -dryrun | Out-Null
+            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -backupdest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -stats -topology -risk -dryrun | Out-Null
             $LASTEXITCODE | Should -Be 0
         }
         finally {
@@ -74,7 +74,7 @@ Describe "repoMgr Smoke Tests" {
             git -C $fixture add app.txt
             git -C $fixture commit -m "detached change" | Out-Null
 
-            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
+            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -backupdest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
 
             $results = Analyze-RepoRisk -repoPath $fixture
             $results | Should -Not -BeNullOrEmpty
@@ -136,7 +136,7 @@ Describe "repoMgr Smoke Tests" {
             git -C $fixture add app.txt
             git -C $fixture commit -m "detached recovery probe" | Out-Null
 
-            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -all -backup -recovery -Force | Out-Null
+            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -backupdest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -all -backup -recovery -Force | Out-Null
 
             $LASTEXITCODE | Should -Be 0
             (git -C $fixture branch --list "DR-TEST") | Should -Not -BeNullOrEmpty

@@ -4,7 +4,7 @@
 # ABSTRACT: Unit tests for the current repoMgr PowerShell flow.
 # CREATED 260828 BY: Joe Negron
 # UPDATED 260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
-# VERSION: v0.6.4.3
+# VERSION: v0.6.4.4
 # LICENSE: MIT
 # REQUIREMENTS: PowerShell 7.0 or later + pester/psst module(s)
 #--------------------------------------------------------------------------#>
@@ -12,7 +12,7 @@ BeforeAll {
     . "$PSScriptRoot\repoMgr.ps1" -NoExecute
 }
 
-Describe "repoMgr Unit Tests" {
+Describe "repoMgr Unit Tests" -Tag 'Unit' {
     It "Creates the expected repo log directory during the recovery/discovery reporting flow" {
         $base = Join-Path ([System.IO.Path]::GetTempPath()) "repoMgr-tests"
         $fixture = Join-Path $base "unit-logdir"
@@ -31,7 +31,7 @@ Describe "repoMgr Unit Tests" {
             git -C $fixture add tracked.txt
             git -C $fixture commit -m "base" | Out-Null
 
-            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -all -backup -recovery -dryrun | Out-Null
+            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -backupdest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -all -backup -recovery -dryrun | Out-Null
             $logDir = Join-Path $fixture "repoMgr-logs"
             Test-Path $logDir | Should -BeTrue
         }
@@ -77,7 +77,7 @@ Describe "repoMgr Unit Tests" {
             git -C $nested add nested.txt
             git -C $nested commit -m "nested base" | Out-Null
 
-            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dirtyonly -dryrun | Out-Null
+            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -backupdest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dirtyonly -dryrun | Out-Null
 
             $repos = get-repoList
             $repos.Count | Should -BeGreaterThan 0
@@ -114,7 +114,7 @@ Describe "repoMgr Unit Tests" {
             git -C $fixture add tracked.txt
             git -C $fixture commit -m "base" | Out-Null
 
-            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -Force | Out-Null
+            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -backupdest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -Force | Out-Null
             $result = exec -Command @("git", "-C", $fixture, "branch", "--show-current") -Path $fixture
             $result | Should -Be "main"
         }
@@ -142,7 +142,7 @@ Describe "repoMgr Unit Tests" {
             git -C $fixture add tracked.txt
             git -C $fixture commit -m "base" | Out-Null
 
-            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
+            . "$PSScriptRoot\repoMgr.ps1" -root $fixture -backupdest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
             $config = Get-EffectiveConfig -Root "C:\temp\repo\" -Safedest "C:\temp\safe\" -Lookback "7 days ago" -DrBranch "DR-TEST"
 
             $config.Root | Should -Be "C:\temp\repo"
@@ -217,6 +217,38 @@ Describe "repoMgr Unit Tests" {
             $inventory[0].Path | Should -Be $fixture
             $inventory[0].CurrentBranch | Should -Be "main"
             $inventory[0].Role | Should -Be "Root"
+        }
+        finally {
+            if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }
+        }
+    }
+
+    It "Separates risk analysis data from report rendering and keeps output formatting side-effect free" {
+        $base = Join-Path ([System.IO.Path]::GetTempPath()) "repoMgr-tests"
+        $fixture = Join-Path $base "unit-report-separation"
+
+        if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }
+
+        try {
+            New-Item -ItemType Directory -Path $fixture -Force | Out-Null
+            git -C $fixture init | Out-Null
+            git -C $fixture checkout -b main | Out-Null
+            git -C $fixture config user.name "RepoMgr Test"
+            git -C $fixture config user.email "repomgr@example.com"
+            "base" | Set-Content -Path (Join-Path $fixture "tracked.txt")
+            git -C $fixture add tracked.txt
+            git -C $fixture commit -m "base" | Out-Null
+
+            $inventory = Get-RepoInventory -Root $fixture
+            $inventory.Count | Should -Be 1
+
+            $report = Get-RepoRiskReport -RepoInventory $inventory
+            $report.Count | Should -Be 1
+            $report[0].Path | Should -Be $fixture
+            $report[0].Role | Should -Be "Root"
+            $report[0].CurrentBranch | Should -Be "main"
+
+            { Write-RepoRiskReport -Report $report } | Should -Not -Throw
         }
         finally {
             if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue }

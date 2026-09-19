@@ -12,9 +12,9 @@
 #           - Detached HEAD risk analysis (Option‑D: Smart Divergence + Forensic Mode)
 # REQUIRES: Git, PowerShell 7+, and a repo or submodule checkout.
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
-# UPDATED:  260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
+# UPDATED:  260918 BY: Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  v0.6.4.3
+# VERSION:  v0.6.4.5
 #           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
@@ -22,35 +22,45 @@
 #               ~ FEE: $99 = for commercial use (requires separate licensing & registration - bulk pricing is available).
 # NOTES:  Ensure that the configuration file is correctly set up to avoid unexpected behavior.
 # USAGE:
-#     .\repoMgr.ps1 -backup -stats -topology -recovery -reintegration -risk -dirtyonly -dryrun -help -all 
+#     .\repoMgr.ps1 [-all] [-backup] [-backupdest <path>] [-collisions] [-dirtyonly]
+#                   [-drBranch <name>] [-dryrun] [-force] [-help] [-lookback <period>]
+#                   [-recovery|-dr] [-reintegration] [-risk] [-stats] [-topology]
 # OPTIONS:
-#     -backup           # Performs a backup of the repository (SafeCopy ZIP + copy to safedest).
-#     -stats            # Displays drift statistics about all discovered repositories.
-#     -recovery         # Creates DR branches for repositories (optionally only dirty ones).
-#     -reintegration    # Handles reintegration scaffold tasks for nested repositories.
-#     -risk             # Analyzes detached HEAD risk across repos (Option‑D: Smart Divergence + Forensic Mode).
-#     -dirtyonly        # Operates only on dirty repositories (for DR branch creation).
-#     -dryrun           # Simulates actions without making any changes (logged as DRYRUN).
+#     -all              # Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode.
+#     -backup           # Full backup + safe-copy according to Config-File settings.
+#     -backupdest       # Override config-file's backup destination (used with -backup).
+#     -collisions       # Detect remote URL collisions among submodules and nested Git repos.
+#                       #   Used ALONE this is a fast path that skips the base reporting sweep.
+#     -dirtyonly        # Only branch repos with pending changes (for -recovery).
+#     -drBranch         # Override config-file's DR branch-prefix (used with -recovery).
+#     -dryrun           # (DEFAULT) No changes, only simulate (logged as DRYRUN).
+#     -force            # Enable destructive operations (overrides -dryrun).
 #     -help             # Displays this help message.
-#     -all              # Executes backup + stats + recovery + reintegration (not risk, by design).
-#     -topology         # Captures the current topology of all repositories (roles, branches, remotes).
-#     -noexecute        # Import functions without running the default workflow (alias: NoExecute).
-#     -force            # Explicitly override destructive operations (alias: Force).
+#     -lookback         # Override config-file's lookback period for analysis (e.g., 7d, 1m).
+#     -recovery         # Create DR branches (legacy alias: -dr).
+#     -reintegration    # Scaffold for reintegrating a nested repository into the monorepo.
+#     -risk             # (DEFAULT) Option-D detached HEAD risk analysis across repos.
+#     -stats            # (DEFAULT) Repo drift report.
+#     -topology         # (DEFAULT) Capture topology of all repos (roles, branches, remotes).
+#     -noexecute        # Import functions without running the default workflow.
+# NOTE: -all is NOT a run-everything switch - it triggers Analyze-AllRepoRisk only, and
+#       -backup / -backupdest are honored only when -all is NOT set.
 # SUMMARY:
 #     This script manages Git repositories with features for backup, recovery, reintegration, risk analysis, and more.
 #--------------------------------------------------------------------------#>
 
 param(
     [string]$root,              # Override the root directory for repository operations
-    [string]$safedest,          # Override the safe destination for backups
+    [string]$backupdest,        # Override the config-file's backup destination (used with -backup)
     [string]$lookback,          # Override the lookback period for repository analysis
     [string]$drBranch,          # Override the name of the disaster recovery branch
     [switch]$backup,            # Perform a backup of the repository
     [switch]$topology,          # Capture the current topology of all repositories
-    [switch]$collisions,        # Run remote collision detection only
+    [switch]$collisions,        # Detect remote collisions; used alone it skips base reporting
     [switch]$Force,             # Explicit override for destructive operations
     [switch]$stats,             # Display repository statistics
-    [switch]$recovery,          # Perform a disaster recovery operation (alias: dr)
+    [Alias('dr')]
+    [switch]$recovery,          # Perform a disaster recovery operation
     [switch]$dirtyonly,         # Operate only on dirty repositories
     [switch]$reintegration,     # Perform reintegration of changes
     [switch]$risk,              # Analyze risk for the repository
@@ -59,6 +69,12 @@ param(
     [switch]$all,               # Apply the operation to all repositories
     [switch]$NoExecute          # Import functions without running the default workflow
 )
+
+# Keep caller state intact. Forcing these values to null on every dot-source or
+# import creates the stale-state and iterative test failures seen in this repo.
+# Import-only calls should not silently clobber the caller's active working root.
+if (-not $PSBoundParameters.ContainsKey('Force')) { $Force = $false }
+if (-not $PSBoundParameters.ContainsKey('NoExecute')) { $NoExecute = $false }
 
 #------------------------------------------------------------------------------#>
 # -- Load external config - Imports configuration from repoMgr.config.psd1 --
@@ -175,7 +191,7 @@ function Get-RepoInventory {
     $inventory = foreach ($repo in @($repos | Select-Object -ExpandProperty FullName -Unique)) {
         $path = $repo
         $currentBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
-        $role = Get-RepoRole -repoPath $path
+        $role = Get-RepoRole -repoPath $path -RootPath $inventoryRoot
         $goodBranch = Get-GoodBranch -repoPath $path
         $remote = Normalize-RemoteUrl (git -C $path remote get-url origin 2>$null)
 
@@ -210,32 +226,51 @@ function Write-Banner($msg) {
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: Show-Spinner - Display animation while a script block runs ---
 #------------------------------------------------------------------------------#>
-function Show-Spinner($scriptBlock) {
-    $cursorTop = [Console]::CursorTop
-    
-    try {
-        [Console]::CursorVisible = $false
-        
-        $counter = 0
-        $frames = '|', '/', '-', '\' 
-        $jobName = Start-Job -ScriptBlock $scriptBlock
-    
-        while($jobName.JobStateInfo.State -eq "Running") {
-            $frame = $frames[$counter % $frames.Length]
-            
-            Write-Host "$frame" -NoNewLine
-            [Console]::SetCursorPosition(0, $cursorTop)
-            
-            $counter += 1
-            Start-Sleep -Milliseconds 125
+function Show-Spinner {
+    param(
+        [scriptblock]$ScriptBlock,
+        [string]$Message = 'Working',
+        [object[]]$ArgumentList = @()
+    )
+
+    if (-not $ScriptBlock) { return }
+
+    $frames = @('|', '/', '-', '\')
+    $counter = 0
+
+    $job = Start-ThreadJob -ScriptBlock {
+        param($Action, $Args)
+        . 'C:\PROJECTS\repoMgr\repoMgr.ps1' -NoExecute
+
+        if ($null -ne $Args -and $Args.Count -gt 0) {
+            & $Action @Args
         }
-        
-        # Only needed if you use a multiline frames
-        Write-Host ($frames[0] -replace '[^\s+]', ' ')
+        else {
+            & $Action
+        }
+    } -ArgumentList $ScriptBlock, $ArgumentList
+
+    try {
+        while ($job.State -eq 'Running') {
+            $frame = $frames[$counter % $frames.Length]
+            Write-Host ("`r{0} {1}" -f $Message, $frame) -NoNewline -ForegroundColor Cyan
+            $counter += 1
+            Start-Sleep -Milliseconds 80
+        }
+
+        Write-Host ("`r{0} complete   " -f $Message) -ForegroundColor Green
+        $output = Receive-Job -Job $job -Keep
+        return $output
+    }
+    catch {
+        Write-Host ("`r{0} failed     " -f $Message) -ForegroundColor Red
+        throw
     }
     finally {
-        [Console]::SetCursorPosition(0, $cursorTop)
-        [Console]::CursorVisible = $true
+        if ($job) {
+            Stop-Job -Job $job -ErrorAction SilentlyContinue
+            Remove-Job -Job $job -Force -ErrorAction SilentlyContinue
+        }
     }
 }
 
@@ -245,15 +280,39 @@ function Show-Spinner($scriptBlock) {
 # DESCRIPTION: Creates a stable log location under the active repo root and clears
 #              any stale global path values from earlier script runs.
 #------------------------------------------------------------------------------#>
+function Get-RepoAuditLogPath {
+    param([string]$TargetRoot)
+
+    $baseRoot = if ($TargetRoot) { $TargetRoot }
+                elseif ($script:repoMgrRoot) { $script:repoMgrRoot }
+                elseif ($root) { $root }
+                else { (Get-Location).Path }
+
+    $logDir = Join-Path $baseRoot "repoMgr-logs"
+    $dateStamp = (Get-Date).ToString("yyyy-MM-dd")
+    return Join-Path $logDir ("repoMgr-audit-$dateStamp.json")
+}
+
 function Initialize-Logging {
     $script:timestamp = if ($script:timestamp) { $script:timestamp } else { (Get-Date).ToString("yyMMdd-HHmmss") }
-    $rootCandidate = if ($root) { $root } elseif ($script:root) { $script:root } else { (Get-Location).Path }
-    $script:root = $rootCandidate
+
+    # Internal run state is namespaced so dot-sourcing cannot clobber the caller's
+    # own $root / $script:root. Reset per run to avoid stale-path reuse.
+    $script:repoMgrRoot = $null
+    $script:logDir = $null
+    $script:logFile = $null
+
+    $rootCandidate = if ($root) { $root } elseif ($script:repoMgrRoot) { $script:repoMgrRoot } else { (Get-Location).Path }
+    $script:repoMgrRoot = $rootCandidate
     $script:logDir = Join-Path $rootCandidate "repoMgr-logs"
-    $script:logFile = Join-Path $script:logDir ("repoMgr-$($script:timestamp).json")
+    $script:logFile = Get-RepoAuditLogPath -TargetRoot $rootCandidate
 
     if (-not (Test-Path $script:logDir)) {
         New-Item -ItemType Directory -Path $script:logDir -Force | Out-Null
+    }
+
+    if (-not (Test-Path $script:logFile)) {
+        @() | ConvertTo-Json -Depth 5 | Set-Content -Path $script:logFile -Encoding UTF8
     }
 }
 
@@ -265,33 +324,44 @@ function Initialize-Logging {
 #     [string]$action - The action being logged (e.g., "DRYRUN", "EXEC", "NESTED", "BACKUP", "RISK").
 #     [string]$path   - The path associated with the action.
 #     [string]$result - The result or message to log.
-# RETURNS: None. Logs the specified action to the log file as JSON lines.
+# RETURNS: None. Logs the specified action to the audit file as a JSON array entry.
 #------------------------------------------------------------------------------#>
 function log {
-    param([string]$action, [string]$path, [string]$result)
+    param([string]$action, [string]$path, [object]$result)
     Initialize-Logging
-    $entry = [ordered]@{
-        timestamp = (Get-Date).ToString("o")
-        action    = $action
-        path      = $path
-        result    = $result
+
+    $fileContent = Get-Content -Path $script:logFile -Raw -ErrorAction SilentlyContinue
+    $entries = @()
+    if ($fileContent -and $fileContent.Trim()) {
+        try {
+            $parsed = $fileContent | ConvertFrom-Json -Depth 10
+            if ($parsed -is [System.Array]) {
+                $entries = @($parsed)
+            }
+            elseif ($null -ne $parsed) {
+                $entries = @($parsed)
+            }
+        }
+        catch {
+            $entries = @()
+        }
     }
-    $json = ($entry | ConvertTo-Json -Depth 5)
-    Add-Content -Path $script:logFile -Value $json
+
+    $runId = if ($script:runId) { $script:runId } else { $script:runId = [guid]::NewGuid().ToString(); $script:runId }
+    $entry = [ordered]@{
+        runId    = $runId
+        timestamp = (Get-Date).ToString("o")
+        action   = $action
+        path     = $path
+        root     = $script:repoMgrRoot
+        dryRun   = [bool]$dryrun
+        force    = [bool]$Force
+        result   = $result
+    }
+    $entries += [pscustomobject]$entry
+    $entries | ConvertTo-Json -Depth 6 | Set-Content -Path $script:logFile -Encoding UTF8
 }
 
-# Write initial log entry
-Initialize-Logging
-log "INIT" $root "Script started"
-
-# write current configuration to the screen & log
-$cfgInfo  = "`n--------------------------------------------------------------------------------------------"
-$cfgInfo += "`n   INVOCATION: $($MyInvocation.Line)    <-- Timestamp: $timestamp"
-$cfgInfo += "`n--------------------------------------------------------------------------------------------"
-$cfgInfo += "`n - Configuration: -- Root: $root, `n    --> SafeDest: $safedest, `n    --  Lookback: $lookback, `n    --  DR Branch: $drBranch"
-$cfgInfo += "`n--------------------------------------------------------------------------------------------"
-Write-Host $cfgInfo -ForegroundColor Darkgray
-log "CONFIG" $root $cfgInfo
 
 #------------------------------------------------------------------------------#>
 # --- FUNCTION: Invoke-GitSafe - Safe Git invocation helper ---
@@ -585,10 +655,10 @@ function Get-RemoteCollisions {
     param([object[]]$RepoInventory)
 
     if ($RepoInventory) {
-        $resolvedRoot = Split-Path (Resolve-RepoPath ($RepoInventory | Select-Object -First 1)) -Parent
+        $resolvedRoot = Get-InventoryRootPath -RepoInventory $RepoInventory
         if ($resolvedRoot) {
             $root = $resolvedRoot
-            $script:root = $resolvedRoot
+            $script:repoMgrRoot = $resolvedRoot
         }
     }
 
@@ -680,14 +750,41 @@ function Get-RemoteCollisions {
 # RETURNS: A role string: "Root", "Agile-Wizard", or "Standard".
 #------------------------------------------------------------------------------#>
 function Get-RepoRole {
-    param([string]$repoPath)
+    param(
+        [string]$repoPath,
+        [string]$RootPath
+    )
 
     $leaf = Split-Path $repoPath -Leaf
+    $resolvedRoot = $null
 
-    if ($repoPath -eq $root) {
-        return "Root"
+    try {
+        if ($RootPath) {
+            $resolvedRoot = (Resolve-Path $RootPath -ErrorAction Stop).Path
+        }
+        elseif ($script:repoMgrRoot) {
+            $resolvedRoot = (Resolve-Path $script:repoMgrRoot -ErrorAction Stop).Path
+        }
+        elseif ($root) {
+            $resolvedRoot = (Resolve-Path $root -ErrorAction Stop).Path
+        }
+        else {
+            $resolvedRoot = (Resolve-Path (Split-Path $repoPath -Parent) -ErrorAction Stop).Path
+        }
     }
-    elseif ($leaf -match "Agile[-_ ]?Wizard") {
+    catch {
+        $resolvedRoot = $null
+    }
+
+    if ($repoPath -and $resolvedRoot) {
+        $resolvedRepo = $null
+        try { $resolvedRepo = (Resolve-Path $repoPath -ErrorAction Stop).Path } catch { $resolvedRepo = $null }
+        if ($resolvedRepo -and $resolvedRepo -eq $resolvedRoot) {
+            return "Root"
+        }
+    }
+
+    if ($leaf -match "Agile[-_ ]?Wizard") {
         return "Agile-Wizard"
     }
     else {
@@ -871,14 +968,47 @@ function Resolve-RepoPath {
     return $null
 }
 
+function Get-InventoryRootPath {
+    param([object[]]$RepoInventory)
+
+    if (-not $RepoInventory) { return $null }
+
+    $paths = @($RepoInventory | ForEach-Object { Resolve-RepoPath $_ } | Where-Object { $_ })
+    if (-not $paths) { return $null }
+
+    $currentRoot = $null
+    try {
+        if ($root) {
+            $currentRoot = (Resolve-Path $root -ErrorAction Stop).Path
+        }
+    }
+    catch {
+        $currentRoot = $null
+    }
+
+    foreach ($candidate in $paths) {
+        try {
+            $resolved = (Resolve-Path $candidate -ErrorAction Stop).Path
+            if ($currentRoot -and $resolved -eq $currentRoot) {
+                return $resolved
+            }
+        }
+        catch {
+            continue
+        }
+    }
+
+    return $paths[0]
+}
+
 function write-repoStats {
     param([object[]]$RepoInventory)
 
     if ($RepoInventory) {
-        $resolvedRoot = Split-Path (Resolve-RepoPath ($RepoInventory | Select-Object -First 1)) -Parent
+        $resolvedRoot = Get-InventoryRootPath -RepoInventory $RepoInventory
         if ($resolvedRoot) {
             $root = $resolvedRoot
-            $script:root = $resolvedRoot
+            $script:repoMgrRoot = $resolvedRoot
         }
     }
 
@@ -897,7 +1027,6 @@ function write-repoStats {
         Write-Host "`nHistory since $lookback :"
         get-repoHistory $path
     }
-    Write-TopologySnapshot -RepoInventory $repos
 }
 
 #------------------------------------------------------------------------------#>
@@ -910,14 +1039,83 @@ function write-repoStats {
 # PARAMETERS: None.                                                            #>
 # RETURNS:    None.                                                            #>
 #------------------------------------------------------------------------------#>
+function Get-RepoRiskReport {
+    param([object[]]$RepoInventory)
+
+    $repos = if ($RepoInventory) { @($RepoInventory) } else { get-repoList }
+    $rootForRole = Get-InventoryRootPath -RepoInventory $repos
+    if ($rootForRole) {
+        $script:repoMgrRoot = $rootForRole
+        $root = $rootForRole
+    }
+    $collisions = Get-RemoteCollisions -RepoInventory $repos
+    # Cached so the -all deep dive can annotate collisions without re-scanning every remote.
+    $script:lastCollisions = $collisions
+
+    $report = foreach ($repo in $repos) {
+        $path = Resolve-RepoPath $repo
+        if (-not $path) { continue }
+
+        $remote        = Normalize-RemoteUrl (git -C $path remote get-url origin 2>$null)
+        $role          = Get-RepoRole -repoPath $path -RootPath $rootForRole
+        $goodBranch    = Get-GoodBranch -repoPath $path
+        $currentBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
+        $isDetached    = ($currentBranch -eq 'HEAD')
+        $statusShort   = git -C $path status --short 2>$null
+        $isDirty       = [bool]$statusShort
+
+        $divergence = $null
+        try {
+            $compareRef = if ($isDetached) { 'HEAD' } else { $currentBranch }
+            $divergence = git -C $path rev-list --left-right --count "$goodBranch...$compareRef" 2>$null
+        }
+        catch {
+            $divergence = $null
+        }
+
+        $collision = $null
+        if ($collisions) {
+            $collision = $collisions | Where-Object { ($_.Paths -split ',\s*') -contains $path } | Select-Object -First 1
+        }
+
+        [pscustomobject]@{
+            Path          = $path
+            Remote        = $remote
+            Collision     = $collision
+            Role          = $role
+            CurrentBranch = if ($currentBranch) { $currentBranch } else { 'HEAD' }
+            GoodBranch    = $goodBranch
+            DetachedHead  = $isDetached
+            Dirty         = $isDirty
+            Divergence    = $divergence
+        }
+    }
+
+    return @($report)
+}
+
+function Write-RepoRiskReport {
+    param([object[]]$Report)
+
+    if (-not $Report) {
+        Write-Host "  (no risk report rows available)" -ForegroundColor DarkGray
+        return
+    }
+
+    $Report | Sort-Object Path |
+        Format-Table -AutoSize Path, Role, CurrentBranch, GoodBranch, DetachedHead, Dirty, Divergence |
+        Out-String |
+        Write-Host
+}
+
 function Write-RiskReport {
     param([object[]]$RepoInventory)
 
     if ($RepoInventory) {
-        $resolvedRoot = Split-Path (Resolve-RepoPath ($RepoInventory | Select-Object -First 1)) -Parent
+        $resolvedRoot = Get-InventoryRootPath -RepoInventory $RepoInventory
         if ($resolvedRoot) {
             $root = $resolvedRoot
-            $script:root = $resolvedRoot
+            $script:repoMgrRoot = $resolvedRoot
         }
     }
 
@@ -926,12 +1124,12 @@ function Write-RiskReport {
         Write-Host "  (DRYRUN: No Mutations Will Occur)" -ForegroundColor DarkGray
     }
 
-    # Check for remote collisions (submodules + nested repos sharing the same origin URL)
     $repos = if ($RepoInventory) { @($RepoInventory) } else { get-repoList }
-    $collisions = Get-RemoteCollisions -RepoInventory $repos
+    # Analysis runs inline: Show-Spinner executes in a separate runspace, which drops
+    # the resolved root/config and silently returns zero rows. Spinner UX is deferred to P9.
+    $report = Get-RepoRiskReport -RepoInventory $repos
 
-    # Detached HEAD + divergence + dirty status across all repos
-    Analyze-AllRepoRisk -collisions $collisions -RepoInventory $repos
+    Write-RepoRiskReport -Report $report
 }
 
 #------------------------------------------------------------------------------#>
@@ -947,13 +1145,18 @@ function Write-RiskReport {
 function Analyze-AllRepoRisk {
     param($collisions, [object[]]$RepoInventory)
     $repos = if ($RepoInventory) { @($RepoInventory) } else { get-repoList }
+    $resolvedRoot = Get-InventoryRootPath -RepoInventory $repos
+    if ($resolvedRoot) {
+        $root = $resolvedRoot
+        $script:repoMgrRoot = $resolvedRoot
+    }
 
     foreach ($repo in $repos) {
         # compute the easy stuff first
         $path = Resolve-RepoPath $repo
         if (-not $path) { continue }
         $remote        = Normalize-RemoteUrl (git -C $path remote get-url origin 2>$null)
-        $role          = Get-RepoRole -repoPath $path
+        $role          = Get-RepoRole -repoPath $path -RootPath $resolvedRoot
         $goodBranch    = Get-GoodBranch -repoPath $path
         $currentBranch = git -C $path rev-parse --abbrev-ref HEAD 2>$null
         $headRef       = git -C $path rev-parse --abbrev-ref HEAD 2>$null
@@ -1048,10 +1251,10 @@ function Write-TopologySnapshot {
     param([object[]]$RepoInventory)
 
     if ($RepoInventory) {
-        $resolvedRoot = Split-Path (Resolve-RepoPath ($RepoInventory | Select-Object -First 1)) -Parent
+        $resolvedRoot = Get-InventoryRootPath -RepoInventory $RepoInventory
         if ($resolvedRoot) {
             $root = $resolvedRoot
-            $script:root = $resolvedRoot
+            $script:repoMgrRoot = $resolvedRoot
         }
     }
 
@@ -1085,13 +1288,11 @@ function Write-TopologySnapshot {
         }
     }
 
-    # create artifact for an AI-Agent to perform the “unscramble the omelette” work.
-    $json = $snapshot | ConvertTo-Json -Depth 5
-    $topologyFile = Join-Path $script:logDir "topology-$($script:timestamp).json"
-
-    Set-Content -Path $topologyFile -Value $json
-    Write-Host "Topology snapshot written to $topologyFile" -ForegroundColor Cyan
-    log "TOPOLOGY" $root $topologyFile
+    # create artifact for an AI-Agent to perform the "unscramble the omelette" work.
+    # The payload rides inside the daily audit log so a single file stays auditable,
+    # rather than scattering one topology-*.json sidecar per run.
+    log "TOPOLOGY" $root $snapshot
+    Write-Host "Topology snapshot recorded for $(@($snapshot).Count) repo(s) in $script:logFile" -ForegroundColor Cyan
 }
 
 #------------------------------------------------------------------------------#>
@@ -1475,6 +1676,8 @@ function show-help {
     Write-Host "-backup         : Full backup + safe-copy according to Config-File settings"
     Write-Host "-backupdest     : Override config-file's backup destination (used with -backup)"
     Write-Host "-collisions     : Detect remote URL collisions (multiple dirs → same remote) among submodules and nested Git repositories"
+    Write-Host "                    ALONE    : fast path - reports collisions only, skips base reporting"
+    Write-Host "                    COMBINED : collision detection runs inside the normal full sweep"
     Write-Host "-dirtyonly      : Only branch repos with pending changes (for -recovery)"
     Write-Host "-drBranch       : Override config-file's DR branch-prefix (used with -recovery)"
     Write-Host "-dryrun         : (DEFAULT) No changes, only simulate (logged as DRYRUN)"
@@ -1501,13 +1704,40 @@ if (!(Test-Path $cfgPath)) {
     $cfg = Import-PowerShellDataFile $cfgPath
 }
 
-$config = Get-RepoManagerConfig -Root $root -Safedest $safedest -Lookback $lookback -DrBranch $drBranch -Force:$Force -Config $cfg
+$config = Get-RepoManagerConfig -Root $root -Safedest $backupdest -Lookback $lookback -DrBranch $drBranch -Force:$Force -Config $cfg
 $root = $config.Root
 $safedest = $config.Safedest
 $lookback = $config.Lookback
 $drBranch = $config.DrBranch
 $Force = $config.Force
 $dryrun = $config.DryRun
+
+# Establish the run timestamp before the first audit write so log entries and any
+# artifacts produced by the same run agree.
+$timestamp = (Get-Date).ToString("yyMMdd-HHmmss")
+$script:timestamp = $timestamp
+
+# Only create the audit log for actual execution, not dot-sourced imports.
+Initialize-Logging
+log "INIT" $root "Script started"
+
+# write current configuration to the screen & log
+$cfgInfo  = "`n--------------------------------------------------------------------------------------------"
+$cfgInfo += "`n   INVOCATION: $($MyInvocation.Line)    <-- Timestamp: $timestamp"
+$cfgInfo += "`n--------------------------------------------------------------------------------------------"
+$cfgInfo += "`n - Configuration: -- Root: $root, `n    --> SafeDest: $safedest, `n    --  Lookback: $lookback, `n    --  DR Branch: $drBranch"
+$cfgInfo += "`n--------------------------------------------------------------------------------------------"
+Write-Host $cfgInfo -ForegroundColor Darkgray
+# Audit gets the fields, not the rendered banner.
+log "CONFIG" $root ([ordered]@{
+    invocation = "$($MyInvocation.Line)".Trim()
+    root       = $root
+    safedest   = $safedest
+    lookback   = $lookback
+    drBranch   = $drBranch
+    mode       = if ($Force) { 'EXEC' } else { 'DRYRUN' }
+})
+
 $repoInventory = Get-RepoInventory -Root $root -Config $config
 
 # --- Guard: validate the resolved root before anything else runs ---
@@ -1516,14 +1746,10 @@ if (-not (Test-Path $root)) {
     exit 1
 }
 
-# --- Generate timestamp and define paths for backup and logging ---
-$timestamp = (Get-Date).ToString("yyMMdd-HHmmss")
-$script:timestamp = $timestamp
+# --- Define paths for backup and logging ---
 $zipPath   = "$root\$timestamp-SafeCopy-backup.zip"
 $logDir    = Join-Path $root "repoMgr-logs"
-$logFile   = Join-Path $logDir "repoMgr-$timestamp.json"
 $script:logDir = $logDir
-$script:logFile = $logFile
 
 # --- Ensure log directory exists ---
 if (!(Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir -Force | Out-Null }
@@ -1540,6 +1766,14 @@ if ($null -eq $repoInventory) {
 
 #------------------------------------------------------------------------------#>
 if ($help) { show-help; exit }
+
+# -collisions used alone is a fast path: report collisions, then stop before base reporting.
+if ($collisions -and -not ($all -or $backup -or $recovery -or $reintegration -or $stats -or $topology -or $risk)) {
+    Get-RemoteCollisions -RepoInventory $repoInventory | Out-Null
+    $global:LASTEXITCODE = 0
+    return
+}
+
 Write-Banner "Executing BASE REPORTING Tasks  "
 #------------------------------------------------------------------------------#>
 # In v0.6+ EVERYTHING defaults to DRYRUN mode unless -Force is explicitly set. #>
@@ -1560,10 +1794,14 @@ Write-RiskReport -RepoInventory $repoInventory        # Analyze risk across all 
 
 # ORTHOGONAL KNOBS - Variates which can be treated as statistically independent
 if (($backup -or $backupdest) -and -not $all)    { archive-safecopy    } # (full backup + safe-copy) trigger 
-if ($all)               { Analyze-ALLRepoRisk       }   # Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode
+if ($all)               { Analyze-ALLRepoRisk -collisions $script:lastCollisions -RepoInventory $repoInventory }   # Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode
 # REPAIR MODE: Default = DRYRUN unless -Force is passed (USE CAUTION: WHEN RISK IS HIGH OR COLLISIONS ARE POSSIBLE)
 if ($recovery)          { create-drBranches         }   # as of v0.5.x - includes DirtyRepo branching logic 
 if ($reintegration )    { reintegrate-nestedRepo    }   # Provides a scaffold for reintegrating a nested repository into the monorepo.
+
+# Benign probes such as `git remote get-url origin` on a remote-less repo leave a
+# non-zero $LASTEXITCODE behind even though the reporting flow itself succeeded.
+$global:LASTEXITCODE = 0
 
 #-----------------------------------------------------------------------------------#>
 # (CopyLeft:AGPL-v3) 2015-2026 LogicWizards <LogicWizards.NYC> - ALL Rights Reserved.

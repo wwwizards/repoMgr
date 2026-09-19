@@ -1,0 +1,1200 @@
+[psst] Set-ExecutionPolicy Bypass -Scope Process (local dev)
+⚙️  TESTER = psst: 
+ON
+Invoking Extended Test Intelligence...
+
+🧪 Running 3 test(s) matching patterns: repoMgr
+
+Selected tests:
+  ✓ [repoMgr] repoMgr.sanity.Tests.ps1
+  ✓ [repoMgr] repoMgr.smoke.Tests.ps1
+  ✓ [repoMgr] repoMgr.unit.Tests.ps1
+
+
+Starting discovery in 3 files.
+Discovery found 15 tests in 210ms.
+Running tests.
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             { . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -backup -stats -topology -risk -dryrun | Out-Null } | Should -Not -Throw
+    <-- Timestamp: 260916-221736
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-default, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-default, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-default  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-default\repoMgr-logs\topology-260916-221739.json
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\repoMgr-logs\topology-260916-221739.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk complete   
+[-] repoMgr Sanity Tests.Dry-run discovery and recovery reporting flow does not mutate state
+ 16.78s (16.78s|3ms)
+ at { . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -backup -stats -topology -risk -dryrun | Out-Null } | Should -Not -Throw, C:\PROJECTS\repoMgr\repoMgr.sanity.Tests.ps1:30
+ at <ScriptBlock>, C:\PROJECTS\repoMgr\repoMgr.sanity.Tests.ps1:30
+ Expected no exception to be thrown, but an exception "The term '
+         param($Inventory)
+         Get-RepoRiskReport -RepoInventory $Inventory
+     ' is not recognized as a name of a cmdlet, function, script file, or executable program.
+ Check the spelling of the name, or if a path was included, verify that the path is correct and try again." was thrown from C:\PROJECTS\repoMgr\repoMgr.ps1:246 char:9
+     +         $output = Receive-Job -Job $job -Keep
+     +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
+    <-- Timestamp: 260916-221739
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-help, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-help, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-help  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-help\repoMgr-logs\topology-260916-221804.json
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\repoMgr-logs\topology-260916-221804.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk complete   
+[-] repoMgr Sanity Tests.Shows help and resolves a valid repo branch under the current recovery/discovery config contract
+ 34.35s (34.35s|3ms)
+ at <ScriptBlock>, <No file>:8
+ RemoteException: The term '
+         param($Inventory)
+         Get-RepoRiskReport -RepoInventory $Inventory
+     ' is not recognized as a name of a cmdlet, function, script file, or executable program.
+ Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -stats -topology -risk -dryrun | Out-Null
+    <-- Timestamp: 260916-221833
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-default, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-smoke-default, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-default  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-default\repoMgr-logs\topology-260916-221837.json
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\repoMgr-logs\topology-260916-221837.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk complete   
+[-] repoMgr Smoke Tests.Runs the default reporting flow without mutation while preserving recovery triage safeguards
+ 22.26s (22.26s|3ms)
+ at <ScriptBlock>, <No file>:8
+ RemoteException: The term '
+         param($Inventory)
+         Get-RepoRiskReport -RepoInventory $Inventory
+     ' is not recognized as a name of a cmdlet, function, script file, or executable program.
+ Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+Switched to a new branch 'main'
+HEAD is now at 0cf6774 base
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
+    <-- Timestamp: 260916-221837
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-risk, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-smoke-risk, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-risk  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: HEAD
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-risk\repoMgr-logs\topology-260916-221902.json
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\repoMgr-logs\topology-260916-221902.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk complete   
+[-] repoMgr Smoke Tests.Performs a detached-head risk analysis when a repo is checked out detached
+ 26.27s (26.26s|6ms)
+ at <ScriptBlock>, <No file>:8
+ RemoteException: The term '
+         param($Inventory)
+         Get-RepoRiskReport -RepoInventory $Inventory
+     ' is not recognized as a name of a cmdlet, function, script file, or executable program.
+ Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+Switched to a new branch 'main'
+To C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery-origin.git
+ * [new branch]      main -> main
+Switched to a new branch 'main'
+To C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery-origin.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery-origin.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+HEAD is now at 696226f base
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -all -backup -recovery -Force | Out-Null
+    <-- Timestamp: 260916-221902
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-smoke-force-recovery, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ FORCE MODE: Destructive operations are enabled.
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: HEAD
+  Pending changes: 3 total  [M:0  D:0  ?:3]
+
+  ── Untracked (3) ──
+
+Code Scope File
+---- ----- ----
+??   -     nested-repo/
+??   -     orphan.txt
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery\nested-repo  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery\repoMgr-logs\topology-260916-221933.json
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\repoMgr-logs\topology-260916-221933.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk complete   
+[-] repoMgr Smoke Tests.Forces recovery from detached HEAD, orphaned files, and same-remote collisions
+ 34.22s (34.21s|4ms)
+ at <ScriptBlock>, <No file>:8
+ RemoteException: The term '
+         param($Inventory)
+         Get-RepoRiskReport -RepoInventory $Inventory
+     ' is not recognized as a name of a cmdlet, function, script file, or executable program.
+ Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:     . "$PSScriptRoot\repoMgr.ps1" -NoExecute
+    <-- Timestamp: 260916-221950
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: , 
+    --> SafeDest: , 
+    --  Lookback: , 
+    --  DR Branch: 
+--------------------------------------------------------------------------------------------
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -all -backup -recovery -dryrun | Out-Null
+    <-- Timestamp: 260916-221950
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-logdir, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-unit-logdir, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-logdir  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-logdir\repoMgr-logs\topology-260916-222003.json
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\repoMgr-logs\topology-260916-222003.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk complete   
+[-] repoMgr Unit Tests.Creates the expected repo log directory during the recovery/discovery reporting flow
+ 25.05s (25.04s|3ms)
+ at <ScriptBlock>, <No file>:8
+ RemoteException: The term '
+         param($Inventory)
+         Get-RepoRiskReport -RepoInventory $Inventory
+     ' is not recognized as a name of a cmdlet, function, script file, or executable program.
+ Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+Switched to a new branch 'main'
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dirtyonly -dryrun | Out-Null
+    <-- Timestamp: 260916-222003
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-nested, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-unit-nested, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-nested  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 2 total  [M:0  D:0  ?:2]
+
+  ── Untracked (2) ──
+
+Code Scope File
+---- ----- ----
+??   -     nested-repo/
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-nested\nested-repo  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-nested\repoMgr-logs\topology-260916-222028.json
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\repoMgr-logs\topology-260916-222028.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk complete   
+[-] repoMgr Unit Tests.Detects nested repos and respects dry-run-only repo operations used by triage work
+ 27.78s (27.78s|3ms)
+ at <ScriptBlock>, <No file>:8
+ RemoteException: The term '
+         param($Inventory)
+         Get-RepoRiskReport -RepoInventory $Inventory
+     ' is not recognized as a name of a cmdlet, function, script file, or executable program.
+ Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -Force | Out-Null
+    <-- Timestamp: 260916-222028
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-safe-exec, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-unit-safe-exec, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ FORCE MODE: Destructive operations are enabled.
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-safe-exec  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-safe-exec\repoMgr-logs\topology-260916-222050.json
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\repoMgr-logs\topology-260916-222050.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk complete   
+[-] repoMgr Unit Tests.Executes git operations via structured arguments instead of string-evaluated shell commands
+ 24.61s (24.61s|3ms)
+ at <ScriptBlock>, <No file>:8
+ RemoteException: The term '
+         param($Inventory)
+         Get-RepoRiskReport -RepoInventory $Inventory
+     ' is not recognized as a name of a cmdlet, function, script file, or executable program.
+ Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
+    <-- Timestamp: 260916-222050
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-config-normalize, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-unit-config-normalize, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-config-normalize  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-config-normalize\repoMgr-logs\topology-260916-222114.json
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\repoMgr-logs\topology-260916-222114.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk complete   
+[-] repoMgr Unit Tests.Normalizes config overrides before repo discovery and recovery actions run
+ 17.02s (17.01s|4ms)
+ at <ScriptBlock>, <No file>:8
+ RemoteException: The term '
+         param($Inventory)
+         Get-RepoRiskReport -RepoInventory $Inventory
+     ' is not recognized as a name of a cmdlet, function, script file, or executable program.
+ Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+Switched to a new branch 'main'
+Switched to a new branch 'main'
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+  (no remote collisions detected)
+
+Path                                                                  Role CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                                  ---- ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-report-separation Root main          main              False False 0	0
+
+
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-single-pass  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since  :
+  (no commits in window:  → now)
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\repoMgr-logs\topology-260916-222114.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk \
+Analyzing repo risk |
+Analyzing repo risk /
+Analyzing repo risk -
+Analyzing repo risk complete   
+[-] repoMgr Unit Tests.Reuses a single repo inventory across reporting functions instead of rescanning the repo tree
+ 19.65s (19.65s|2ms)
+ at { Write-RiskReport -RepoInventory $inventory } | Should -Not -Throw, C:\PROJECTS\repoMgr\repoMgr.unit.Tests.ps1:278
+ at <ScriptBlock>, C:\PROJECTS\repoMgr\repoMgr.unit.Tests.ps1:278
+ Expected no exception to be thrown, but an exception "The term '
+         param($Inventory)
+         Get-RepoRiskReport -RepoInventory $Inventory
+     ' is not recognized as a name of a cmdlet, function, script file, or executable program.
+ Check the spelling of the name, or if a path was included, verify that the path is correct and try again." was thrown from C:\PROJECTS\repoMgr\repoMgr.ps1:246 char:9
+     +         $output = Receive-Job -Job $job -Keep
+     +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.
+Tests completed in 273.2s
+Tests Passed: 5, 
+Failed: 10, 
+Skipped: 0, 
+Inconclusive: 0, 
+
+NotRun: 0
+[TELEMETRY DEBUG] Write-TelemetryEvent completed
+1

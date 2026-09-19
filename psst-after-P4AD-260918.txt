@@ -1,0 +1,936 @@
+[psst] Set-ExecutionPolicy Bypass -Scope Process (local dev)
+⚙️  TESTER = psst: ON
+Invoking Extended Test Intelligence...
+
+🧪 Running 3 test(s) matching patterns: repoMgr
+
+Selected tests:
+  ✓ [repoMgr] repoMgr.sanity.Tests.ps1
+  ✓ [repoMgr] repoMgr.smoke.Tests.ps1
+  ✓ [repoMgr] repoMgr.unit.Tests.ps1
+
+Pester v5.7.1
+
+Starting discovery in 3 files.
+Discovery found 18 tests in 985ms.
+Running tests.
+
+Running tests from 'C:\PROJECTS\repoMgr\repoMgr.sanity.Tests.ps1'
+Describing repoMgr Sanity Tests
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             { . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -backup -stats -topology -risk -dryrun | Out-Null } | Should -Not -Throw
+    <-- Timestamp: 260918-113829
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-default, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-default, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-default  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-default\repoMgr-logs\topology-260918-113833.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+  (no remote collisions detected)
+
+Path                                                          Role CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                          ---- ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-default Root main          main              False  True 0	0
+
+
+
+--------------------------------------------------------------------------------------------
+  === Creating full backup  ===
+      Caller: [archive-safecopy]
+--------------------------------------------------------------------------------------------
+[DRYRUN] Would archive 45 items from C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-default to C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-default\260918-113833-SafeCopy-backup.zip
+[DRYRUN] Would copy to C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-default
+  [+] Dry-run discovery and recovery reporting flow does not mutate state 23s (22.98s|20ms)
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
+    <-- Timestamp: 260918-113833
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-help, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-help, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-help  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-help\repoMgr-logs\topology-260918-113854.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+  (no remote collisions detected)
+
+Path                                                       Role CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                       ---- ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-help Root main          main              False  True 0	0
+
+
+
+--------------------------------------------------------------------------------------------
+  === repoMgr.ps1 — Flags  ===
+      Caller: [show-help]
+--------------------------------------------------------------------------------------------
+-all            : Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode
+-backup         : Full backup + safe-copy according to Config-File settings
+-backupdest     : Override config-file's backup destination (used with -backup)
+-collisions     : Detect remote URL collisions (multiple dirs → same remote) among submodules and nested Git repositories
+-dirtyonly      : Only branch repos with pending changes (for -recovery)
+-drBranch       : Override config-file's DR branch-prefix (used with -recovery)
+-dryrun         : (DEFAULT) No changes, only simulate (logged as DRYRUN)
+-force          : Enable destructive operations (overrides -dryrun)
+-lookback       : Override config-file's lookback period for analysis (e.g., 7d, 1m)
+-recovery       : Create DR branches (legacy alias: -dr)
+-reintegration  : Provides a scaffold for reintegrating a nested repository into your monorepo
+-risk           : (DEFAULT) Option-D (detached HEAD) risk analysis reporting across repos + smart divergence + forensic mode
+-stats          : (DEFAULT) Repo drift report
+-topology       : (DEFAULT) Capture the current topology of all repositories, including roles, branches, and remotes
+  [+] Shows help and resolves a valid repo branch under the current recovery/discovery config contract 16.89s (16.88s|5ms)
+Switched to a new branch 'main'
+  [+] Does not leak the previous fixture root across script invocations 4.72s (4.71s|4ms)
+  [-] Does not forcibly null the caller's active root during a no-execute import 82ms (79ms|4ms)
+   at $root | Should -Be 'C:\repoMgr-should-stay-active', C:\PROJECTS\repoMgr\repoMgr.sanity.Tests.ps1:128
+   at <ScriptBlock>, C:\PROJECTS\repoMgr\repoMgr.sanity.Tests.ps1:128
+   Expected strings to be the same, but they were different.
+   Expected length: 29
+   Actual length:   0
+   Strings differ at index 0.
+   Expected: 'C:\repoMgr-should-stay-active'
+   But was:  ''
+              ^
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -topology -dryrun | Out-Null
+    <-- Timestamp: 260918-113854
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-daily-audit, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-daily-audit, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-daily-audit  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-daily-audit\repoMgr-logs\topology-260918-113915.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+  (no remote collisions detected)
+
+Path                                                              Role CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                              ---- ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\sanity-daily-audit Root main          main              False  True 0	0
+
+
+  [-] Aggregates audit data into a single daily log under the fixture instead of creating orphaned topology files 15.22s (15.22s|5ms)
+   at $content | Should -Not -Match 'topology-.*\.json', C:\PROJECTS\repoMgr\repoMgr.sanity.Tests.ps1:157
+   at <ScriptBlock>, C:\PROJECTS\repoMgr\repoMgr.sanity.Tests.ps1:157
+   Expected regular expression 'topology-.*\.json' to not match '[
+     {
+       "runId": "c4d878bd-d16e-4aed-b7d8-3396cd0b32bb",
+       "timestamp": "2026-09-18T11:39:13.4610932-04:00",
+       "action": "INIT",
+       "path": "C:\\Users\\User\\AppData\\Local\\Temp\\repoMgr-tests\\sanity-daily-audit",
+       "root": "C:\\Users\\User\\AppData\\Local\\Temp\\repoMgr-tests\\sanity-daily-audit",
+       "dryRun": true,
+       "force": false,
+       "result": "Script started"
+     },
+     {
+       "runId": "c4d878bd-d16e-4aed-b7d8-3396cd0b32bb",
+       "timestamp": "2026-09-18T11:39:13.5628268-04:00",
+       "action": "CONFIG",
+       "path": "C:\\Users\\User\\AppData\\Local\\Temp\\repoMgr-tests\\sanity-daily-audit",
+       "root": "C:\\Users\\User\\AppData\\Local\\Temp\\repoMgr-tests\\sanity-daily-audit",
+       "dryRun": true,
+       "force": false,
+       "result": "\n--------------------------------------------------------------------------------------------\n   INVOCATION:             . \"$PSScriptRoot\\repoMgr.ps1\" -root $fixture -safedest $safeDir -lookback \"7 days ago\" -drBranch \"DR-TEST\" -topology -dryrun | Out-Null\r\n    <-- Timestamp: 260918-113854\n--------------------------------------------------------------------------------------------\n - Configuration: -- Root: C:\\Users\\User\\AppData\\Local\\Temp\\repoMgr-tests\\sanity-daily-audit, \n    --> SafeDest: C:\\Users\\User\\AppData\\Local\\Temp\\repoMgr-test-safe-daily-audit, \n    --  Lookback: 7 days ago, \n    --  DR Branch: DR-TEST\n--------------------------------------------------------------------------------------------"
+     },
+     {
+       "runId": "c4d878bd-d16e-4aed-b7d8-3396cd0b32bb",
+       "timestamp": "2026-09-18T11:39:20.5473073-04:00",
+       "action": "TOPOLOGY",
+       "path": "C:\\Users\\User\\AppData\\Local\\Temp\\repoMgr-tests\\sanity-daily-audit",
+       "root": "C:\\Users\\User\\AppData\\Local\\Temp\\repoMgr-tests\\sanity-daily-audit",
+       "dryRun": true,
+       "force": false,
+       "result": "C:\\Users\\User\\AppData\\Local\\Temp\\repoMgr-tests\\sanity-daily-audit\\repoMgr-logs\\topology-260918-113915.json"
+     }
+   ]
+   ', but it did match.
+
+Running tests from 'C:\PROJECTS\repoMgr\repoMgr.smoke.Tests.ps1'
+Describing repoMgr Smoke Tests
+  [+] Loads the current config contract used by recovery/discovery reporting 110ms (59ms|50ms)
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -stats -topology -risk -dryrun | Out-Null
+    <-- Timestamp: 260918-113929
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-default, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-smoke-default, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-default  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-default\repoMgr-logs\topology-260918-113932.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+  (no remote collisions detected)
+
+Path                                                         Role CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                         ---- ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-default Root main          main              False  True 0	0
+
+
+  [+] Runs the default reporting flow without mutation while preserving recovery triage safeguards 14.7s (14.7s|4ms)
+Switched to a new branch 'main'
+HEAD is now at df0942f base
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
+    <-- Timestamp: 260918-113932
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-risk, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-smoke-risk, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-risk  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: HEAD
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-risk\repoMgr-logs\topology-260918-113950.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+  (no remote collisions detected)
+
+Path                                                      Role CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                      ---- ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-risk Root HEAD          main               True  True 0	1
+
+
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis for C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-risk  ===
+      Caller: [Analyze-RepoRisk]
+--------------------------------------------------------------------------------------------
+Repo role       : Root
+Good branch     : main
+Detached HEAD at: 0d8fcd2755707ef81960103586bf436c7ab78ab5
+DRYRUN: would create archival branch for detached HEAD
+Merge-base between main and detached: df0942ffba2eb7616dde9be44ff505bc4367505b
+Bounded scan — commits in range df0942ffba2eb7616dde9be44ff505bc4367505b..0d8fcd2755707ef81960103586bf436c7ab78ab5 since 7 days ago
+Commits to analyze: 1
+
+Risk level for C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-risk: LOW
+  Role            : Root
+  Destructive     : 0
+  Stale           : 0
+  Divergent       : 1
+  Total files     : 1
+  Base score      : 1
+
+=== Summary Table (Option‑D) ===
+
+Commit                                   File    GoodTimestamp             DetachedTimestamp         IsStale IsDestructive
+------                                   ----    -------------             -----------------         ------- -------------
+0d8fcd2755707ef81960103586bf436c7ab78ab5 app.txt 2026-09-18 11:39:43 -0400 2026-09-18 11:39:46 -0400   False         False
+
+
+JSON written to: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-risk\repoMgr-logs\detached-analysis-smoke-risk-20260918-114016.json
+  [+] Performs a detached-head risk analysis when a repo is checked out detached 36.87s (36.87s|3ms)
+Switched to a new branch 'main'
+Enumerating objects: 3, done.
+Counting objects:  33% (1/3)Counting objects:  66% (2/3)Counting objects: 100% (3/3)Counting objects: 100% (3/3), done.
+Writing objects:  33% (1/3)Writing objects:  66% (2/3)Writing objects: 100% (3/3)Writing objects: 100% (3/3), 215 bytes | 7.00 KiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery-origin.git
+ * [new branch]      main -> main
+Switched to a new branch 'main'
+To C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery-origin.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery-origin.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+HEAD is now at cf811f7 base
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -all -backup -recovery -Force | Out-Null
+    <-- Timestamp: 260918-113950
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-smoke-force-recovery, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ FORCE MODE: Destructive operations are enabled.
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: HEAD
+  Pending changes: 3 total  [M:0  D:0  ?:3]
+
+  ── Untracked (3) ──
+
+Code Scope File
+---- ----- ----
+??   -     nested-repo/
+??   -     orphan.txt
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery\nested-repo  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery\repoMgr-logs\topology-260918-114053.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+ ⚠ Remote Collision ⚠  [Repo] — file://c:/users/user/appdata/local/temp/repomgr-tests/smoke-force-recovery-origin  ← C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery, C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery\nested-repo
+
+Path                                                                            Role     CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                                            ----     ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery             Root     HEAD          main               True  True 0	1
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery\nested-repo Standard main          main              False False 0	0
+
+
+
+ -- Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery 
+    Role          : Root
+    CurrentBranch : HEAD
+    GoodBranch    : main
+    DetachedHead  : Yes
+    Dirty         : Yes
+    Divergence    : 0	1
+Detached HEAD detected — creating archival branch: recovered-fef3021
+
+ -- Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery\nested-repo 
+    Role          : Standard
+    CurrentBranch : main
+    GoodBranch    : main
+    DetachedHead  : No
+    Dirty         : No
+    Divergence    : 0	0
+
+--------------------------------------------------------------------------------------------
+  === Creating DR branches (DR-TEST)  ===
+      Caller: [create-drBranches]
+--------------------------------------------------------------------------------------------
+git -C C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery checkout -b DR-TEST
+git -C C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery push -u origin DR-TEST
+git -C C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery checkout main
+git -C C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery\nested-repo checkout -b DR-TEST
+git -C C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery\nested-repo push -u origin DR-TEST
+WARNING: Command failed (1): git -C C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery\nested-repo push -u origin DR-TEST
+git -C C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery\nested-repo checkout main
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+ ⚠ Remote Collision ⚠  [Repo] — file://c:/users/user/appdata/local/temp/repomgr-tests/smoke-force-recovery-origin  ← C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery, C:\Users\User\AppData\Local\Temp\repoMgr-tests\smoke-force-recovery\nested-repo
+  [+] Forces recovery from detached HEAD, orphaned files, and same-remote collisions 102.4s (102.4s|4ms)
+
+Running tests from 'C:\PROJECTS\repoMgr\repoMgr.unit.Tests.ps1'
+Describing repoMgr Unit Tests
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -all -backup -recovery -dryrun | Out-Null
+    <-- Timestamp: 260918-114205
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-logdir, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-unit-logdir, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-logdir  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-logdir\repoMgr-logs\topology-260918-114209.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+  (no remote collisions detected)
+
+Path                                                       Role CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                       ---- ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-logdir Root main          main              False  True 0	0
+
+
+
+ -- Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-logdir 
+    Role          : Root
+    CurrentBranch : main
+    GoodBranch    : main
+    DetachedHead  : No
+    Dirty         : Yes
+    Divergence    : 0	0
+
+--------------------------------------------------------------------------------------------
+  === Creating DR branches (DR-TEST)  ===
+      Caller: [create-drBranches]
+--------------------------------------------------------------------------------------------
+⚠ DR branch creation requires -Force; running in DRYRUN-only mode.
+[DRYRUN] Would create DR branch 'DR-TEST' in C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-logdir (from main)
+[DRYRUN] Would push 'DR-TEST' to origin and then switch back to 'main'
+  [+] Creates the expected repo log directory during the recovery/discovery reporting flow 37.55s (37.52s|35ms)
+Switched to a new branch 'main'
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dirtyonly -dryrun | Out-Null
+    <-- Timestamp: 260918-114209
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-nested, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-unit-nested, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-nested  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 2 total  [M:0  D:0  ?:2]
+
+  ── Untracked (2) ──
+
+Code Scope File
+---- ----- ----
+??   -     nested-repo/
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-nested\nested-repo  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-nested\repoMgr-logs\topology-260918-114303.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+  (no remote collisions detected)
+
+Path                                                                   Role     CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                                   ----     ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-nested             Root     main          main              False  True 0	0
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-nested\nested-repo Standard main          main              False False 0	0
+
+
+  [+] Detects nested repos and respects dry-run-only repo operations used by triage work 47.42s (47.42s|7ms)
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -Force | Out-Null
+    <-- Timestamp: 260918-114303
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-safe-exec, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-unit-safe-exec, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ FORCE MODE: Destructive operations are enabled.
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-safe-exec  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-safe-exec\repoMgr-logs\topology-260918-114330.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+  (no remote collisions detected)
+
+Path                                                          Role CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                          ---- ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-safe-exec Root main          main              False  True 0	0
+
+
+git -C C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-safe-exec branch --show-current
+  [+] Executes git operations via structured arguments instead of string-evaluated shell commands 11.3s (11.29s|4ms)
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+   INVOCATION:             . "$PSScriptRoot\repoMgr.ps1" -root $fixture -safedest $safeDir -lookback "7 days ago" -drBranch "DR-TEST" -dryrun | Out-Null
+    <-- Timestamp: 260918-114330
+--------------------------------------------------------------------------------------------
+ - Configuration: -- Root: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-config-normalize, 
+    --> SafeDest: C:\Users\User\AppData\Local\Temp\repoMgr-test-safe-unit-config-normalize, 
+    --  Lookback: 7 days ago, 
+    --  DR Branch: DR-TEST
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Executing BASE REPORTING Tasks    ===
+      Caller: [repoMgr.ps1]
+--------------------------------------------------------------------------------------------
+⚠ SAFE MODE: Running in DRYRUN (no changes will be made).
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-config-normalize  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  Pending changes: 1 total  [M:0  D:0  ?:1]
+
+  ── Untracked (1) ──
+
+Code Scope File
+---- ----- ----
+??   -     repoMgr-logs/
+
+
+
+History since 7 days ago :
+
+--------------------------------------------------------------------------------------------
+  === Topology Snapshot  ===
+      Caller: [Write-TopologySnapshot]
+--------------------------------------------------------------------------------------------
+Topology snapshot written to C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-config-normalize\repoMgr-logs\topology-260918-114341.json
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+  (no remote collisions detected)
+
+Path                                                                 Role CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                                 ---- ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-config-normalize Root main          main              False  True 0	0
+
+
+  [+] Normalizes config overrides before repo discovery and recovery actions run 10.47s (10.47s|3ms)
+  [+] Builds a single config object before repo discovery and recovery actions run 18ms (16ms|2ms)
+Switched to a new branch 'main'
+  [+] Provides an argument-safe Git execution helper without using Invoke-Expression 3.81s (3.81s|5ms)
+Switched to a new branch 'main'
+  [+] Builds a repo inventory with explicit path and branch metadata 3.56s (3.56s|2ms)
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+  (no remote collisions detected)
+
+Path                                                                  Role CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                                  ---- ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-report-separation Root main          main              False False 0	0
+
+
+  [+] Separates risk analysis data from report rendering and keeps output formatting side-effect free 5.46s (5.46s|3ms)
+Switched to a new branch 'main'
+
+--------------------------------------------------------------------------------------------
+  === Repo Drift Report  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+  === Repo: C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-single-pass  ===
+      Caller: [write-repoStats]
+--------------------------------------------------------------------------------------------
+Branch: main
+  (clean — no pending changes)
+
+History since  :
+  (no commits in window:  → now)
+
+--------------------------------------------------------------------------------------------
+  === Risk Analysis (Opt-D: Smart Divergence + Forensic Mode)  ===
+      Caller: [Write-RiskReport]
+--------------------------------------------------------------------------------------------
+  (DRYRUN: No Mutations Will Occur)
+
+--------------------------------------------------------------------------------------------
+  === Detecting Remote Collisions  ===
+      Caller: [Get-RemoteCollisions]
+--------------------------------------------------------------------------------------------
+  (no remote collisions detected)
+
+Path                                                            Role CurrentBranch GoodBranch DetachedHead Dirty Divergence
+----                                                            ---- ------------- ---------- ------------ ----- ----------
+C:\Users\User\AppData\Local\Temp\repoMgr-tests\unit-single-pass Root main          main              False False 0	0
+
+
+  [+] Reuses a single repo inventory across reporting functions instead of rescanning the repo tree 6.81s (6.8s|3ms)
+Tests completed in 344.16s
+Tests Passed: 16, Failed: 2, Skipped: 0, Inconclusive: 0, NotRun: 0
+
+================================================================================
+TEST SUMMARY: 88.9%
+================================================================================
+Command:       cd C:\PROJECTS\repoMgr; psst repoMgr
+Total Tests:   18
+Passed:        16
+Failed:        2
+Skipped:       0
+Duration:      00:05:44.1645844
+
+Failed tests:
+ - [repoMgr Sanity Tests Does not forcibly null the caller's active root during a no-execute import] | Does not forcibly null the caller's active root during a no-execute import
+ - [repoMgr Sanity Tests Aggregates audit data into a single daily log under the fixture instead of creating orphaned topology files] | Aggregates audit data into a single daily log under the fixture instead of creating orphaned topology files
+================================================================================
+  - cmd: cd C:\PROJECTS\repoMgr; psst repoMgr
+  - now: 18/09/2026 11:44:07
+  - ip:  72.90.132.210
+[TELEMETRY DEBUG] Write-TelemetryEvent completed
+1
+

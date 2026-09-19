@@ -8,9 +8,9 @@
 #           current v0.6.3 dispatcher-safe reporting flow.
 # REQUIRES: Git, PowerShell 7+, and repository context.
 # CREATED:  260827 BY: Joe Negron (LogicWizards.NYC)
-# UPDATED:  260915 BY: SOLOMON(MAI-Code-1.1-Flash)::Copilot::repoMgr.WIZ-00.TOOLS
+# UPDATED:  260918 BY: Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  v0.6.4.2
+# VERSION:  v0.6.4.5
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html>
 # NOTES:  Use in conjunction with README.md and the Git forensics notes.
 #--------------------------------------------------------------------------#>
@@ -25,6 +25,27 @@
 
 ---
 ## CHANGES (Desc)
+###     **260918 - v0.6.4.5** - CLI flag contract realigned to the one-page spec; `-all` collision data restored.
+- validation-first conformance pass: the documented flag surface and the dispatcher now agree.
+    - **(FIX)** `Analyze-AllRepoRisk` was invoked with no arguments despite declaring `-collisions` and `-RepoInventory`, so forensic mode always evaluated `$collisions` as `$null` and silently dropped every collision finding from the `-all` deep dive. The dispatcher now passes the cached collision set.
+    - **(FIX)** `-backupdest` was documented but never declared in `param()`; the dispatcher read an undeclared `$backupdest` while the real switch was `-safedest`. `-backupdest` is now a first-class parameter (the config-file key remains `safedest`).
+    - **(FIX)** `-collisions` was declared but never read by the dispatcher. Used alone it is now a fast path that reports collisions and returns before base reporting; combined with any other flag it runs inside the normal full sweep.
+    - **(FIX)** `-recovery` gained `[Alias('dr')]`; previously `-dr` threw as an ambiguous prefix against `-drBranch` and `-dryrun`.
+    - **(TEST)** Added five flag-contract acceptance tests covering `-backupdest` binding, the `-dr` alias, both `-collisions` paths, and collision propagation into `-all`.
+    - **(TEST)** Tagged every Describe block (`Sanity`/`Smoke`/`Unit`) so the `psst <subset>` filter selects tests instead of returning zero; required because the aggregate suite now exceeds the terminal-bridge timeout.
+    - **(DOC)** Rewrote the in-script USAGE/OPTIONS block, which still carried the stale v0.6.3 claim that `-all` executes backup + stats + recovery + reintegration. Per the one-page spec, `-all` triggers `Analyze-AllRepoRisk` only, and `-backup`/`-backupdest` are honored only when `-all` is not set.
+
+---
+
+###     **260916 - v0.6.4.4** - Reporting/output separation with UX spinner and regression guard.
+- validation-first refactor cleanup while preserving live discovery, recovery, and triage work.
+    - **(MOD)** Added `Get-RepoRiskReport` + `Write-RepoRiskReport` to separate repository analysis logic from final report rendering.
+    - **(UX)** Reworked the simple spinner so the reporting path shows live progress without noisy terminal churn.
+    - **(TEST)** Added a regression covering the report-data/render boundary to keep output formatting side-effect free.
+    - **(DOC)** Refreshed the roadmap and AI workflow docs to advance the active milestone to the P4 reporting-separation workstream.
+
+---
+
 ###     **260915 - v0.6.4.3** - Single-pass repo discovery: inventory reused across the reporting pipeline.
 - validation-first refactor cleanup while preserving live discovery, recovery, and triage work.
     - **(MOD)** Added a reusable repo inventory path to the reporting pipeline so the same inventory object is shared across drift, topology, and risk analysis instead of rescanning the filesystem on each pass.
