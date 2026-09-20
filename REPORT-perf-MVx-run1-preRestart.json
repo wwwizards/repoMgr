@@ -1,0 +1,51 @@
+{
+  "_note": "Preserved copy of REPORT-perf-MVx.json from MVx run 1 (before the 260919 VS Code restart). Kept for A/B comparison against the post-restart run, which overwrites REPORT-perf-MVx.json in place.",
+  "generated": "2026-09-19T06:53:14.7299500-04:00",
+  "iterations": 3,
+  "experiment": "All",
+  "fixtureBuildMs": 77959.5,
+  "results": {
+    "E1_Total": {
+      "Measure": "Total run (ms)",
+      "Min": 41778.9,
+      "Median": 49426.6,
+      "Max": 81330.9,
+      "Spread": "95%"
+    },
+    "E2_GitMs": {
+      "Measure": "Time in git (ms)",
+      "Min": 32904.3,
+      "Median": 41377.7,
+      "Max": 66201.0,
+      "Spread": "101%"
+    },
+    "E3_seed0": {
+      "Measure": "seed=0 entries",
+      "Min": 42491.0,
+      "Median": 52561.6,
+      "Max": 55073.0,
+      "Spread": "30%"
+    },
+    "E3_seed250": {
+      "Measure": "seed=250 entries",
+      "Min": 37757.1,
+      "Median": 45190.3,
+      "Max": 67632.2,
+      "Spread": "79%"
+    },
+    "E3_seed1000": {
+      "Measure": "seed=1000 entries",
+      "Min": 30518.2,
+      "Median": 30830.6,
+      "Max": 40311.5,
+      "Spread": "32%"
+    },
+    "E3_seed2500": {
+      "Measure": "seed=2500 entries",
+      "Min": 37750.9,
+      "Median": 38517.5,
+      "Max": 46195.7,
+      "Spread": "22%"
+    }
+  }
+}

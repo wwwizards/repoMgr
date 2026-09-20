@@ -1,6 +1,6 @@
 # repoMgr Roadmap v0.7.x
 > **Generated: 260915** | **Source:** repoMgr reporting + architecture review
-> **Target script version:** v0.6.4.7
+> **Target script version:** v0.6.4.8
 > **Targeted Repos For Cleanup:** LogicWizards-core: as identified by `REPORT-260914-all-backup-recovery.txt`
 > ***Last updated:** 260918 BY: Copilot::repoMgr.WIZ-00.TOOLS
 > — See [README.md](README.md), [CHANGELOG.md](CHANGELOG.md), [repoMgr.ps1](repoMgr.ps1), [repoMgr.sanity.Tests.ps1](repoMgr.sanity.Tests.ps1), [repoMgr.smoke.Tests.ps1](repoMgr.smoke.Tests.ps1), and [repoMgr.unit.Tests.ps1](repoMgr.unit.Tests.ps1) for current context.
@@ -335,34 +335,49 @@ $Rules = [pscustomobject]@{
 
 ### [ ] Priority 8 — Improve error handling and no-output handling
 
-> **PROMOTED (260919), then DEMOTED the same day by measurement.** This priority still owns the **audit-log O(n²) defect**: `log` re-reads, re-parses, and re-serializes the *entire* daily audit JSON on **every** entry, and `repoMgr-audit-<date>.json` is a per-root daily file, so the cost compounds within a run and across runs on the same day. The defect is **real in code**. It is **not** the top performance cost.
+> **PROMOTED (260919), demoted the same day, then RE-CONFIRMED by a clean re-measurement.** This priority owns the **audit-log O(n²) defect**: `log` re-reads, re-parses, and re-serializes the *entire* daily audit JSON on **every** entry, and `repoMgr-audit-<date>.json` is a per-root daily file, so cost compounds within a run and across runs on the same day. **The defect is real and it is measurable.**
 >
-> **MVx evidence (260919, `REPORT-perf-MVx.json`, n=3 per level):** medians by pre-seeded entry count were 0 → 52.6s, 250 → 45.2s, 1000 → 30.8s, 2500 → 38.5s. Medians **do not climb with seed size**. Read this as *underpowered, not acquitted* — spread was 22–79%, so a few seconds of real log cost would hide inside the noise band. The correct conclusion is "not material at ≤2500 entries," and the fix is now a **correctness/tidiness** item rather than a performance item.
+> **Why it was briefly demoted — a measurement error worth remembering.** MVx run 1 found medians of 0 → 52.6s, 250 → 45.2s, 1000 → 30.8s, 2500 → 38.5s and concluded "no scaling effect." That conclusion was an artifact of a **polluted environment**: run 1 was taken with heavy terminal/subshell sprawl, producing 95–101% spread. A real ~43% effect cannot be seen through a ±100% noise band. **The experiment was not wrong; the environment was.**
 >
-> Candidate fixes unchanged: buffer entries in memory and flush once (plus flush on error, to preserve forensic value), or switch to append-only NDJSON — noting NDJSON breaks the current JSON-array consumers and tests. Measure before and after.
-
-> **THE ACTUAL TOP COST IS GIT SPAWN TIME.** Same MVx artifact: median total run 49.4s, of which **41.4s (~84%) was spent inside `git.exe`**. Building the throwaway fixture — one bare origin, one root repo, one nested repo, a handful of trivial files — took **78.0s** on its own. That ratio points at per-spawn process cost (plausibly on-access AV scanning of `.git`), not at any single hot function. This is consistent with v0.6.4.6's 3.1× win coming purely from *removing redundant spawns*.
+> **MVx run 2 (260919, post VS Code restart, n=3 per level):**
 >
-> **Open, unmeasured:** the harness recorded `GitMs` but not `GitSpawns`, so per-spawn cost is not yet known. Next experiment must divide time by count before any optimization is chosen.
-
-> **ROOT CAUSE FOUND (260919, spawn-cost probe, n=30 medians after warm-up):**
->
-> | probe | median | isolates |
+> | seed entries | median | spread |
 > |---|---|---|
-> | `cmd /c exit` | 122.8 ms | bare process creation (control) |
-> | `git --version` | 389.0 ms | git launch, zero repo I/O |
-> | `git rev-parse --abbrev-ref HEAD` | 375.8 ms | git launch + `.git` read |
-> | `git status --short` | 415.8 ms | git launch + worktree scan |
+> | 0 | 16,251.7 ms | 4% |
+> | 250 | 19,681.8 ms | 36% |
+> | 1000 | 18,628.5 ms | 8% |
+> | 2500 | 23,316.4 ms | 7% |
 >
-> `rev-parse` ≈ `--version`, so reading `.git` is **free**. `status` adds only ~27–40 ms, so git's real work is **~7% of a call**. The remaining **~93% is process-creation overhead**, and the `cmd` control proves it is not git-specific: a no-op process still costs 123 ms here, roughly 10× a healthy Windows box. Strongly consistent with on-access AV/Defender scanning every process launch (git.exe pays more than cmd.exe because it loads far more DLLs).
+> Seed 0 → 2500 is **+7.06s (+43%)** across tight spreads. The 250 point is out of order but is the single noisy sample (36%); the 0/1000/2500 trend is clean. A run performs only **5 log writes**, so ~7s of added cost implies **~1.4s per write** against a 2,500-entry file — the O(n)-per-write signature, confirming O(n²) overall.
 >
-> **Derived spawn count:** 41.4s git time ÷ 0.389s per spawn ≈ **~106 git spawns per run**.
+> **This is a growing, unbounded cost in production.** Within a single run 5 entries is trivial; the damage is that the daily per-root file accumulates across *every* run that day, so the penalty compounds as the day goes on and resets only at midnight.
 >
-> **Environment check (260919):** Windows Defender is the **only** registered AV and **real-time protection is enabled**. Exclusion lists could not be read (requires admin). This is *consistent with* the 123 ms no-op process cost but does **not prove causation** — proving it would require toggling real-time protection, which is an elevated, security-reducing action and was deliberately not performed.
+> Candidate fixes: buffer entries in memory and flush once (plus flush on error, to preserve forensic value), or switch to append-only NDJSON — noting NDJSON breaks the current JSON-array consumers and tests. Measure before and after, **on a freshly restarted host**.
 >
-> **Consequences — there is no hot function to optimize:**
-> 1. **In-code lever: reduce spawn *count*.** This is the only thing the script controls, and it is exactly why v0.6.4.6's inventory-first change delivered 3.1×. Combining reads (e.g. `git status --short --branch` for branch + dirty in one spawn) is worth ~389 ms each time it removes a call.
-> 2. **Out-of-code lever, larger: AV exclusions.** An exclusion for the repo paths and/or `git.exe` is an **environment/security decision for the operator, not a code change** — it trades scan coverage for speed and must not be applied by tooling. If launch dropped to ~60 ms, ~106 spawns fall from ~41s to ~6s.
+> **[x] FIXED in v0.6.4.8 (260919).** Implemented as parse-once + buffered single flush, keeping the JSON-array format (NDJSON was rejected because it breaks existing consumers and tests). Cost breakdown measured directly at 2500 entries before choosing: `ConvertFrom-Json` **450.3ms (66%)**, `ConvertTo-Json` 164.2ms (24%), `Set-Content` 50.9ms (7%), `Get-Content` 18.4ms (3%), array `+=` 1.4ms (~0%). Parse-once was therefore the higher-value half, contradicting the original assumption that the array copy or the write was to blame.
+>
+> Result — seed-scaling slope, measured within one session so host drift cancels: **+43.5% → −0.8%** (seed 0 → 2500). 22/22 tests green. Durability preserved: `finally` wraps the task dispatch (verified empirically that PowerShell runs `finally` on `exit` and keeps the exit code), early-exit paths flush explicitly, and the run header flushes right after `CONFIG`. The cache is keyed on the resolved log path so dot-sourced re-runs against a new root reload rather than inherit stale entries.
+
+> **GIT SPAWNS REMAIN THE #1 COST \u2014 and the spawn count is 24, not ~106.** MVx run 2 (clean host): median run 15,356.7 ms, of which **11,284.6 ms (~73%) was inside `git.exe`**, across a **counted 24 git spawns**. The earlier ~106 figure was produced by *dividing* run-1 git time by a probe's per-spawn cost; the harness had been reporting the true count all along. Read the instrument, do not reconstruct it.
+>
+> **Per-spawn cost is dominated by the host, not by git.** The same 24 spawns cost 41,377 ms pre-restart (**1,724 ms each**) versus 11,284 ms post-restart (**470 ms each**) \u2014 identical code, identical spawn count, **3.7\u00d7 difference from environment alone**.
+>
+> Spawn-cost probe (n=30 medians, warmed), pre-restart \u2192 post-restart:
+>
+> | probe | pre | post | isolates |
+> |---|---|---|---|
+> | `cmd /c exit` | 122.8 ms | 102.6 ms | bare process creation (control) |
+> | `git --version` | 389.0 ms | 241.8 ms | git launch, zero repo I/O |
+> | `git rev-parse --abbrev-ref HEAD` | 375.8 ms | 360.1 ms | git launch + `.git` read |
+> | `git status --short` | 415.8 ms | 309.8 ms | git launch + worktree scan |
+>
+> Caveat on the post column: `rev-parse` measuring *slower* than `status` is impossible (status strictly does more work), so single-probe precision is only ~\u00b150 ms. The structural conclusion survives regardless \u2014 a **no-op** process still costs ~103 ms here (a healthy box is 10\u201320 ms), git costs 2.4\u20133.5\u00d7 that, and git's own work stays inside the noise.
+>
+> **Environment check (260919):** Windows Defender is the **only** registered AV and **real-time protection is enabled**. Exclusion lists could not be read (requires admin). This is *consistent with* the ~100 ms no-op process cost but does **not prove causation** \u2014 proving it would require toggling real-time protection, an elevated and security-reducing action that was deliberately not performed.
+>
+> **Consequences \u2014 there is no hot function to optimize:**
+> 1. **In-code lever: reduce the spawn count of 24.** This is the only thing the script controls, and it is why v0.6.4.6's inventory-first change delivered its win. Combining reads (e.g. `git status --short --branch` for branch + dirty in one spawn) is worth ~470 ms per call removed.
+> 2. **Out-of-code lever, larger: host hygiene and AV exclusions.** An exclusion for the repo paths and/or `git.exe` is an **environment/security decision for the operator, not a code change** \u2014 it trades scan coverage for speed and must not be applied by tooling.
 >
 > **Do not** pursue PowerShell-side micro-optimization for performance. The measurement says it cannot pay.
 

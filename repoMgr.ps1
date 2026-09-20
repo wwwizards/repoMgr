@@ -14,7 +14,7 @@
 # CREATED:  260828 BY: Joe Negron (LogicWizards.NYC)
 # UPDATED:  260918 BY: Copilot::repoMgr.WIZ-00.TOOLS
 # COMPANY:  LogicWizards.NYC <LogicWizards.NYC>
-# VERSION:  v0.6.4.7
+# VERSION:  v0.6.4.8
 #           SEE: CHANGELOG.md for more details
 # LICENSE:  AGPL-3.0 <https://www.gnu.org/licenses/agpl-3.0.html> 
 #               ~ FEE: $00 = for academic and non-commercial use. (requires attribution)
@@ -314,6 +314,46 @@ function Initialize-Logging {
     if (-not (Test-Path $script:logFile)) {
         @() | ConvertTo-Json -Depth 5 | Set-Content -Path $script:logFile -Encoding UTF8
     }
+
+    # Parse the daily audit ONCE per run. Re-parsing it on every entry was the O(n^2)
+    # cost; ConvertFrom-Json measured 66% of a write at 2500 entries. Keyed on the
+    # resolved path so a dot-sourced re-run against a different root reloads instead
+    # of inheriting the previous fixture's entries.
+    if ($script:auditCacheKey -ne $script:logFile) {
+        $script:auditEntries = [System.Collections.Generic.List[object]]::new()
+        $existing = Get-Content -Path $script:logFile -Raw -ErrorAction SilentlyContinue
+        if ($existing -and $existing.Trim()) {
+            try {
+                $parsed = $existing | ConvertFrom-Json -Depth 10
+                if ($null -ne $parsed) {
+                    foreach ($p in @($parsed)) { [void]$script:auditEntries.Add($p) }
+                }
+            }
+            catch {
+                $script:auditEntries.Clear()
+            }
+        }
+        $script:auditCacheKey = $script:logFile
+        $script:auditDirty    = $false
+    }
+}
+
+#------------------------------------------------------------------------------#>
+# --- FUNCTION: Write-AuditLog - Flush buffered audit entries to disk ---
+#------------------------------------------------------------------------------#>
+# DESCRIPTION: Serializes the in-memory audit buffer to the daily audit file.
+#              Idempotent and safe to call on any exit path; a no-op when nothing
+#              has changed since the last flush.
+# RETURNS: None.
+#------------------------------------------------------------------------------#>
+function Write-AuditLog {
+    if (-not $script:auditDirty) { return }
+    if (-not $script:logFile) { return }
+
+    # -InputObject (not the pipeline) keeps a single-entry log a JSON *array*.
+    ConvertTo-Json -InputObject @($script:auditEntries) -Depth 6 |
+        Set-Content -Path $script:logFile -Encoding UTF8
+    $script:auditDirty = $false
 }
 
 #------------------------------------------------------------------------------#>
@@ -324,28 +364,11 @@ function Initialize-Logging {
 #     [string]$action - The action being logged (e.g., "DRYRUN", "EXEC", "NESTED", "BACKUP", "RISK").
 #     [string]$path   - The path associated with the action.
 #     [string]$result - The result or message to log.
-# RETURNS: None. Logs the specified action to the audit file as a JSON array entry.
+# RETURNS: None. Buffers the entry; Write-AuditLog persists it as a JSON array entry.
 #------------------------------------------------------------------------------#>
 function log {
     param([string]$action, [string]$path, [object]$result)
     Initialize-Logging
-
-    $fileContent = Get-Content -Path $script:logFile -Raw -ErrorAction SilentlyContinue
-    $entries = @()
-    if ($fileContent -and $fileContent.Trim()) {
-        try {
-            $parsed = $fileContent | ConvertFrom-Json -Depth 10
-            if ($parsed -is [System.Array]) {
-                $entries = @($parsed)
-            }
-            elseif ($null -ne $parsed) {
-                $entries = @($parsed)
-            }
-        }
-        catch {
-            $entries = @()
-        }
-    }
 
     $runId = if ($script:runId) { $script:runId } else { $script:runId = [guid]::NewGuid().ToString(); $script:runId }
     $entry = [ordered]@{
@@ -358,8 +381,8 @@ function log {
         force    = [bool]$Force
         result   = $result
     }
-    $entries += [pscustomobject]$entry
-    $entries | ConvertTo-Json -Depth 6 | Set-Content -Path $script:logFile -Encoding UTF8
+    [void]$script:auditEntries.Add([pscustomobject]$entry)
+    $script:auditDirty = $true
 }
 
 
@@ -1795,11 +1818,16 @@ log "CONFIG" $root ([ordered]@{
     mode       = if ($Force) { 'EXEC' } else { 'DRYRUN' }
 })
 
+# Persist the run header before discovery begins, so a crash in inventory still
+# leaves evidence that this run started.
+Write-AuditLog
+
 $repoInventory = Get-RepoInventory -Root $root -Config $config
 
 # --- Guard: validate the resolved root before anything else runs ---
 if (-not (Test-Path $root)) {
     Write-Error "root path does not exist: '$root' — aborting."
+    Write-AuditLog
     exit 1
 }
 
@@ -1822,11 +1850,12 @@ if ($null -eq $repoInventory) {
 }
 
 #------------------------------------------------------------------------------#>
-if ($help) { show-help; exit }
+if ($help) { show-help; Write-AuditLog; exit }
 
 # -collisions used alone is a fast path: report collisions, then stop before base reporting.
 if ($collisions -and -not ($all -or $backup -or $recovery -or $reintegration -or $stats -or $topology -or $risk)) {
     Get-RemoteCollisions -RepoInventory $repoInventory | Out-Null
+    Write-AuditLog
     $global:LASTEXITCODE = 0
     return
 }
@@ -1836,30 +1865,37 @@ Write-Banner "Executing BASE REPORTING Tasks  "
 # In v0.6+ EVERYTHING defaults to DRYRUN mode unless -Force is explicitly set. #>
 # This prevents accidental branch creation or destructive operations.          #>
 #------------------------------------------------------------------------------#>
-if (-not $Force) {
-    Write-Host "⚠ SAFE MODE: Running in DRYRUN (no changes will be made)." -ForegroundColor Yellow
-    $dryrun = $true
-} else { 
-    Write-Host "⚠ FORCE MODE: Destructive operations are enabled." -ForegroundColor Red
-    $dryrun = $false
-}
+# finally guarantees the buffered audit reaches disk on return, exit, or a
+# terminating error - the reporting tasks below log per-repo inside loops.
+try {
+    if (-not $Force) {
+        Write-Host "⚠ SAFE MODE: Running in DRYRUN (no changes will be made)." -ForegroundColor Yellow
+        $dryrun = $true
+    } else { 
+        Write-Host "⚠ FORCE MODE: Destructive operations are enabled." -ForegroundColor Red
+        $dryrun = $false
+    }
 
-# DISCOVER/DIAGNOSE TASKS 
-write-repoStats -RepoInventory $repoInventory         # Drift Detection
-Write-TopologySnapshot -RepoInventory $repoInventory  # Capture topology of all repos & submodules for handoff to AI-Agents 
-Write-RiskReport -RepoInventory $repoInventory        # Analyze risk across all repositories (>6.2+ NOW includes collision detection)
+    # DISCOVER/DIAGNOSE TASKS 
+    write-repoStats -RepoInventory $repoInventory         # Drift Detection
+    Write-TopologySnapshot -RepoInventory $repoInventory  # Capture topology of all repos & submodules for handoff to AI-Agents 
+    Write-RiskReport -RepoInventory $repoInventory        # Analyze risk across all repositories (>6.2+ NOW includes collision detection)
 
-# ORTHOGONAL KNOBS - Variates which can be treated as statistically independent
-# The -all suppression of -backup is a legacy timing workaround, not a safety rule:
-# cloud safecopy could outlast the run window. See ROADMAP-v0.7.x.md P5.
-if (($backup -or $backupdest) -and $all) {
-    Write-Warning "Backup skipped: -backup / -backupdest are ignored when -all is set. Run ``repoMgr.ps1 -backup`` separately, without the -all flag."
+    # ORTHOGONAL KNOBS - Variates which can be treated as statistically independent
+    # The -all suppression of -backup is a legacy timing workaround, not a safety rule:
+    # cloud safecopy could outlast the run window. See ROADMAP-v0.7.x.md P5.
+    if (($backup -or $backupdest) -and $all) {
+        Write-Warning "Backup skipped: -backup / -backupdest are ignored when -all is set. Run ``repoMgr.ps1 -backup`` separately, without the -all flag."
+    }
+    if (($backup -or $backupdest) -and -not $all)    { archive-safecopy    } # (full backup + safe-copy) trigger 
+    if ($all)               { Analyze-ALLRepoRisk -collisions $script:lastCollisions -RepoInventory $repoInventory }   # Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode
+    # REPAIR MODE: Default = DRYRUN unless -Force is passed (USE CAUTION: WHEN RISK IS HIGH OR COLLISIONS ARE POSSIBLE)
+    if ($recovery)          { create-drBranches         }   # as of v0.5.x - includes DirtyRepo branching logic 
+    if ($reintegration )    { reintegrate-nestedRepo    }   # Provides a scaffold for reintegrating a nested repository into the monorepo.
 }
-if (($backup -or $backupdest) -and -not $all)    { archive-safecopy    } # (full backup + safe-copy) trigger 
-if ($all)               { Analyze-ALLRepoRisk -collisions $script:lastCollisions -RepoInventory $repoInventory }   # Deep-Dive Risk Analysis across ALL Repos & Branches - Forensic Mode
-# REPAIR MODE: Default = DRYRUN unless -Force is passed (USE CAUTION: WHEN RISK IS HIGH OR COLLISIONS ARE POSSIBLE)
-if ($recovery)          { create-drBranches         }   # as of v0.5.x - includes DirtyRepo branching logic 
-if ($reintegration )    { reintegrate-nestedRepo    }   # Provides a scaffold for reintegrating a nested repository into the monorepo.
+finally {
+    Write-AuditLog
+}
 
 # Benign probes such as `git remote get-url origin` on a remote-less repo leave a
 # non-zero $LASTEXITCODE behind even though the reporting flow itself succeeded.

@@ -25,6 +25,15 @@
 
 ---
 ## CHANGES (Desc)
+###     **260919 - v0.6.4.8** - Fix the `log` O(n²) audit-write defect.
+- Performance fix, validated by measurement before and after.
+    - **(PERF)** `log` no longer re-reads, re-parses, and re-serializes the entire daily audit JSON on every entry. `Initialize-Logging` now parses the file **once per run** into an in-memory `List[object]`, and the new `Write-AuditLog` flushes it **once**. Direct measurement at 2500 entries showed `ConvertFrom-Json` was 66% of a write (450.3ms of ~684ms), which is why parse-once was the higher-value half of the fix.
+    - **(PERF)** MVx seed-scaling slope, measured within a single session so host drift cancels: seed 0 → seed 2500 went from **+43.5%** to **−0.8%**. Runtime no longer scales with pre-existing audit size — which matters most on the live monorepo, where `log` is called *inside per-repo loops* so write count scales with repo count.
+    - **(SAFETY)** The flush is guaranteed on every exit path. `finally` wraps the task dispatch (verified empirically that PowerShell runs `finally` on `exit` and preserves the exit code); the root guard, `-help`, and the `-collisions` fast path flush explicitly; and the run header flushes immediately after `CONFIG` so a crash during discovery still leaves evidence the run started.
+    - **(CORRECTNESS)** The parse-once cache is keyed on the resolved log-file path, so a dot-sourced re-run against a different root reloads instead of inheriting the previous fixture's entries. Guarded by the existing sanity test "Does not leak the previous fixture root across script invocations".
+    - **(FORMAT)** `Write-AuditLog` serializes via `-InputObject` rather than the pipeline, so a single-entry log is now a JSON **array** instead of a bare object. This removes a long-standing inconsistency; the reader already tolerated both shapes.
+    - **(NOTE)** This does **not** reduce total runtime. Git remains ~77% of a run across a counted 24 spawns; spawn-count reduction is the next performance lever.
+
 ###     **260919 - v0.6.4.7** - Surface the silent `-all` backup suppression instead of hiding it.
 - UX fix for a legacy workaround that had been mistaken for a designed contract.
     - **(UX)** `-all` combined with `-backup` / `-backupdest` now emits a warning naming the exact remedy ("run `repoMgr.ps1 -backup` separately, without the -all flag") instead of silently discarding the backup. Chosen over a hard throw so existing runs and tests stay valid.

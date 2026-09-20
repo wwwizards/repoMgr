@@ -4,7 +4,24 @@ TESTING.md
 > I verified this in the required TOOLS terminal with:`Set-Location 'C:\PROJECTS\repoMgr'; psst repoMgr -Quiet -Output Minimal -PassThru`
 > 
 ---
-# TEST RESULTS (TODO: Rev-Sort - newest on top)
+# TEST RESULTS 
+ #TODO: Rev-Sort - newest on top
+
+## 2026-09-19T18:00:00
+- v0.6.4.8 fixed the `log` O(n²) defect by parsing the daily audit **once per run** into an in-memory buffer and flushing it **once** under a `finally`, instead of re-reading, re-parsing, and re-serializing the whole file on every entry; expected result: all 22 tests stay green, the audit file keeps its JSON-array shape, and run time stops scaling with pre-existing audit size.
+  > Tests completed in 134.67s (sanity)
+  > Tests Passed: 9, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+  > Tests completed in 82.69s  (unit)
+  > Tests Passed: 9, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+  > Tests completed in 51.49s  (smoke)
+  > Tests Passed: 4, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+  > TEST SUMMARY: 100%
+  > Total Tests: 22
+  > Duration: 00:04:28.85 (268.85s summed across tiers)
+
+**Conclusion:** 22/22 green on disposable fixtures. The decisive evidence is the MVx seed-scaling slope, measured **within a single session** so it is immune to host drift: seed 0 → seed 2500 went from **+43.5%** (16,251.7 → 23,316.4 ms) before the fix to **−0.8%** (17,192.3 → 17,055.1 ms) after. The cost breakdown that drove the design was measured directly at 2500 entries — `ConvertFrom-Json` 450.3ms (66%), `ConvertTo-Json` 164.2ms (24%), `Set-Content` 50.9ms (7%), `Get-Content` 18.4ms (3%), array `+=` 1.4ms (~0%) — which is why parse-once mattered more than buffering, though both were implemented. The sanity test "Does not leak the previous fixture root across script invocations" is the guard for the new parse-once cache and passed; the cache is keyed on the resolved log-file path precisely so a dot-sourced re-run against a new root reloads rather than inheriting the previous fixture's entries. Remediation path: **do not read a total-runtime win into this run.** E1 median rose 15.36s → 19.31s, but git time rose in lockstep (11.28s → 14.80s; 470ms → 617ms per spawn) on code that was not touched, and E3 spreads degraded to 41/55/136/13% with a 40,188ms outlier at seed=1000 — this host had drifted after three test tiers. Only the within-run slope is trustworthy here. Git remains ~77% of runtime across a counted 24 spawns, so spawn-count reduction is the next performance lever, not further log work.
+
+---
 
 ## 2026-09-19T12:00:00
 - v0.6.4.7 replaced the silent `-all` backup suppression with an explicit warning naming the remedy, and documented it in `show-help`; expected result: the two tests that pass `-all -backup` still pass, because a warning does not fail a run.
