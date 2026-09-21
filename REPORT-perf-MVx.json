@@ -1,0 +1,50 @@
+{
+  "generated": "2026-09-19T09:33:53.2474981-04:00",
+  "iterations": 3,
+  "experiment": "All",
+  "fixtureBuildMs": 7349.7,
+  "results": {
+    "E1_Total": {
+      "Measure": "Total run (ms)",
+      "Min": 17607.7,
+      "Median": 19306.1,
+      "Max": 21599.6,
+      "Spread": "23%"
+    },
+    "E2_GitMs": {
+      "Measure": "Time in git (ms)",
+      "Min": 13280.4,
+      "Median": 14798.1,
+      "Max": 16620.7,
+      "Spread": "25%"
+    },
+    "E3_seed0": {
+      "Measure": "seed=0 entries",
+      "Min": 14966.3,
+      "Median": 17192.3,
+      "Max": 21028.3,
+      "Spread": "41%"
+    },
+    "E3_seed250": {
+      "Measure": "seed=250 entries",
+      "Min": 15872.2,
+      "Median": 16604.0,
+      "Max": 24651.8,
+      "Spread": "55%"
+    },
+    "E3_seed1000": {
+      "Measure": "seed=1000 entries",
+      "Min": 16997.9,
+      "Median": 19111.9,
+      "Max": 40188.1,
+      "Spread": "136%"
+    },
+    "E3_seed2500": {
+      "Measure": "seed=2500 entries",
+      "Min": 16838.4,
+      "Median": 17055.1,
+      "Max": 18965.3,
+      "Spread": "13%"
+    }
+  }
+}
